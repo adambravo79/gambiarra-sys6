@@ -8,87 +8,93 @@ export class GambiarraActor extends Actor {
     html.find(".roll-desafio").click(() => rollDesafio(this));
     html.find(".add-power").click(() => this._despertarPoder());
     html.find(".clear-bug").click(() => this._resolverBug());
-
     html.find(".use-power").click(ev => {
       const index = ev.currentTarget.dataset.index;
       this._ativarPoder(index);
     });
-
-html.find(".use-item-bug").click(ev => {
-  ev.preventDefault();
-  const itemId = ev.currentTarget.dataset.itemId;
-  const item = this.items.get(itemId);
-  if (item) item.usarContraBug(this);
-});
+    html.find(".use-item-bug").click(ev => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const item = this.items.get(itemId);
+      if (item) item.usarContraBug(this);
+    });
 
   }
 
+ /* ============================
+  * PODER GAMBIARRA
+  * ============================ */
+
   async _despertarPoder() {
-    if (this.system.meta.poderes.length >= 2) return;
+    if (this.system.meta.poderes.length >= 2) {
+      ui.notifications.warn("Limite máximo de Poderes Gambiarra atingido.");
+      return;
+    }
 
     new Dialog({
-      title: "Despertar Poder Gambiarra",
+      title: "⚡ Despertar Poder Gambiarra",
       content: `
-        <p>Este poder nasce de um BUG intenso.</p>
-        <input name="nome" placeholder="Nome do Poder"/>
-        <textarea name="descricao" placeholder="O que ele faz"></textarea>
+        <p>Este poder surge de um momento narrativo intenso.</p>
+        <div class="form-group">
+          <label>Nome do Poder</label>
+          <input type="text" name="nome"/>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea name="descricao"></textarea>
+        </div>
       `,
       buttons: {
         ok: {
           label: "Despertar",
-          callback: async html => {
+          callback: async (html) => {
+            const nome = html.find('[name="nome"]').val();
+            const descricao = html.find('[name="descricao"]').val();
+
             const poderes = duplicate(this.system.meta.poderes);
             poderes.push({
-              nome: html.find('[name="nome"]').val(),
-              descricao: html.find('[name="descricao"]').val(),
+              nome,
+              descricao,
               estado: "ativo",
               usos: 0
             });
+
             await this.update({ "system.meta.poderes": poderes });
+
+            // BUG pesado costuma desaparecer após o despertar
+            if (this.system.meta.bug.intensidade === "pesado") {
+              await this._resolverBug();
+            }
           }
         }
       }
     }).render(true);
   }
 
-  async _ativarPoder(index) {
+    async _usarPoder(index) {
     const poderes = duplicate(this.system.meta.poderes);
     const poder = poderes[index];
 
-    poder.usos++;
+    if (!poder || poder.estado !== "ativo") {
+      ui.notifications.warn("Este poder não pode ser usado agora.");
+      return;
+    }
 
-    new Dialog({
-      title: "Consequência do Poder",
-      content: `
-        <p>O poder força o Nó. Escolha o que acontece:</p>
-        <button data="bug">🐞 Gerar BUG Pesado</button>
-        <button data="esgotar">⚡ Poder Esgotado</button>
-        <button data="controle">🔥 Fora de Controle</button>
-      `,
-      buttons: {}
-    }).render(true);
+    poder.usos += 1;
 
-    Hooks.once("renderDialog", (_, html) => {
-      html.find("button").click(async ev => {
-        const escolha = ev.currentTarget.dataset;
+    // RISCO: quanto mais usa, mais instável
+    if (poder.usos >= 3) {
+      poder.estado = "fora";
+      ui.notifications.warn(
+        `⚠ O poder ${poder.nome} saiu do controle!`
+      );
+    }
 
-        if (escolha === "bug") {
-          await this.update({
-            "system.meta.bug": {
-              ativo: true,
-              intensidade: "pesado",
-              descricao: "O poder chamou atenção demais."
-            }
-          });
-        }
+    await this.update({ "system.meta.poderes": poderes });
 
-        if (escolha === "esgotar") poder.estado = "esgotado";
-        if (escolha === "controle") poder.estado = "fora_de_controle";
-
-        poderes[index] = poder;
-        await this.update({ "system.meta.poderes": poderes });
-      });
-    });
+    ui.notifications.info(
+      `⚡ ${poder.nome} foi usado. A Programadora descreve o efeito.`
+    );
   }
 
   async _resolverBug() {

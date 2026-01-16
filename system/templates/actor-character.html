@@ -25,41 +25,45 @@
   </section>
 
   <!-- PODERES -->
-  <section class="powers">
-    <h2>⚡ Poderes Gambiarra</h2>
+<section class="powers">
+  <h2>⚡ Poderes Gambiarra</h2>
 
-    {{#if (eq system.meta.poderes.length 0)}}
-      <p class="hint">Eles surgem em momentos de tensão.</p>
-    {{/if}}
+  {{#if (eq system.meta.poderes.length 0)}}
+    <p class="hint">
+      Nenhum poder ainda.<br>
+      Eles surgem em momentos de tensão.
+    </p>
+  {{/if}}
 
-    <ul>
-      {{#each system.meta.poderes as |poder index|}}
-        <li class="power {{poder.estado}}">
-          <strong>{{poder.nome}}</strong>
-          <p>{{poder.descricao}}</p>
-          <p class="state">Estado: {{poder.estado}}</p>
+  <ul>
+    {{#each system.meta.poderes as |poder index|}}
+      <li class="power {{poder.estado}}">
+        <strong>{{poder.nome}}</strong>
+        <p>{{poder.descricao}}</p>
+        <p class="estado">Estado: {{poder.estado}}</p>
 
+        {{#if (eq poder.estado "ativo")}}
           {{#if @root.isGM}}
-            {{#if (eq poder.estado "ativo")}}
-              <button class="use-power" data-index="{{index}}">
-                ⚡ Ativar Poder
-              </button>
-            {{/if}}
-
-            {{#if (eq poder.estado "fora_de_controle")}}
-              <span class="warning">⚠ Fora de Controle</span>
-            {{/if}}
+            <button class="use-power" data-index="{{index}}">
+              ⚡ Usar Poder
+            </button>
           {{/if}}
-        </li>
-      {{/each}}
-    </ul>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ul>
 
-    {{#if (lt system.meta.poderes.length 2)}}
-      {{#if @root.isGM}}
-        <button class="add-power">➕ Despertar Poder</button>
-      {{/if}}
+  {{#if (lt system.meta.poderes.length 2)}}
+    {{#if @root.isGM}}
+      <button class="add-power">➕ Despertar Poder</button>
     {{/if}}
-  </section>
+  {{/if}}
+
+  {{#if (gte system.meta.poderes.length 2)}}
+    <p class="limit">⚠ Limite máximo de Poderes atingido (2).</p>
+  {{/if}}
+</section>
+
 
   <!-- ITENS -->
   <section class="items">

@@ -8,7 +8,14 @@
       },
       "meta": {
         "arquetipo": "",
-        "poderes": [],
+        "poderes": [
+            {
+            "nome": "",
+            "descricao": "",
+            "estado": "ativo",
+            "usos": 0 
+          }
+        ],
         "estados": [],
         "bug": {
           "ativo": false,
@@ -27,12 +34,6 @@
   },
 
   "Item": {
-    "poder": {
-      "descricao": "",
-      "limites": "",
-      "ativo": false
-    },
-
     "item": {
       "tipo": "gambiarra",
       "efeito": "",
