@@ -1,0 +1,44 @@
+{
+  "Actor": {
+    "character": {
+      "attributes": {
+        "corpo": {
+          "label": "Corpo",
+          "value": 2
+        },
+        "mente": {
+          "label": "Mente",
+          "value": 2
+        },
+        "coracao": {
+          "label": "Coração",
+          "value": 2
+        }
+      },
+      "meta": {
+        "arquetipo": "",
+        "poderes": [],
+        "estados": []
+      },
+      "inventory": {
+        "itens": []
+      }
+    },
+    "npc": {
+      "description": "",
+      "threat": "normal"
+    }
+  },
+  "Item": {
+    "poder": {
+      "descricao": "",
+      "limites": "",
+      "ativo": false
+    },
+    "item": {
+      "tipo": "gambiarra",
+      "efeito": "",
+      "consumivel": false
+    }
+  }
+}
