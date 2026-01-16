@@ -2,7 +2,8 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.1.0",
+  "version": "0.3.0",
+  "minimumCoreVersion": "11",
   "authors": [
     {
       "name": "André 'AdamBravo79' Nascimento"
@@ -36,5 +37,8 @@
     "item": {
       "label": "Item do Nó"
     }
-  }
+  },
+  ,
+  "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
+  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.3/gambiarra-sys6-system-0.3.0.zip"
 }
