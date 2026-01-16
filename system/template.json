@@ -13,7 +13,8 @@
             "nome": "",
             "descricao": "",
             "estado": "ativo",
-            "usos": 0 
+            "usos": 0,
+            "dadoRoxo": true 
           }
         ],
         "estados": [],
