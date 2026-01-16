@@ -8,15 +8,7 @@
       },
       "meta": {
         "arquetipo": "",
-        "poderes": [
-            {
-            "nome": "",
-            "descricao": "",
-            "estado": "latente",
-            "usos": 0,
-            "dadoRoxo": true 
-          }
-        ],
+        "poderes": [],
         "estados": [],
         "bug": {
           "ativo": false,
