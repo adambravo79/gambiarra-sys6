@@ -1,0 +1,67 @@
+.gambiarra-sheet {
+  font-family: sans-serif;
+  padding: 10px;
+}
+
+.sheet-header h1 {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.arquetipo {
+  text-align: center;
+  opacity: 0.7;
+}
+
+.attributes {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0;
+}
+
+.attribute {
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  width: 30%;
+  font-size: 1.2em;
+}
+
+.attribute .value {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.corpo { background: #e0f4e0; }
+.mente { background: #e0e8f4; }
+.coracao { background: #f4e0e0; }
+
+.roll-section {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.roll-desafio {
+  font-size: 1.3em;
+  padding: 10px 20px;
+}
+
+.powers, .items {
+  margin-top: 20px;
+}
+
+.power {
+  border-left: 4px solid #aa66ff;
+  padding-left: 8px;
+  margin-bottom: 10px;
+}
+
+.hint {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.limit {
+  color: #aa0000;
+  font-weight: bold;
+}
