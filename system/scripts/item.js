@@ -1,5 +1,18 @@
 export class GambiarraItem extends Item {
 
+    async corromper(descricao) {
+    const corrupcoes = duplicate(this.system.corrupcoes || []);
+    corrupcoes.push({
+      descricao,
+      origem: "BUG"
+    });
+
+    await this.update({
+      "system.corrompido": true,
+      "system.corrupcoes": corrupcoes
+    });
+  }
+
   async usarContraBug(actor) {
 
     const bug = actor.system.meta.bug;
@@ -9,10 +22,7 @@ export class GambiarraItem extends Item {
       return;
     }
 
-    const efeitos = Array.isArray(this.system.efeitosBug)
-  ? this.system.efeitosBug
-  : [this.system.efeitosBug];
-
+    const efeitos = this.system.efeitosBug;
 
     if (!efeitos.length) {
       ui.notifications.warn("Este item não reage a BUG.");

@@ -20,8 +20,8 @@ export class GambiarraActor extends Actor {
     });
     html.find(".add-effect").click(() => this._adicionarEfeitoPermanente());
     html.find(".bug-effect").click(() => {
-    this._converterBugEmEfeito();
-  });
+      this._converterBugEmEfeito();
+    });
   }
 
   /* ============================
@@ -137,9 +137,9 @@ export class GambiarraActor extends Actor {
   }
 
   async _converterBugEmEfeito() {
-  new Dialog({
-    title: "🐞 BUG → Efeito Permanente",
-    content: `
+    new Dialog({
+      title: "🐞 BUG → Efeito Permanente",
+      content: `
       <p>Este BUG deixou consequências duradouras.</p>
 
       <div class="form-group">
@@ -163,25 +163,39 @@ O BUG deixou algo que não desaparece.
         </textarea>
       </div>
     `,
-    buttons: {
-      ok: {
-        label: "Registrar",
-        callback: async html => {
-          const tipo = html.find('[name="tipo"]').val();
-          const nome = html.find('[name="nome"]').val();
-          const descricao = html.find('[name="descricao"]').val();
+      buttons: {
+        ok: {
+          label: "Registrar",
+          callback: async (html) => {
+            const tipo = html.find('[name="tipo"]').val();
+            const nome = html.find('[name="nome"]').val();
+            const descricao = html.find('[name="descricao"]').val();
 
-          const lista = duplicate(this.system.meta[tipo] || []);
-          lista.push({ nome, descricao });
+            const lista = duplicate(this.system.meta[tipo] || []);
+            lista.push({ nome, descricao });
 
-          await this.update({
-            [`system.meta.${tipo}`]: lista,
-            "system.meta.bug.ativo": false
-          });
-        }
+            await this.update({
+              [`system.meta.${tipo}`]: lista,
+              "system.meta.bug.ativo": false,
+            });
+          },
+        },
+      },
+    }).render(true);
+  }
+
+  async usarContraBug(actor) {
+
+    ui.notifications.info(`${this.name} foi usado contra o BUG.`);
+
+    if (actor.system.meta.bug.ativo) {
+      const corrompe = Math.random() < 0.5;
+
+      if (corrompe) {
+        await this.corromper("O item reagiu mal ao Nó durante o BUG.");
+
+        ui.notifications.warn(`⚠ ${this.name} foi corrompido pelo BUG.`);
       }
     }
-  }).render(true);
-}
-
+  }
 }

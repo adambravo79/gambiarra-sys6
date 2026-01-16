@@ -36,7 +36,8 @@
       "efeito": "",
       "consumivel": false,
       "reageABug": false,
-      "efeitosBug": []
+      "corrompido": false,
+      "corrupcoes": []
     }
   }
 }

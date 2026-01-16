@@ -14,9 +14,7 @@
     {{#if (or system.meta.marcas.length system.meta.custos.length
     system.meta.corrupcoes.length)}}
     <p class="bug-warning">⚠ O BUG interage com efeitos do Nó.</p>
-    {{/if}} 
-    
-    {{#if @root.isGM}}
+    {{/if}} {{#if @root.isGM}}
     <button class="clear-bug">Resolver BUG</button>
     {{/if}}
   </section>
@@ -135,9 +133,17 @@
     <h2>🎒 Itens do Nó</h2>
     <ul>
       {{#each items as |item|}}
-      <li>
-        {{item.name}} {{#if (and ../system.meta.bug.ativo
-        item.system.reageABug)}} {{#if @root.isGM}}
+      <li class="{{#if item.system.corrompido}}item-corrompido{{/if}}">
+        {{item.name}} {{#if item.system.corrupcoes.length}}
+        <ul class="item-corruption-list">
+          {{#each item.system.corrupcoes}}
+          <li>🧩 {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+        {{/if}} {{#if item.system.corrompido}}
+        <span class="tag-corrompido">🧩 Corrompido</span>
+        {{/if}} {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
+        {{#if @root.isGM}}
         <button class="use-item-bug" data-item-id="{{item.id}}">
           🐞 Usar no BUG
         </button>
