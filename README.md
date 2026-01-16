@@ -11,9 +11,10 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ## 📦 Versão atual
 
-**v0.3 — Núcleo Jogável Estável**
+## **v0.3 — Núcleo Jogável Estável**
 
 ### O que já existe
+
 - 🎲 Sistema de rolagem d6 visual (Dice So Nice)
 - 🟢🔵🔴 Atributos: Corpo, Mente, Coração
 - 🐞 BUG como estado narrativo real
@@ -23,6 +24,7 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 - Interface clara para crianças e Programadora
 
 ### O que ainda NÃO existe
+
 - ❌ penalidades numéricas fixas
 - ❌ efeitos permanentes mecânicos
 - ❌ progressão tradicional
