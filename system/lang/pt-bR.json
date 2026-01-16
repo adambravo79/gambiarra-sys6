@@ -1,0 +1,95 @@
+{
+  "GAMBIARRA": {
+    "Actor": {
+      "character": "Personagem",
+      "npc": "Entidade do Nó"
+    },
+    "Item": {
+      "poder": "Poder Gambiarra",
+      "item": "Item do Nó"
+    },
+    "Archetypes": {
+      "1": "Atleta",
+      "2": "Gênio",
+      "3": "Líder",
+      "4": "Equilibrada",
+      "5": "Exploradora",
+      "6": "Guardiã",
+      "7": "Inventora",
+      "8": "Investigadora",
+      "9": "Amiga",
+      "10": "Diplomata"
+    },
+    "Attributes": {
+      "body": "Corpo",
+      "mind": "Mente",
+      "heart": "Coração"
+    },
+    "Powers": {
+      "01": "Rebobinar",
+      "02": "Pulo de Glitch",
+      "03": "Gravidade Zero",
+      "04": "Velocidade Turbo",
+      "05": "Elasticidade",
+      "06": "Atravessar Dados",
+      "07": "Salto Duplo",
+      "08": "Caminho de Luz",
+      "09": "Pele de Pixel",
+      "10": "Super Força",
+      "11": "Sopro de Gelo",
+      "12": "Imã Humano",
+      "13": "Escudo de Erro",
+      "14": "Mãos de Faísca",
+      "15": "Rajada de Bits",
+      "16": "Grito Sônico",
+      "17": "Visão de Código",
+      "18": "Invisibilidade Digital",
+      "19": "Tradução Universal",
+      "20": "Sentido de Perigo",
+      "21": "Cópia de Dados",
+      "22": "Flash de Memória",
+      "23": "Raio-X Neon",
+      "24": "Telepatia",
+      "25": "Voz de Comando",
+      "26": "Luz Neon",
+      "27": "Conserto Rápido",
+      "28": "Cura de Dados",
+      "29": "Hackear à Distância",
+      "30": "Alterar Tamanho",
+      "31": "Voo Planado",
+      "32": "Invocar Item",
+      "33": "Mestre do Clima",
+      "34": "Fusão de Pixels",
+      "35": "Paralisia Temporal",
+      "36": "Ondas de Rádio",
+      "37": "Eco Duplicador",
+      "38": "Armadura de Plasma",
+      "39": "Piso Aderente",
+      "40": "Sorte Programada"
+    },
+    "Items": {
+      "Compass": "Bússola Estranha",
+      "ChangingMap": "Mapa que Muda",
+      "DroneEye": "Olho de Drone",
+      "UniversalKey": "Chave Universal (Quase)",
+      "PixelTape": "Fita de Pixel",
+      "RepairKit": "Kit de Conserto Improvisado",
+      "DataCape": "Capa de Dados",
+      "LightShield": "Escudo de Luz",
+      "MagneticBoots": "Botas Magnéticas",
+      "EmptyVial": "Frasco Vazio",
+      "StoppedClock": "Relógio Parado",
+      "WhisperBox": "Caixa que Sussurra"
+    },
+    "Messages": {
+      "Pause": "🛑 Parem o jogo",
+      "FocusGroup": "🤝 Foco no coletivo",
+      "ScreenOff": "📵 Tela Zero",
+      "NoMockError": "💛 Nada de zoar o erro",
+      "ProgrammerWord": "🧭 A palavra da Programadora",
+      "BugOccurred": "🐞 DEU BUG",
+      "Success": "✔️ Sucesso",
+      "StrongSuccess": "🌟 Sucesso Forte"
+    }
+  }
+}
