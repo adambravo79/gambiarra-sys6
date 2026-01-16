@@ -1,21 +1,26 @@
 import { rollDesafio } from "./rolls.js";
 
 export class GambiarraActor extends Actor {
+
   activateListeners(html) {
     super.activateListeners(html);
 
     html.find(".roll-desafio").click(() => rollDesafio(this));
     html.find(".add-power").click(() => this._despertarPoder());
     html.find(".clear-bug").click(() => this._resolverBug());
-    html.find(".use-power").click((ev) => {
-      const index = ev.currentTarget.dataset.index;
-      this._ativarPoder(index);
-    });
-    html.find(".use-item-bug").click((ev) => {
+
+    html.find(".use-item-bug").click(ev => {
       ev.preventDefault();
       const itemId = ev.currentTarget.dataset.itemId;
       const item = this.items.get(itemId);
       if (item) item.usarContraBug(this);
+    });
+
+    // NOVO: controle de estado dos Poderes (apenas visual/narrativo)
+    html.find(".power-controls button").click(ev => {
+      const index = Number(ev.currentTarget.dataset.index);
+      const novoEstado = ev.currentTarget.dataset.set;
+      this._setPoderEstado(index, novoEstado);
     });
   }
 
@@ -45,7 +50,7 @@ export class GambiarraActor extends Actor {
       buttons: {
         ok: {
           label: "Despertar",
-          callback: async (html) => {
+          callback: async html => {
             const nome = html.find('[name="nome"]').val();
             const descricao = html.find('[name="descricao"]').val();
 
@@ -55,55 +60,37 @@ export class GambiarraActor extends Actor {
               descricao,
               estado: "ativo",
               usos: 0,
+              dadoRoxo: true
             });
 
             await this.update({ "system.meta.poderes": poderes });
 
-            // BUG pesado costuma desaparecer após o despertar
             if (this.system.meta.bug.intensidade === "pesado") {
               await this._resolverBug();
             }
-          },
-        },
-      },
+          }
+        }
+      }
     }).render(true);
   }
 
-  async _usarPoder(index) {
+  async _setPoderEstado(index, estado) {
     const poderes = duplicate(this.system.meta.poderes);
-    const poder = poderes[index];
+    if (!poderes[index]) return;
 
-    if (!poder || poder.estado === "fora") {
-      ui.notifications.warn("Este poder está fora de controle.");
-      return;
-    }
-
-    poder.usos += 1;
-
-    // 🟡 ESGOTADO
-    if (poder.usos === 2) {
-      poder.estado = "esgotado";
-      ui.notifications.info(
-        `😮‍💨 ${poder.nome} está esgotado. Algo vai ficar estranho.`
-      );
-    }
-
-    // 🔴 FORA DE CONTROLE
-    if (poder.usos >= 3) {
-      poder.estado = "fora";
-      ui.notifications.warn(`⚠ ${poder.nome} saiu do controle! O Nó reage.`);
-    }
+    poderes[index].estado = estado;
+    if (estado === "ativo") poderes[index].usos = 0;
 
     await this.update({ "system.meta.poderes": poderes });
-
-    ui.notifications.info(
-      `⚡ ${poder.nome} foi usado. A Programadora descreve o efeito.`
-    );
   }
 
   async _resolverBug() {
     await this.update({
-      "system.meta.bug": { ativo: false, intensidade: "leve", descricao: "" },
+      "system.meta.bug": {
+        ativo: false,
+        intensidade: "leve",
+        descricao: ""
+      }
     });
   }
 }

@@ -24,46 +24,62 @@
     <div class="attribute coracao"><h2>🔴 Coração</h2>{{system.attributes.coracao.value}}</div>
   </section>
 
-  <!-- PODERES -->
-<section class="powers">
-  <h2>⚡ Poderes Gambiarra</h2>
+  <!-- PODERES GAMBIARRA -->
+  <section class="powers">
+    <h2>⚡ Poderes Gambiarra</h2>
 
-  {{#if (eq system.meta.poderes.length 0)}}
-    <p class="hint">
-      Nenhum poder ainda.<br>
-      Eles surgem em momentos de tensão.
-    </p>
-  {{/if}}
-
-  <ul>
-    {{#each system.meta.poderes as |poder index|}}
-      <li class="power {{poder.estado}}">
-        <strong>{{poder.nome}}</strong>
-        <p>{{poder.descricao}}</p>
-        <p class="estado">Estado: {{poder.estado}}</p>
-
-        {{#if (eq poder.estado "ativo")}}
-          {{#if @root.isGM}}
-            <button class="use-power" data-index="{{index}}">
-              ⚡ Usar Poder
-            </button>
-          {{/if}}
-        {{/if}}
-      </li>
-    {{/each}}
-  </ul>
-
-  {{#if (lt system.meta.poderes.length 2)}}
-    {{#if @root.isGM}}
-      <button class="add-power">➕ Despertar Poder</button>
+    {{#if (eq system.meta.poderes.length 0)}}
+      <p class="hint">
+        Nenhum poder ainda.<br>
+        Eles surgem em momentos de tensão.
+      </p>
     {{/if}}
-  {{/if}}
 
-  {{#if (gte system.meta.poderes.length 2)}}
-    <p class="limit">⚠ Limite máximo de Poderes atingido (2).</p>
-  {{/if}}
-</section>
+    <ul class="power-list">
+      {{#each system.meta.poderes as |poder index|}}
+        <li class="power power-{{poder.estado}}">
+          <header>
+            <strong>{{poder.nome}}</strong>
+            <span class="state">{{poder.estado}}</span>
+          </header>
 
+          <p class="description">{{poder.descricao}}</p>
+
+          <div class="power-status">
+            {{#if (eq poder.estado "ativo")}}
+              ⚡ Ativo — pode forçar o Nó
+            {{/if}}
+
+            {{#if (eq poder.estado "esgotado")}}
+              ⚠ Esgotado — risco elevado
+            {{/if}}
+
+            {{#if (eq poder.estado "fora")}}
+              🐞 Fora de controle — BUG iminente
+            {{/if}}
+          </div>
+
+          {{#if @root.isGM}}
+          <div class="power-controls">
+            <button data-index="{{index}}" data-set="ativo">Ativar</button>
+            <button data-index="{{index}}" data-set="esgotado">Esgotar</button>
+            <button data-index="{{index}}" data-set="fora">Fora</button>
+          </div>
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+
+    {{#if (lt system.meta.poderes.length 2)}}
+      {{#if @root.isGM}}
+        <button class="add-power">➕ Despertar Poder</button>
+      {{/if}}
+    {{/if}}
+
+    {{#if (gte system.meta.poderes.length 2)}}
+      <p class="limit">⚠ Limite máximo de Poderes atingido (2).</p>
+    {{/if}}
+  </section>
 
   <!-- ITENS -->
   <section class="items">

@@ -1,0 +1,191 @@
+/* ================================
+ * GAMBIARRA.SYS6 — ACTOR SHEET
+ * Estágio: Estados Visuais de Poder
+ * ================================ */
+
+/* ===== BASE ===== */
+
+.gambiarra-sheet {
+  font-family: sans-serif;
+  padding: 10px;
+}
+
+.sheet-header {
+  border-bottom: 2px solid #444;
+  margin-bottom: 10px;
+}
+
+.sheet-header h1 {
+  margin: 0;
+}
+
+.arquetipo {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* ===== BUG ===== */
+
+.bug-state {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.bug-state.leve {
+  background: #fff3cd;
+  border: 2px dashed #ffcc00;
+}
+
+.bug-state.pesado {
+  background: #f8d7da;
+  border: 2px solid #cc0000;
+}
+
+/* ===== ATRIBUTOS ===== */
+
+.attributes {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.attribute {
+  width: 32%;
+  padding: 6px;
+  text-align: center;
+  border-radius: 6px;
+  font-size: 1.2em;
+}
+
+.attribute.corpo {
+  background: #e6f7e6;
+  border: 1px solid #3aa63a;
+}
+
+.attribute.mente {
+  background: #e6f0ff;
+  border: 1px solid #3366cc;
+}
+
+.attribute.coracao {
+  background: #ffe6e6;
+  border: 1px solid #cc3333;
+}
+
+/* ===== PODERES GAMBIARRA ===== */
+
+.powers {
+  margin-top: 15px;
+}
+
+.power-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.power {
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border-left: 6px solid #999;
+  background: #f5f5f5;
+}
+
+.power header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.power .state {
+  font-size: 0.85em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* ===== ESTADOS DE PODER ===== */
+
+/* ⚡ ATIVO */
+.power-ativo {
+  border-left-color: #8a2be2;
+  background: #f3e8ff;
+}
+
+.power-ativo .state {
+  color: #6a1bb1;
+}
+
+/* ⚠ ESGOTADO */
+.power-esgotado {
+  border-left-color: #ff9900;
+  background: #fff2cc;
+}
+
+.power-esgotado .state {
+  color: #cc7a00;
+}
+
+/* 🐞 FORA DE CONTROLE */
+.power-fora {
+  border-left-color: #cc0000;
+  background: #fdecea;
+}
+
+.power-fora .state {
+  color: #990000;
+}
+
+/* ===== DESCRIÇÃO ===== */
+
+.power .description {
+  margin: 6px 0;
+}
+
+/* ===== STATUS TEXTUAL ===== */
+
+.power-status {
+  font-size: 0.85em;
+  margin-top: 4px;
+  opacity: 0.85;
+}
+
+/* ===== CONTROLES GM ===== */
+
+.power-controls {
+  margin-top: 6px;
+}
+
+.power-controls button {
+  margin-right: 4px;
+  font-size: 0.75em;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+/* ===== ITENS ===== */
+
+.items {
+  margin-top: 15px;
+}
+
+.items ul {
+  list-style: none;
+  padding: 0;
+}
+
+.items li {
+  padding: 4px 0;
+}
+
+/* ===== BOTÕES ===== */
+
+button {
+  cursor: pointer;
+}
+
+button.clear-bug {
+  margin-top: 6px;
+}

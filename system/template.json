@@ -12,7 +12,7 @@
             {
             "nome": "",
             "descricao": "",
-            "estado": "ativo",
+            "estado": "latente",
             "usos": 0,
             "dadoRoxo": true 
           }
@@ -39,7 +39,6 @@
       "tipo": "gambiarra",
       "efeito": "",
       "consumivel": false,
-
       "reageABug": false,
       "efeitosBug": []
     }
