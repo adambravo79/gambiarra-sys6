@@ -38,7 +38,6 @@
       "label": "Item do Nó"
     }
   },
-  ,
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
   "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.3/gambiarra-sys6-system-0.3.0.zip"
 }
