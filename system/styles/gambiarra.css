@@ -1,84 +1,79 @@
+/* ==============================
+ * GAMBIARRA.SYS6 — Estilos Gerais
+ * ============================== */
+
 .gambiarra-sheet {
   font-family: sans-serif;
-  padding: 10px;
 }
 
-.sheet-header h1 {
-  text-align: center;
-}
+/* ==============================
+ * PODERES GAMBIARRA
+ * ============================== */
 
-.arquetipo {
-  text-align: center;
-  opacity: 0.7;
-}
-
-.attributes {
-  display: flex;
-  justify-content: space-around;
-  margin: 15px 0;
-}
-
-.attribute {
-  text-align: center;
-  padding: 10px;
-  border-radius: 8px;
-  width: 30%;
-}
-
-.attribute .value {
-  font-size: 2em;
-  font-weight: bold;
-}
-
-.corpo { background: #e0f4e0; }
-.mente { background: #e0e8f4; }
-.coracao { background: #f4e0e0; }
-
-.roll-section {
-  text-align: center;
-  margin: 15px 0;
-}
-
-.roll-desafio {
-  font-size: 1.3em;
-  padding: 10px 20px;
-}
-
-/* NOVO: BUG visual */
-.bug-state {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.bug-state.leve {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.bug-state.pesado {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.powers, .items {
-  margin-top: 20px;
+.powers ul {
+  list-style: none;
+  padding: 0;
 }
 
 .power {
-  border-left: 4px solid #aa66ff;
-  padding-left: 8px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
 }
 
-.hint {
-  opacity: 0.7;
-  font-style: italic;
+/* ==============================
+ * NOVO: ESTADOS DE PODER
+ * ============================== */
+
+/* ⚡ ATIVO — energia estável */
+.power.ativo {
+  background: linear-gradient(135deg, #e8e4ff, #f4f2ff);
+  border: 2px solid #6f5cff;
+  box-shadow: 0 0 8px rgba(111, 92, 255, 0.5);
 }
 
-.limit {
-  color: #aa0000;
+/* 😮‍💨 ESGOTADO — ainda funciona, mas pesa */
+.power.esgotado {
+  background: #fff3cd;
+  border: 2px dashed #856404;
+  opacity: 0.85;
+}
+
+/* ⚠️ FORA DE CONTROLE — perigo */
+.power.fora {
+  background: #f8d7da;
+  border: 2px solid #721c24;
+  animation: glitch 0.4s infinite alternate;
+}
+
+/* ==============================
+ * NOVO: EFEITO GLITCH VISUAL
+ * ============================== */
+
+@keyframes glitch {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(2px, -1px);
+  }
+}
+
+/* ==============================
+ * TEXTO DE ESTADO
+ * ============================== */
+
+.power .estado {
+  font-size: 0.85em;
   font-weight: bold;
+  margin-top: 4px;
+}
+
+/* ==============================
+ * BOTÕES
+ * ============================== */
+
+.power button {
+  margin-top: 6px;
 }

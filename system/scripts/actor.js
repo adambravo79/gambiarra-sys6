@@ -1,29 +1,27 @@
 import { rollDesafio } from "./rolls.js";
 
 export class GambiarraActor extends Actor {
-
   activateListeners(html) {
     super.activateListeners(html);
 
     html.find(".roll-desafio").click(() => rollDesafio(this));
     html.find(".add-power").click(() => this._despertarPoder());
     html.find(".clear-bug").click(() => this._resolverBug());
-    html.find(".use-power").click(ev => {
+    html.find(".use-power").click((ev) => {
       const index = ev.currentTarget.dataset.index;
       this._ativarPoder(index);
     });
-    html.find(".use-item-bug").click(ev => {
+    html.find(".use-item-bug").click((ev) => {
       ev.preventDefault();
       const itemId = ev.currentTarget.dataset.itemId;
       const item = this.items.get(itemId);
       if (item) item.usarContraBug(this);
     });
-
   }
 
- /* ============================
-  * PODER GAMBIARRA
-  * ============================ */
+  /* ============================
+   * PODER GAMBIARRA
+   * ============================ */
 
   async _despertarPoder() {
     if (this.system.meta.poderes.length >= 2) {
@@ -56,7 +54,7 @@ export class GambiarraActor extends Actor {
               nome,
               descricao,
               estado: "ativo",
-              usos: 0
+              usos: 0,
             });
 
             await this.update({ "system.meta.poderes": poderes });
@@ -65,29 +63,35 @@ export class GambiarraActor extends Actor {
             if (this.system.meta.bug.intensidade === "pesado") {
               await this._resolverBug();
             }
-          }
-        }
-      }
+          },
+        },
+      },
     }).render(true);
   }
 
-    async _usarPoder(index) {
+  async _usarPoder(index) {
     const poderes = duplicate(this.system.meta.poderes);
     const poder = poderes[index];
 
-    if (!poder || poder.estado !== "ativo") {
-      ui.notifications.warn("Este poder não pode ser usado agora.");
+    if (!poder || poder.estado === "fora") {
+      ui.notifications.warn("Este poder está fora de controle.");
       return;
     }
 
     poder.usos += 1;
 
-    // RISCO: quanto mais usa, mais instável
+    // 🟡 ESGOTADO
+    if (poder.usos === 2) {
+      poder.estado = "esgotado";
+      ui.notifications.info(
+        `😮‍💨 ${poder.nome} está esgotado. Algo vai ficar estranho.`
+      );
+    }
+
+    // 🔴 FORA DE CONTROLE
     if (poder.usos >= 3) {
       poder.estado = "fora";
-      ui.notifications.warn(
-        `⚠ O poder ${poder.nome} saiu do controle!`
-      );
+      ui.notifications.warn(`⚠ ${poder.nome} saiu do controle! O Nó reage.`);
     }
 
     await this.update({ "system.meta.poderes": poderes });
@@ -99,7 +103,7 @@ export class GambiarraActor extends Actor {
 
   async _resolverBug() {
     await this.update({
-      "system.meta.bug": { ativo: false, intensidade: "leve", descricao: "" }
+      "system.meta.bug": { ativo: false, intensidade: "leve", descricao: "" },
     });
   }
 }
