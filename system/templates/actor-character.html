@@ -75,12 +75,23 @@
     {{/if}}
   </section>
 
-  <!-- ITENS -->
+  <!-- NOVO: ITENS COM REAÇÃO A BUG -->
   <section class="items">
     <h2>🎒 Itens do Nó</h2>
+
     <ul>
-      {{#each system.inventory.itens as |item|}}
-        <li>{{item.nome}}</li>
+      {{#each items as |item|}}
+        <li>
+          {{item.name}}
+
+          {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
+            {{#if @root.isGM}}
+              <button class="use-item-bug" data-item-id="{{item.id}}">
+                🐞 Usar no BUG
+              </button>
+            {{/if}}
+          {{/if}}
+        </li>
       {{/each}}
     </ul>
   </section>

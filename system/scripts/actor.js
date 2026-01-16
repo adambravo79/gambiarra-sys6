@@ -16,6 +16,12 @@ export class GambiarraActor extends Actor {
     html.find(".clear-bug").click(() => {
       this._resolverBug();
     });
+
+    html.find(".use-item-bug").click(ev => {
+      const itemId = ev.currentTarget.dataset.itemId;
+      const item = this.items.get(itemId);
+      item.usarContraBug(this);
+    });
   }
 
   async _despertarPoder() {

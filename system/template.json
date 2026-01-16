@@ -2,18 +2,9 @@
   "Actor": {
     "character": {
       "attributes": {
-        "corpo": {
-          "label": "Corpo",
-          "value": 2
-        },
-        "mente": {
-          "label": "Mente",
-          "value": 2
-        },
-        "coracao": {
-          "label": "Coração",
-          "value": 2
-        }
+        "corpo": { "label": "Corpo", "value": 2 },
+        "mente": { "label": "Mente", "value": 2 },
+        "coracao": { "label": "Coração", "value": 2 }
       },
       "meta": {
         "arquetipo": "",
@@ -34,16 +25,21 @@
       "threat": "normal"
     }
   },
+
   "Item": {
     "poder": {
       "descricao": "",
       "limites": "",
       "ativo": false
     },
+
     "item": {
       "tipo": "gambiarra",
       "efeito": "",
-      "consumivel": false
+      "consumivel": false,
+
+      "reageABug": false,
+      "efeitosBug": []
     }
   }
 }

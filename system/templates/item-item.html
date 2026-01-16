@@ -1,0 +1,41 @@
+<section class="item-sheet">
+
+  <header>
+    <h1>{{item.name}}</h1>
+    <p>{{system.efeito}}</p>
+  </header>
+
+  <section class="item-properties">
+
+    <label>
+      <input type="checkbox" name="system.reageABug" {{checked system.reageABug}}>
+      Reage a 🐞 BUG
+    </label>
+
+    {{#if system.reageABug}}
+      <h3>Efeitos possíveis quando há BUG:</h3>
+
+      <label>
+        <input type="checkbox" value="suavizar" name="system.efeitosBug">
+        Suavizar BUG
+      </label>
+
+      <label>
+        <input type="checkbox" value="anular" name="system.efeitosBug">
+        Anular BUG
+      </label>
+
+      <label>
+        <input type="checkbox" value="transformar" name="system.efeitosBug">
+        Transformar BUG
+      </label>
+
+      <label>
+        <input type="checkbox" value="dado" name="system.efeitosBug">
+        Converter BUG em dado extra
+      </label>
+    {{/if}}
+
+  </section>
+
+</section>
