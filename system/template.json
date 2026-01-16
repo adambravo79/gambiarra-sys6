@@ -13,8 +13,12 @@
         "bug": {
           "ativo": false,
           "intensidade": "leve",
-          "descricao": ""
-        }
+          "descricao": "",
+          "recorrente": false
+        },
+        "marcas": [],
+        "custos": [],
+        "corrupcoes": []
       },
       "inventory": {
         "itens": []

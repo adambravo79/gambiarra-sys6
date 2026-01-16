@@ -43,6 +43,14 @@
   border: 2px solid #cc0000;
 }
 
+.bug-warning {
+  margin-top: 0.5em;
+  padding: 0.3em 0.5em;
+  background: rgba(255, 200, 0, 0.15);
+  border-left: 3px solid #f5c542;
+  font-size: 0.9em;
+}
+
 /* ===== ATRIBUTOS ===== */
 
 .attributes {
@@ -189,3 +197,4 @@ button {
 button.clear-bug {
   margin-top: 6px;
 }
+
