@@ -5,7 +5,7 @@
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
 
-  <!-- NOVO: Estado de BUG -->
+  <!-- BUG -->
   {{#if system.meta.bug.ativo}}
   <section class="bug-state {{system.meta.bug.intensidade}}">
     🐞 <strong>BUG {{system.meta.bug.intensidade}}</strong><br>
@@ -19,47 +19,37 @@
 
   <!-- ATRIBUTOS -->
   <section class="attributes">
-
-    <div class="attribute corpo">
-      <h2>🟢 Corpo</h2>
-      <div class="value">{{system.attributes.corpo.value}}</div>
-    </div>
-
-    <div class="attribute mente">
-      <h2>🔵 Mente</h2>
-      <div class="value">{{system.attributes.mente.value}}</div>
-    </div>
-
-    <div class="attribute coracao">
-      <h2>🔴 Coração</h2>
-      <div class="value">{{system.attributes.coracao.value}}</div>
-    </div>
-
+    <div class="attribute corpo"><h2>🟢 Corpo</h2>{{system.attributes.corpo.value}}</div>
+    <div class="attribute mente"><h2>🔵 Mente</h2>{{system.attributes.mente.value}}</div>
+    <div class="attribute coracao"><h2>🔴 Coração</h2>{{system.attributes.coracao.value}}</div>
   </section>
 
-  <!-- BOTÃO DE ROLAGEM -->
-  <section class="roll-section">
-    <button class="roll-desafio">
-      🎲 Rolar Desafio
-    </button>
-  </section>
-
-  <!-- PODERES GAMBIARRA -->
+  <!-- PODERES -->
   <section class="powers">
     <h2>⚡ Poderes Gambiarra</h2>
 
     {{#if (eq system.meta.poderes.length 0)}}
-      <p class="hint">
-        Nenhum poder ainda.<br>
-        Eles surgem em momentos de tensão.
-      </p>
+      <p class="hint">Eles surgem em momentos de tensão.</p>
     {{/if}}
 
     <ul>
-      {{#each system.meta.poderes as |poder|}}
-        <li class="power">
+      {{#each system.meta.poderes as |poder index|}}
+        <li class="power {{poder.estado}}">
           <strong>{{poder.nome}}</strong>
           <p>{{poder.descricao}}</p>
+          <p class="state">Estado: {{poder.estado}}</p>
+
+          {{#if @root.isGM}}
+            {{#if (eq poder.estado "ativo")}}
+              <button class="use-power" data-index="{{index}}">
+                ⚡ Ativar Poder
+              </button>
+            {{/if}}
+
+            {{#if (eq poder.estado "fora_de_controle")}}
+              <span class="warning">⚠ Fora de Controle</span>
+            {{/if}}
+          {{/if}}
         </li>
       {{/each}}
     </ul>
@@ -69,21 +59,15 @@
         <button class="add-power">➕ Despertar Poder</button>
       {{/if}}
     {{/if}}
-
-    {{#if (gte system.meta.poderes.length 2)}}
-      <p class="limit">⚠ Limite máximo de Poderes atingido (2).</p>
-    {{/if}}
   </section>
 
-  <!-- NOVO: ITENS COM REAÇÃO A BUG -->
+  <!-- ITENS -->
   <section class="items">
     <h2>🎒 Itens do Nó</h2>
-
     <ul>
       {{#each items as |item|}}
         <li>
           {{item.name}}
-
           {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
             {{#if @root.isGM}}
               <button class="use-item-bug" data-item-id="{{item.id}}">

@@ -48,7 +48,8 @@ export async function rollDesafio(actor) {
 
           const diffKey = html.find('[name="difficulty"]').val();
           const attr = html.find('[name="attribute"]').val();
-          const extra = Number(html.find('[name="extraDice"]').val());
+          const extra = Math.max(0, Number(html.find('[name="extraDice"]').val()) || 0);
+
 
           const diff = difficulties[diffKey];
 

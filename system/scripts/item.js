@@ -9,7 +9,10 @@ export class GambiarraItem extends Item {
       return;
     }
 
-    const efeitos = this.system.efeitosBug;
+    const efeitos = Array.isArray(this.system.efeitosBug)
+  ? this.system.efeitosBug
+  : [this.system.efeitosBug];
+
 
     if (!efeitos.length) {
       ui.notifications.warn("Este item não reage a BUG.");
