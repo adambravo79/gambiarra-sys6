@@ -12,6 +12,10 @@ export class GambiarraActor extends Actor {
     html.find(".add-power").click(() => {
       this._despertarPoder();
     });
+
+    html.find(".clear-bug").click(() => {
+      this._resolverBug();
+    });
   }
 
   async _despertarPoder() {
@@ -23,7 +27,7 @@ export class GambiarraActor extends Actor {
     new Dialog({
       title: "Despertar Poder Gambiarra",
       content: `
-        <p>Este poder surge por causa de um momento narrativo importante.</p>
+        <p>Este poder surge de um momento narrativo intenso.</p>
         <div class="form-group">
           <label>Nome do Poder</label>
           <input type="text" name="nome"/>
@@ -48,5 +52,15 @@ export class GambiarraActor extends Actor {
         }
       }
     }).render(true);
+  }
+
+  async _resolverBug() {
+    await this.update({
+      "system.meta.bug": {
+        ativo: false,
+        intensidade: "leve",
+        descricao: ""
+      }
+    });
   }
 }

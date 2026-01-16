@@ -18,7 +18,12 @@
       "meta": {
         "arquetipo": "",
         "poderes": [],
-        "estados": []
+        "estados": [],
+        "bug": {
+          "ativo": false,
+          "intensidade": "leve",
+          "descricao": ""
+        }
       },
       "inventory": {
         "itens": []

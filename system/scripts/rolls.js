@@ -1,12 +1,12 @@
-export async function rollDesafio(actor) {
-
-    /**
- * Dados Extras:
- * - Sempre rolam em pool separado
- * - Cor padrão: roxo
- * - Representam contexto (itens, amizade, poderes)
- * - Cor será customizável futuramente via settings
+/**
+ * GAMBIARRA.SYS6 — Sistema de Rolagem
+ * - Popup de desafio
+ * - Dados 3D coloridos
+ * - Detecção automática de BUG
+ * - Marcação de BUG como estado narrativo
  */
+
+export async function rollDesafio(actor) {
 
   const difficulties = game.gambiarra.config.difficulties;
 
@@ -69,28 +69,26 @@ async function executarRolagem({ actor, atributo, dificuldade, extraDice }) {
   const baseDice = dificuldade.dice;
   const target = dificuldade.target;
 
-  // 🎲 Criando a rolagem base
-  const rollBase = new Roll(`${baseDice}d6`).evaluate({ async: true });
+  // 🎲 Rolagem base (atributo)
+  const rollBase = await new Roll(`${baseDice}d6`).evaluate({ async: true });
 
-  // 🎲 Criando os dados extras (se existirem)
+  // 🎲 Rolagem extra (itens / amizade / poder)
   let rollExtra = null;
   if (extraDice > 0) {
-    rollExtra = new Roll(`${extraDice}d6`).evaluate({ async: true });
+    rollExtra = await new Roll(`${extraDice}d6`).evaluate({ async: true });
   }
 
-  await Promise.all([rollBase, rollExtra]);
+  const baseResults = rollBase.dice[0].results;
+  const extraResults = rollExtra ? rollExtra.dice[0].results : [];
 
-  const results = [
-    ...rollBase.dice[0].results,
-    ...(rollExtra ? rollExtra.dice[0].results : [])
-  ];
+  const allResults = [...baseResults, ...extraResults];
 
-  const successes = results.filter(r => r.result >= target).length;
+  const successes = allResults.filter(r => r.result >= target).length;
 
-  const bug = successes === 0;
+  const bug = successes === 0;          // NOVO: BUG detectado
   const strong = successes >= 2;
 
-  // 🎨 Dice So Nice integration
+  // 🎨 Dice So Nice — cores separadas
   if (game.dice3d) {
 
     const colorMap = {
@@ -113,6 +111,17 @@ async function executarRolagem({ actor, atributo, dificuldade, extraDice }) {
         { colorset: colorMap.extra }
       );
     }
+  }
+
+  // 🐞 NOVO: Marcar BUG como estado narrativo no personagem
+  if (bug) {
+    await actor.update({
+      "system.meta.bug": {
+        ativo: true,
+        intensidade: target === 6 ? "pesado" : "leve",
+        descricao: "O Nó reagiu de forma inesperada."
+      }
+    });
   }
 
   // 💬 Mensagem no chat

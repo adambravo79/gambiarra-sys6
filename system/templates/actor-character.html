@@ -5,6 +5,18 @@
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
 
+  <!-- NOVO: Estado de BUG -->
+  {{#if system.meta.bug.ativo}}
+  <section class="bug-state {{system.meta.bug.intensidade}}">
+    🐞 <strong>BUG {{system.meta.bug.intensidade}}</strong><br>
+    {{system.meta.bug.descricao}}
+
+    {{#if @root.isGM}}
+      <button class="clear-bug">Resolver BUG</button>
+    {{/if}}
+  </section>
+  {{/if}}
+
   <!-- ATRIBUTOS -->
   <section class="attributes">
 
@@ -39,7 +51,7 @@
     {{#if (eq system.meta.poderes.length 0)}}
       <p class="hint">
         Nenhum poder ainda.<br>
-        Eles surgem em momentos de tensão, não na criação.
+        Eles surgem em momentos de tensão.
       </p>
     {{/if}}
 
@@ -54,16 +66,12 @@
 
     {{#if (lt system.meta.poderes.length 2)}}
       {{#if @root.isGM}}
-        <button class="add-power">
-          ➕ Despertar Poder
-        </button>
+        <button class="add-power">➕ Despertar Poder</button>
       {{/if}}
     {{/if}}
 
     {{#if (gte system.meta.poderes.length 2)}}
-      <p class="limit">
-        ⚠ Limite máximo de Poderes atingido (2).
-      </p>
+      <p class="limit">⚠ Limite máximo de Poderes atingido (2).</p>
     {{/if}}
   </section>
 
