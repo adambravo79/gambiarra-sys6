@@ -7,14 +7,28 @@
  * - (Opcional) Dado Roxo via Poder Gambiarra
  */
 
+// 🎨 GAMBIARRA.SYS6 — cores padrão Dice So Nice
+// Corpo    → verde
+// Mente    → azul
+// Coração  → vermelho
+// Extra / Poder Gambiarra → roxo (customizável)
+const colorMap = {
+  corpo: "green",
+  mente: "blue",
+  coracao: "red",
+  extra: "purple",
+};
+
 export async function rollDesafio(actor) {
   const difficulties = game.gambiarra.config.difficulties;
 
-  // ─────────────────────────────────────────────
-  // NOVO: detectar se existe Poder ativo que permite dado roxo
-  // ─────────────────────────────────────────────
-  const hasActivePower = actor.system.meta.poderes?.some(
-    (p) => p.estado === "ativo" && p.dadoRoxo
+  const meta = actor.system.meta ?? {
+    poderes: [],
+    bug: { ativo: false },
+  };
+
+  const hasActivePower = meta.poderes.some(
+    (p) => p.estado === "ativo" && p.dadoRoxo,
   );
 
   const content = `
@@ -25,7 +39,7 @@ export async function rollDesafio(actor) {
         ${Object.entries(difficulties)
           .map(
             ([key, d]) =>
-              `<option value="${key}">${d.label} (${d.dice}d6, ${d.target}+)</option>`
+              `<option value="${key}">${d.label} (${d.dice}d6, ${d.target}+)</option>`,
           )
           .join("")}
       </select>
@@ -80,7 +94,7 @@ export async function rollDesafio(actor) {
           // ✔ Linha correta (já estava certa no seu git)
           const extra = Math.max(
             0,
-            Number(html.find('[name="extraDice"]').val()) || 0
+            Number(html.find('[name="extraDice"]').val()) || 0,
           );
 
           // ─────────────────────────────────────────
@@ -201,27 +215,52 @@ async function executarRolagem({
       await actor.update({ "system.meta.poderes": poderes });
     }
   }
+  // ─────────────────────────────────────────────
+  // NOVO: preparar texto dos dados rolados
+  // ─────────────────────────────────────────────
+  const formatResults = (results) => results.map((r) => r.result).join(", ");
+
+  const baseText = `🎲 Base: [${formatResults(baseResults)}]`;
+  const extraText = extraResults.length
+    ? `<br>➕ Extra: [${formatResults(extraResults)}]`
+    : "";
+
+  const purpleText = purpleResults.length
+    ? `<br>⚡ Poder: [${formatResults(purpleResults)}]`
+    : "";
 
   // 💬 Mensagem no chat
   let resultadoTexto = bug
     ? "🐞 **BUG** — O Nó reage."
     : strong
-    ? "🌟 **Sucesso Forte**"
-    : "✨ **Sucesso**";
+      ? "🌟 **Sucesso Forte**"
+      : "✨ **Sucesso**";
 
   // ─────────────────────────────────────────────
   // NOVO: mensagem de dados extras (boa ideia / item / ajuda)
   // ─────────────────────────────────────────────
-  let extraMsg = extraDice > 0
-    ? `<p>➕ ${extraDice} dado(s) concedido(s) por boa ideia, item ou ajuda.</p>`
-    : "";
+  let extraMsg =
+    extraDice > 0
+      ? `<p>➕ ${extraDice} dado(s) concedido(s) por boa ideia, item ou ajuda.</p>`
+      : "";
 
   ChatMessage.create({
     content: `
-      <h2>🎲 Desafio ${dificuldade.label}</h2>
-      <p><strong>Atributo:</strong> ${atributo}</p>
-      ${extraMsg}
-      <p><strong>Resultado:</strong> ${resultadoTexto}</p>
-    `,
+    <h2>🎲 Desafio ${dificuldade.label}</h2>
+
+    <p><strong>Atributo:</strong> ${atributo}</p>
+
+    <p>
+      ${baseText}
+      ${extraText}
+      ${purpleText}
+    </p>
+
+    ${extraMsg}
+
+    <p><strong>Sucessos:</strong> ${successes}</p>
+
+    <p><strong>Resultado:</strong> ${resultadoTexto}</p>
+  `,
   });
 }

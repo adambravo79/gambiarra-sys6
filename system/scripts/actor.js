@@ -1,29 +1,33 @@
 import { rollDesafio } from "./rolls.js";
 
-export class GambiarraActor extends Actor {
-  activateListeners(html) {
-    super.activateListeners(html);
-
-    html.find(".roll-desafio").click(() => rollDesafio(this));
-    html.find(".add-power").click(() => this._despertarPoder());
-    html.find(".clear-bug").click(() => this._resolverBug());
-    html.find(".use-item-bug").click((ev) => {
-      ev.preventDefault();
-      const itemId = ev.currentTarget.dataset.itemId;
-      const item = this.items.get(itemId);
-      if (item) item.usarContraBug(this);
-    });
-    html.find(".power-controls button").click((ev) => {
-      const index = Number(ev.currentTarget.dataset.index);
-      const novoEstado = ev.currentTarget.dataset.set;
-      this._setPoderEstado(index, novoEstado);
-    });
-    html.find(".add-effect").click(() => this._adicionarEfeitoPermanente());
-    html.find(".bug-effect").click(() => {
-      this._converterBugEmEfeito();
+Hooks.on("preCreateActor", (actor, data) => {
+  if (!data.system?.meta) {
+    actor.updateSource({
+      system: {
+        meta: {
+          arquetipo: "",
+          poderes: [],
+          estados: [],
+          bug: {
+            ativo: false,
+            intensidade: "leve",
+            descricao: "",
+          },
+          marcas: [],
+          custos: [],
+          corrupcoes: [],
+        },
+        attributes: {
+          corpo: { label: "Corpo", value: 2 },
+          mente: { label: "Mente", value: 2 },
+          coracao: { label: "Coração", value: 2 },
+        },
+      },
     });
   }
+});
 
+export class GambiarraActor extends Actor {
   /* ============================
    * PODER GAMBIARRA
    * ============================ */
@@ -185,7 +189,6 @@ O BUG deixou algo que não desaparece.
   }
 
   async usarContraBug(actor) {
-
     ui.notifications.info(`${this.name} foi usado contra o BUG.`);
 
     if (actor.system.meta.bug.ativo) {
