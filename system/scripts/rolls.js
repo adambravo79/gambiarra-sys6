@@ -1,66 +1,88 @@
 /**
- * GAMBIARRA.SYS6 — Sistema de Rolagem (Foundry v12)
- * - Popup de desafio
- * - Pool = atributo (quantidade de dados) + dados roxos (ajuda)
- * - Exibe todos os resultados do pool no chat
- * - Integra (opcional) com Dice So Nice, com cores por atributo + roxo
+ * GAMBIARRA.SYS6 — Rolagens (v0.4)
+ * - Pool = valor do atributo
+ * - Dificuldade = sucessos necessários (required) + alvo (target)
+ * - Dados Roxos = bônus decidido pela Programadora no diálogo
+ * - Chat mostra os valores rolados
+ * - Integração Dice So Nice (se instalado)
  */
 
 const COLORSET = {
-  corpo: "gambi-corpo",     // verde
-  mente: "gambi-mente",     // azul
-  coracao: "gambi-coracao", // vermelho
-  roxo: "gambi-roxo"        // roxo
+  corpo: "gambi-corpo",
+  mente: "gambi-mente",
+  coracao: "gambi-coracao",
+  roxo: "gambi-roxo",
 };
+
+function clampInt(n, min, max) {
+  const v = Number.isFinite(n) ? Math.trunc(n) : 0;
+  return Math.max(min, Math.min(max, v));
+}
+
+function formatResults(results) {
+  return results.map((r) => r.result).join(", ");
+}
+
+function applyDiceSoNiceAppearance(roll, colorsetId) {
+  // Dice So Nice v4+ aceita appearance no DiceTerm
+  for (const die of roll.dice ?? []) {
+    die.options = die.options ?? {};
+    die.options.colorset = colorsetId; // compat
+    die.options.appearance = die.options.appearance ?? {};
+    die.options.appearance.colorset = colorsetId;
+  }
+}
+
+async function show3dIfAvailable(roll) {
+  // Assinatura comum: showForRoll(roll, user, synchronize?)
+  if (!game.dice3d?.showForRoll) return;
+  await game.dice3d.showForRoll(roll, game.user, true);
+}
 
 export async function rollDesafio(actor) {
   const difficulties = game.gambiarra?.config?.difficulties ?? {};
 
-  // fallback seguro
-  const attrs = actor.system?.attributes ?? {
-    corpo: { value: 2 },
-    mente: { value: 2 },
-    coracao: { value: 2 }
-  };
+  // Valores seguros (caso algum ator antigo esteja incompleto)
+  const attrs = actor.system?.attributes ?? {};
+  const corpo = attrs.corpo?.value ?? 2;
+  const mente = attrs.mente?.value ?? 2;
+  const coracao = attrs.coracao?.value ?? 2;
 
   const content = `
-  <form class="gambi-roll-dialog">
+  <form class="gambiarra-roll">
     <div class="form-group">
       <label>Dificuldade</label>
       <select name="difficulty">
-        ${Object.entries(difficulties).map(([key, d]) =>
-          `<option value="${key}">${d.label} (sucessos: ${d.required}, alvo: ${d.target}+)</option>`
-        ).join("")}
+        ${Object.entries(difficulties)
+          .map(([key, d]) => {
+            const req = d.required ?? 1;
+            const tgt = d.target ?? 4;
+            return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
+          })
+          .join("")}
       </select>
     </div>
 
     <div class="form-group">
       <label>Atributo</label>
       <select name="attribute">
-        <option value="corpo">🟢 Corpo (${Number(attrs.corpo?.value ?? 0)}d)</option>
-        <option value="mente">🔵 Mente (${Number(attrs.mente?.value ?? 0)}d)</option>
-        <option value="coracao">🔴 Coração (${Number(attrs.coracao?.value ?? 0)}d)</option>
+        <option value="corpo">🟢 Corpo (${corpo}d)</option>
+        <option value="mente">🔵 Mente (${mente}d)</option>
+        <option value="coracao">🔴 Coração (${coracao}d)</option>
       </select>
-      <p class="hint">O valor do atributo é a quantidade de dados do pool.</p>
+      <p class="hint">O valor do atributo é o tamanho do pool.</p>
     </div>
 
-    <hr>
+    <hr/>
 
     <div class="form-group">
-      <label>🟣 Dados Roxos (ajuda especial)</label>
+      <label>🟣 Dados Roxos</label>
       <div style="display:flex; gap:8px; align-items:center;">
-        <button type="button" class="purple-minus">➖</button>
-        <input type="number" name="purpleDice" value="0" min="0" max="10" style="width:70px; text-align:center;"/>
-        <button type="button" class="purple-plus">➕</button>
+        <button type="button" class="purple-minus">−</button>
+        <input type="text" name="purpleDice" value="0" style="width:48px; text-align:center;" readonly />
+        <button type="button" class="purple-plus">+</button>
+        <span class="hint">A Programadora decide (ideia, item, ajuda, poder etc.)</span>
       </div>
-      <p class="hint">A Programadora decide quantos dados roxos entram (ideia, item, ajuda, poder etc.).</p>
-    </div>
-
-    <div class="form-group">
-      <p class="hint">
-        <strong>Pool total:</strong>
-        <span class="pool-preview">—</span>
-      </p>
     </div>
   </form>
   `;
@@ -74,151 +96,105 @@ export async function rollDesafio(actor) {
         callback: async (html) => {
           const diffKey = html.find('[name="difficulty"]').val();
           const atributo = html.find('[name="attribute"]').val();
+          const purple = Number(html.find('[name="purpleDice"]').val()) || 0;
 
-          const purpleDice = Math.max(0, Number(html.find('[name="purpleDice"]').val()) || 0);
-
-          const diff = difficulties[diffKey];
+          const dificuldade = difficulties[diffKey];
           await executarRolagem({
             actor,
             atributo,
-            dificuldade: diff,
-            purpleDice
+            dificuldade,
+            roxos: clampInt(purple, 0, 10),
           });
-        }
-      }
+        },
+      },
     },
+    default: "roll",
     render: (html) => {
-      const $attr = html.find('[name="attribute"]');
-      const $purple = html.find('[name="purpleDice"]');
-      const $preview = html.find('.pool-preview');
-
-      const getAttrDice = () => {
-        const a = $attr.val();
-        const v = Number(actor.system?.attributes?.[a]?.value ?? 0);
-        return Math.max(0, v);
-      };
-
-      const refreshPreview = () => {
-        const aDice = getAttrDice();
-        const pDice = Math.max(0, Number($purple.val()) || 0);
-        $preview.text(`${aDice}d6 (${String($attr.val())}) + ${pDice}d6 (roxo) = ${aDice + pDice}d6`);
-      };
+      const $val = html.find('[name="purpleDice"]');
 
       html.find(".purple-minus").on("click", () => {
-        const cur = Math.max(0, Number($purple.val()) || 0);
-        $purple.val(Math.max(0, cur - 1));
-        refreshPreview();
+        const cur = Number($val.val()) || 0;
+        $val.val(String(clampInt(cur - 1, 0, 10)));
       });
 
       html.find(".purple-plus").on("click", () => {
-        const cur = Math.max(0, Number($purple.val()) || 0);
-        $purple.val(cur + 1);
-        refreshPreview();
+        const cur = Number($val.val()) || 0;
+        $val.val(String(clampInt(cur + 1, 0, 10)));
       });
-
-      $attr.on("change", refreshPreview);
-      $purple.on("input", refreshPreview);
-
-      refreshPreview();
-    }
+    },
   });
 
   dlg.render(true);
 }
 
-async function executarRolagem({ actor, atributo, dificuldade, purpleDice }) {
-  const target = Number(dificuldade?.target ?? 4);
+async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
   const required = Number(dificuldade?.required ?? 1);
+  const target = Number(dificuldade?.target ?? 4);
 
-  const attrDice = Math.max(0, Number(actor.system?.attributes?.[atributo]?.value ?? 0));
-  const purple = Math.max(0, Number(purpleDice ?? 0));
+  const pool = Number(actor.system?.attributes?.[atributo]?.value ?? 0);
 
-  if (attrDice <= 0) {
-    ui.notifications.warn("Este atributo está 0. Ajuste Corpo/Mente/Coração para pelo menos 1.");
+  if (!pool || pool < 1) {
+    ui.notifications.warn(
+      "Este personagem não tem valor nesse atributo (pool vazio). Ajuste Corpo/Mente/Coração na ficha."
+    );
     return;
   }
 
-  // Rola separadamente para permitir cores diferentes (atributo vs roxo)
-  const rollAttr = await (new Roll(`${attrDice}d6`)).evaluate();
-  const rollPurple = purple > 0 ? await (new Roll(`${purple}d6`)).evaluate() : null;
+  // 1) Rolagem base (cor do atributo)
+  const rollBase = await new Roll(`${pool}d6`).evaluate(); // v12: sem {async:true}
+  applyDiceSoNiceAppearance(rollBase, COLORSET[atributo] ?? "gambi-corpo");
 
-  const attrResults = rollAttr.dice[0]?.results ?? [];
-  const purpleResults = rollPurple ? (rollPurple.dice[0]?.results ?? []) : [];
-  const allResults = [...attrResults, ...purpleResults];
+  // 2) Rolagem roxa (se existir)
+  let rollRoxo = null;
+  if (roxos > 0) {
+    rollRoxo = await new Roll(`${roxos}d6`).evaluate();
+    applyDiceSoNiceAppearance(rollRoxo, COLORSET.roxo);
+  }
 
-  const successes = allResults.filter(r => (r?.result ?? 0) >= target).length;
+  // Mostrar 3D (se módulo existir)
+  // (se não existir, nada quebra)
+  await show3dIfAvailable(rollBase);
+  if (rollRoxo) await show3dIfAvailable(rollRoxo);
+
+  const baseResults = rollBase.dice[0].results;
+  const roxoResults = rollRoxo ? rollRoxo.dice[0].results : [];
+
+  const allResults = [...baseResults, ...roxoResults];
+  const successes = allResults.filter((r) => r.result >= target).length;
 
   const bug = successes < required;
-  const strong = !bug && successes > required; // “um ou mais além do mínimo”
+  const strong = successes > required;
 
-  // Dice So Nice (opcional) — não deixa quebrar a rolagem
-  await showDiceSoNiceSafe(rollAttr, atributo);
-  if (rollPurple) await showDiceSoNiceSafe(rollPurple, "roxo");
-
-  // BUG como estado narrativo (mantém sua ideia anterior)
+  // BUG como estado narrativo
   if (bug) {
     await actor.update({
       "system.meta.bug": {
         ativo: true,
         intensidade: target === 6 ? "pesado" : "leve",
         descricao: "O Nó reagiu de forma inesperada.",
-        recorrente: false
-      }
+        recorrente: actor.system?.meta?.bug?.recorrente ?? false,
+      },
     });
   }
 
-  // Texto dos resultados
-  const fmt = (results) => results.map(r => r.result).join(", ");
-  const poolText = `
-    <p><strong>🎲 ${atributo.toUpperCase()}:</strong> [${fmt(attrResults)}]</p>
-    ${purpleResults.length ? `<p><strong>🟣 ROXO:</strong> [${fmt(purpleResults)}]</p>` : ""}
-  `;
-
   const resultadoTexto = bug
-    ? "🐞 <strong>DEU BUG</strong> — o Nó reage com uma complicação."
+    ? "🐞 **BUG** — O Nó reage."
     : strong
-      ? "🌟 <strong>Sucesso Forte</strong> — vantagem extra!"
-      : "✨ <strong>Sucesso</strong> — a história avança.";
+    ? "🌟 **Sucesso Forte**"
+    : "✨ **Sucesso**";
+
+  const baseText = `🧩 ${atributo.toUpperCase()} (${pool}d6): [${formatResults(baseResults)}]`;
+  const roxoText = roxoResults.length
+    ? `<br>🟣 Roxos (${roxos}d6): [${formatResults(roxoResults)}]`
+    : "";
 
   ChatMessage.create({
     content: `
-      <h2>🎲 Desafio: ${dificuldade?.label ?? "Desconhecido"}</h2>
-      <p><strong>Atributo:</strong> ${atributo} (${attrDice}d6)</p>
-      ${purple ? `<p><strong>Dados Roxos:</strong> ${purple}d6</p>` : ""}
-      <hr>
-      ${poolText}
-      <p><strong>Alvo:</strong> ${target}+ | <strong>Mínimo de sucessos:</strong> ${required}</p>
-      <p><strong>Sucessos obtidos:</strong> ${successes}</p>
-      <hr>
-      <p>${resultadoTexto}</p>
-    `
+      <h2>🎲 Desafio ${dificuldade.label}</h2>
+      <p><strong>Dificuldade:</strong> ${required} sucesso(s), alvo ${target}+</p>
+      <p>${baseText}${roxoText}</p>
+      <p><strong>Sucessos:</strong> ${successes}</p>
+      <p><strong>Resultado:</strong> ${resultadoTexto}</p>
+    `,
   });
-}
-
-async function showDiceSoNiceSafe(roll, which) {
-  const dsn = game.dice3d;
-  if (!dsn?.showForRoll) return;
-
-  // tenta aplicar colorset (se existir)
-  try {
-    const colorset = which === "roxo" ? COLORSET.roxo : COLORSET[which];
-    if (colorset && roll?.dice?.[0]) {
-      roll.dice[0].options = roll.dice[0].options ?? {};
-      roll.dice[0].options.appearance = roll.dice[0].options.appearance ?? {};
-      roll.dice[0].options.appearance.colorset = colorset;
-    }
-  } catch (e) {
-    console.warn("GAMBIARRA.SYS6 | não conseguiu setar appearance/colorset", e);
-  }
-
-  // chama o DSN sem quebrar se a assinatura variar
-  try {
-    await dsn.showForRoll(roll, game.user, true);
-  } catch (_e1) {
-    try {
-      await dsn.showForRoll(roll);
-    } catch (_e2) {
-      // se der ruim, só ignora (rolagem já foi resolvida e chat já sai)
-    }
-  }
 }
