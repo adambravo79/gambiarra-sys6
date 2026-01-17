@@ -1,115 +1,85 @@
 /**
- * GAMBIARRA.SYS6 — Rolagens (v0.4)
- * Regras:
- * - Pool base = valor do atributo escolhido (Corpo/Mente/Coração)
- * - Dificuldade define:
- *    - successes (quantos sucessos precisa)
- *    - target (valor mínimo no d6)
- * - Dados roxos: adicionados no diálogo (0..N)
- * - Extras: boa ideia / item / ajuda (0..N)
- * - Chat mostra os números de cada grupo de dado
+ * GAMBIARRA.SYS6 — Sistema de Rolagem (v0.4)
+ * - Popup de desafio
+ * - Pool = atributo (d6) + dados roxos (d6)
+ * - Exibe números rolados no chat
+ * - Detecção de BUG (0 sucessos)
  *
- * OBS: Dice So Nice DESLIGADO aqui por enquanto (estava quebrando)
+ * Foundry v12: usar Roll#evaluate() (async) sem { async: true }
  */
 
 export async function rollDesafio(actor) {
-  const difficulties = game.gambiarra?.config?.difficulties ?? {};
+  const difficulties = game.gambiarra.config.difficulties;
 
-  // fallback seguro (caso algo esteja vindo vazio)
-  const attrs = actor.system?.attributes ?? {
-    corpo: { value: 2 },
-    mente: { value: 2 },
-    coracao: { value: 2 }
-  };
-
-  // valor inicial do contador de roxos no diálogo
-  let purpleCount = 0;
+  // fallback seguro (caso meta não exista por algum ator antigo)
+  const meta = actor.system?.meta ?? { poderes: [], bug: { ativo: false } };
 
   const content = `
-  <form class="gambiarra-roll">
+  <form class="gambiarra-roll-form">
     <div class="form-group">
       <label>Dificuldade</label>
       <select name="difficulty">
-        ${Object.entries(difficulties).map(([key, d]) =>
-          `<option value="${key}">${d.label} — precisa ${d.successes} sucesso(s), ${d.target}+</option>`
-        ).join("")}
+        ${Object.entries(difficulties)
+          .map(([key, d]) => `<option value="${key}">${d.label} (${d.target}+)</option>`)
+          .join("")}
       </select>
     </div>
 
     <div class="form-group">
-      <label>Atributo (pool base)</label>
+      <label>Atributo</label>
       <select name="attribute">
-        <option value="corpo">🟢 Corpo (${attrs.corpo?.value ?? 2}d)</option>
-        <option value="mente">🔵 Mente (${attrs.mente?.value ?? 2}d)</option>
-        <option value="coracao">🔴 Coração (${attrs.coracao?.value ?? 2}d)</option>
+        <option value="corpo">🟢 Corpo</option>
+        <option value="mente">🔵 Mente</option>
+        <option value="coracao">🔴 Coração</option>
       </select>
     </div>
 
-    <hr/>
+    <hr>
 
     <div class="form-group">
-      <label>🟣 Dados Roxos (ajuda especial)</label>
-      <div style="display:flex; gap:8px; align-items:center;">
+      <label>🟣 Dados Roxos</label>
+      <div class="purple-counter" style="display:flex; gap:8px; align-items:center;">
         <button type="button" class="purple-minus">−</button>
-        <input type="number" name="purpleDice" value="0" min="0" max="20" style="width:80px;" />
+        <input type="number" name="purpleDice" value="0" min="0" max="10" style="width:70px; text-align:center;" />
         <button type="button" class="purple-plus">+</button>
       </div>
-      <p class="hint">Ideia criativa, item, ajuda, Poder, Pessoa Estranha…</p>
-    </div>
-
-    <div class="form-group">
-      <label>➕ Dados Extras (boa ideia / item / ajuda)</label>
-      <input type="number" name="extraDice" value="0" min="0" max="20" style="width:120px;" />
+      <p class="hint">Ideia criativa, item, ajuda ou Poder Gambiarra.</p>
     </div>
   </form>
   `;
 
   const dlg = new Dialog({
-    title: "🎲 Rolar Desafio",
+    title: "Rolar Desafio",
     content,
     buttons: {
       roll: {
-        label: "Rolar",
+        label: "🎲 Rolar Agora",
         callback: async (html) => {
           const diffKey = html.find('[name="difficulty"]').val();
-          const atributo = html.find('[name="attribute"]').val();
+          const attr = html.find('[name="attribute"]').val();
+          const purple = Math.max(0, Number(html.find('[name="purpleDice"]').val()) || 0);
 
           const diff = difficulties[diffKey];
-          if (!diff) {
-            ui.notifications.error("Dificuldade inválida.");
-            return;
-          }
-
-          const extraDice = Math.max(0, Number(html.find('[name="extraDice"]').val()) || 0);
-          const purpleDice = Math.max(0, Number(html.find('[name="purpleDice"]').val()) || 0);
-
-          // Pool base vem do atributo (regra v0.4)
-          const baseDice = Math.max(1, Number(actor.system?.attributes?.[atributo]?.value) || 1);
 
           await executarRolagem({
             actor,
-            atributo,
-            baseDice,
-            extraDice,
-            purpleDice,
-            dificuldade: diff
+            atributo: attr,
+            dificuldade: diff,
+            dadosRoxos: purple
           });
         }
       }
     },
     default: "roll",
     render: (html) => {
-      // botões +/- dos roxos
-      const input = html.find('[name="purpleDice"]');
-
-      html.find(".purple-plus").click(() => {
-        purpleCount = Math.min(20, (Number(input.val()) || 0) + 1);
-        input.val(purpleCount);
+      const $input = html.find('[name="purpleDice"]');
+      html.find(".purple-plus").on("click", () => {
+        const v = Math.max(0, Number($input.val()) || 0);
+        $input.val(v + 1);
       });
-
-      html.find(".purple-minus").click(() => {
-        purpleCount = Math.max(0, (Number(input.val()) || 0) - 1);
-        input.val(purpleCount);
+      html.find(".purple-minus").on("click", () => {
+        const v = Math.max(0, Number($input.val()) || 0);
+        $input.val(Math.max(0, v - 1));
       });
     }
   });
@@ -117,25 +87,31 @@ export async function rollDesafio(actor) {
   dlg.render(true);
 }
 
-async function executarRolagem({ actor, atributo, baseDice, extraDice, purpleDice, dificuldade }) {
+async function executarRolagem({ actor, atributo, dificuldade, dadosRoxos }) {
   const target = dificuldade.target;
-  const required = dificuldade.successes;
 
-  // Rolagens (v12: evaluate() é async por padrão)
+  // valor do atributo = quantidade de dados base
+  const baseDice = Number(actor.system?.attributes?.[atributo]?.value ?? 0);
+
+  if (!baseDice || baseDice < 1) {
+    ui.notifications.warn(
+      `Este personagem ainda não tem valor em ${atributo}. Preencha Corpo/Mente/Coração (mínimo 1).`
+    );
+    return;
+  }
+
+  // Rola base e roxos separadamente (pra poder mostrar no chat)
   const rollBase = await new Roll(`${baseDice}d6`).evaluate();
-  const rollPurple = purpleDice > 0 ? await new Roll(`${purpleDice}d6`).evaluate() : null;
-  const rollExtra = extraDice > 0 ? await new Roll(`${extraDice}d6`).evaluate() : null;
+  const rollPurple = dadosRoxos > 0 ? await new Roll(`${dadosRoxos}d6`).evaluate() : null;
 
-  const baseResults = rollBase.dice[0].results.map(r => r.result);
-  const purpleResults = rollPurple ? rollPurple.dice[0].results.map(r => r.result) : [];
-  const extraResults = rollExtra ? rollExtra.dice[0].results.map(r => r.result) : [];
+  const baseResults = rollBase.dice[0].results;
+  const purpleResults = rollPurple ? rollPurple.dice[0].results : [];
 
-  const all = [...baseResults, ...purpleResults, ...extraResults];
+  const allResults = [...baseResults, ...purpleResults];
+  const successes = allResults.filter((r) => r.result >= target).length;
 
-  const successes = all.filter(n => n >= target).length;
-  const strong = successes > required;
-  const pass = successes >= required;
-  const bug = !pass;
+  const bug = successes === 0;
+  const strong = successes >= 2;
 
   // BUG como estado narrativo no personagem
   if (bug) {
@@ -144,41 +120,45 @@ async function executarRolagem({ actor, atributo, baseDice, extraDice, purpleDic
         ativo: true,
         intensidade: target === 6 ? "pesado" : "leve",
         descricao: "O Nó reagiu de forma inesperada.",
-        recorrente: false
-      }
+      },
     });
   }
 
-  const resultadoTexto = bug
-    ? "🐞 **BUG** — O Nó reage (complicação)."
+  // Texto de resultados no chat
+  const formatResults = (results) => results.map((r) => r.result).join(", ");
+
+  const baseText = `🎲 Base (${baseDice}): [${formatResults(baseResults)}]`;
+  const purpleText =
+    purpleResults.length > 0
+      ? `<br>🟣 Roxos (${dadosRoxos}): [${formatResults(purpleResults)}]`
+      : "";
+
+  let resultadoTexto = bug
+    ? "🐞 **BUG** — O Nó reage."
     : strong
       ? "🌟 **Sucesso Forte**"
       : "✨ **Sucesso**";
 
-  const fmt = (arr) => arr.length ? `[${arr.join(", ")}]` : "—";
-
-  const extraMsg = (purpleDice + extraDice) > 0
-    ? `<p class="hint">Ajuda no pool: 🟣 ${purpleDice} roxo(s) + ➕ ${extraDice} extra(s)</p>`
-    : "";
+  const roxosMsg =
+    dadosRoxos > 0
+      ? `<p>🟣 ${dadosRoxos} dado(s) roxo(s) adicionados (ideia/item/ajuda/poder).</p>`
+      : "";
 
   ChatMessage.create({
     content: `
-      <h2>🎲 ${dificuldade.label}</h2>
+      <h2>🎲 Desafio ${dificuldade.label}</h2>
       <p><strong>Atributo:</strong> ${atributo}</p>
-      <p><strong>Alvo:</strong> ${target}+ &nbsp;|&nbsp; <strong>Precisa:</strong> ${required} sucesso(s)</p>
+      <p><strong>Alvo:</strong> ${target}+</p>
 
-      <hr/>
+      <p>
+        ${baseText}
+        ${purpleText}
+      </p>
 
-      <p><strong>Base (${baseDice}d6):</strong> ${fmt(baseResults)}</p>
-      <p><strong>🟣 Roxos (${purpleDice}d6):</strong> ${fmt(purpleResults)}</p>
-      <p><strong>➕ Extras (${extraDice}d6):</strong> ${fmt(extraResults)}</p>
+      ${roxosMsg}
 
-      ${extraMsg}
-
-      <hr/>
-
-      <p><strong>Sucessos:</strong> ${successes} / ${required}</p>
+      <p><strong>Sucessos:</strong> ${successes}</p>
       <p><strong>Resultado:</strong> ${resultadoTexto}</p>
-    `
+    `,
   });
 }
