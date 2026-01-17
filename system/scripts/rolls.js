@@ -14,6 +14,12 @@ const COLORSET = {
   roxo: "gambi-roxo",
 };
 
+const ATTR_LABEL = {
+  corpo: "💪 Corpo",
+  mente: "🧠 Mente",
+  coracao: "❤️ Coração",
+};
+
 function clampInt(n, min, max) {
   const v = Number.isFinite(n) ? Math.trunc(n) : 0;
   return Math.max(min, Math.min(max, v));
@@ -27,7 +33,9 @@ function applyDiceSoNiceAppearance(roll, colorsetId) {
   // Dice So Nice v4+ aceita appearance no DiceTerm
   for (const die of roll.dice ?? []) {
     die.options = die.options ?? {};
-    die.options.colorset = colorsetId; // compat
+    // compat
+    die.options.colorset = colorsetId;
+    // v4+ appearance
     die.options.appearance = die.options.appearance ?? {};
     die.options.appearance.colorset = colorsetId;
   }
@@ -44,9 +52,9 @@ export async function rollDesafio(actor) {
 
   // Valores seguros (caso algum ator antigo esteja incompleto)
   const attrs = actor.system?.attributes ?? {};
-  const corpo = attrs.corpo?.value ?? 2;
-  const mente = attrs.mente?.value ?? 2;
-  const coracao = attrs.coracao?.value ?? 2;
+  const corpo = Number(attrs.corpo?.value ?? 2);
+  const mente = Number(attrs.mente?.value ?? 2);
+  const coracao = Number(attrs.coracao?.value ?? 2);
 
   const content = `
   <form class="gambiarra-roll">
@@ -66,9 +74,9 @@ export async function rollDesafio(actor) {
     <div class="form-group">
       <label>Atributo</label>
       <select name="attribute">
-        <option value="corpo">🟢 Corpo (${corpo}d)</option>
-        <option value="mente">🔵 Mente (${mente}d)</option>
-        <option value="coracao">🔴 Coração (${coracao}d)</option>
+        <option value="corpo">${ATTR_LABEL.corpo} (${corpo}d)</option>
+        <option value="mente">${ATTR_LABEL.mente} (${mente}d)</option>
+        <option value="coracao">${ATTR_LABEL.coracao} (${coracao}d)</option>
       </select>
       <p class="hint">O valor do atributo é o tamanho do pool.</p>
     </div>
@@ -152,7 +160,6 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
   }
 
   // Mostrar 3D (se módulo existir)
-  // (se não existir, nada quebra)
   await show3dIfAvailable(rollBase);
   if (rollRoxo) await show3dIfAvailable(rollRoxo);
 
@@ -183,14 +190,16 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
     ? "🌟 **Sucesso Forte**"
     : "✨ **Sucesso**";
 
-  const baseText = `🧩 ${atributo.toUpperCase()} (${pool}d6): [${formatResults(baseResults)}]`;
+  const attrLabel = ATTR_LABEL[atributo] ?? atributo;
+
+  const baseText = `🎲 ${attrLabel} (${pool}d6): [${formatResults(baseResults)}]`;
   const roxoText = roxoResults.length
-    ? `<br>🟣 Roxos (${roxos}d6): [${formatResults(roxoResults)}]`
+    ? `<br>🟣 Dados Roxos (${roxos}d6): [${formatResults(roxoResults)}]`
     : "";
 
   ChatMessage.create({
     content: `
-      <h2>🎲 Desafio ${dificuldade.label}</h2>
+      <h2>🎲 Desafio ${dificuldade?.label ?? ""}</h2>
       <p><strong>Dificuldade:</strong> ${required} sucesso(s), alvo ${target}+</p>
       <p>${baseText}${roxoText}</p>
       <p><strong>Sucessos:</strong> ${successes}</p>
