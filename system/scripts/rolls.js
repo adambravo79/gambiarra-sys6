@@ -1,42 +1,52 @@
 /**
- * GAMBIARRA.SYS6 — Sistema de Rolagem (Foundry v12 SAFE)
- * - Popup de desafio
- * - Rolagem assíncrona correta
- * - Valores dos dados no chat
- * - BUG narrativo
- * - Poder Gambiarra (dado roxo lógico)
+ * GAMBIARRA.SYS6 — Rolagens (v0.4)
+ * - Pool = valor do atributo (Corpo/Mente/Coração)
+ * - Dados Roxos = itens (automático) + extras (ideia/ajuda/poder)
+ * - Dificuldade define alvo (4+/5+/6) e "sucessos exigidos" (mínimo)
+ * - Chat mostra todos os resultados do pool
+ * - BUG marca estado narrativo no Actor (system.meta.bug)
+ *
+ * Compatível com Foundry v12+
  */
 
+/* -------------------------------------------- */
+/* Util: soma dados roxos dos itens do ator      */
+/* -------------------------------------------- */
+function contarDadosRoxosDeItens(actor) {
+  return actor.items.reduce((total, item) => {
+    const dados = Number(item.system?.dadosRoxos || 0);
+    return total + dados;
+  }, 0);
+}
+
+/* -------------------------------------------- */
+/* Rolagem principal                             */
+/* -------------------------------------------- */
 export async function rollDesafio(actor) {
-  const difficulties = game.gambiarra.config.difficulties;
+  const difficulties = game.gambiarra?.config?.difficulties || {};
 
-  const meta = actor.system.meta ?? {
-    poderes: [],
-    bug: { ativo: false },
-  };
-
-  const hasActivePower = meta.poderes.some(
-    (p) => p.estado === "ativo" && p.dadoRoxo,
-  );
+  const dadosRoxosItens = contarDadosRoxosDeItens(actor);
 
   const content = `
   <form>
+
     <div class="form-group">
       <label>Dificuldade</label>
       <select name="difficulty">
         ${Object.entries(difficulties)
           .map(
-            ([key, d]) =>
-              `<option value="${key}">
-                ${d.label} (${d.dice}d6, ${d.target}+)
-              </option>`,
+            ([key, d]) => `
+              <option value="${key}">
+                ${d.label} (mín. ${d.dice} sucesso(s), ${d.target}+)
+              </option>
+            `
           )
           .join("")}
       </select>
     </div>
 
     <div class="form-group">
-      <label>Atributo</label>
+      <label>Atributo usado</label>
       <select name="attribute">
         <option value="corpo">🟢 Corpo</option>
         <option value="mente">🔵 Mente</option>
@@ -44,26 +54,24 @@ export async function rollDesafio(actor) {
       </select>
     </div>
 
+    <hr>
+
     <div class="form-group">
-      <label>Dados Extras</label>
-      <input type="number" name="extraDice" value="0" min="0" max="5"/>
-      <p class="hint">Boa ideia, item ou ajuda ⚙️</p>
+      <p><strong>🟣 Dados Roxos automáticos (itens):</strong> ${dadosRoxosItens}</p>
     </div>
 
-    ${
-      hasActivePower
-        ? `
-    <hr>
     <div class="form-group">
-      <label>
-        <input type="checkbox" name="usePurple">
-        ⚡ Forçar o Nó (1 dado roxo)
-      </label>
-      <p class="hint">Aumenta o risco do Poder Gambiarra</p>
+      <label>Adicionar mais dados roxos?</label>
+      <div class="number-control" style="display:flex; gap:8px; align-items:center;">
+        <button type="button" class="minus">−</button>
+        <input type="number" name="extraPurple" value="0" min="0" max="10" style="width:72px; text-align:center;">
+        <button type="button" class="plus">+</button>
+      </div>
+      <p class="hint" style="opacity:0.85;">
+        Ideia criativa, ajuda de aliado ou decisão da Programadora
+      </p>
     </div>
-    `
-        : ``
-    }
+
   </form>
   `;
 
@@ -76,103 +84,125 @@ export async function rollDesafio(actor) {
         callback: async (html) => {
           const diffKey = html.find('[name="difficulty"]').val();
           const atributo = html.find('[name="attribute"]').val();
-          const extraDice = Number(html.find('[name="extraDice"]').val()) || 0;
-          const usarDadoRoxo = html.find('[name="usePurple"]').is(":checked");
+
+          const dadosRoxosExtras =
+            Number(html.find('[name="extraPurple"]').val()) || 0;
+
+          const dificuldade = difficulties[diffKey];
 
           await executarRolagem({
             actor,
             atributo,
-            dificuldade: difficulties[diffKey],
-            extraDice,
-            usarDadoRoxo,
+            dificuldade,
+            dadosRoxosItens,
+            dadosRoxosExtras
           });
-        },
-      },
+        }
+      }
     },
+    render: (html) => {
+      const input = html.find('[name="extraPurple"]');
+
+      html.find(".plus").click(() => {
+        input.val(Number(input.val()) + 1);
+      });
+
+      html.find(".minus").click(() => {
+        input.val(Math.max(0, Number(input.val()) - 1));
+      });
+    }
   }).render(true);
 }
 
+/* -------------------------------------------- */
+/* Executa rolagem                               */
+/* -------------------------------------------- */
 async function executarRolagem({
   actor,
   atributo,
   dificuldade,
-  extraDice,
-  usarDadoRoxo = false,
+  dadosRoxosItens = 0,
+  dadosRoxosExtras = 0
 }) {
-  const baseDice = dificuldade.dice;
-  const target = dificuldade.target;
+  if (!dificuldade) {
+    ui.notifications.error("Dificuldade inválida. Verifique game.gambiarra.config.difficulties.");
+    return;
+  }
 
-  // 🎲 Rolagens ASSÍNCRONAS corretas (v12)
-  const rollBase = await new Roll(`${baseDice}d6`).evaluate();
-  const rollExtra =
-    extraDice > 0 ? await new Roll(`${extraDice}d6`).evaluate() : null;
-  const rollPurple =
-    usarDadoRoxo ? await new Roll("1d6").evaluate() : null;
+  // Pool principal = valor do atributo
+  const valorAtributo =
+    actor.system?.attributes?.[atributo]?.value ?? 1; // fallback seguro (sem zeros)
 
-  const baseResults = rollBase.dice[0].results.map((r) => r.result);
-  const extraResults = rollExtra
-    ? rollExtra.dice[0].results.map((r) => r.result)
-    : [];
-  const purpleResults = rollPurple
-    ? rollPurple.dice[0].results.map((r) => r.result)
-    : [];
+  const totalRoxos = (dadosRoxosItens || 0) + (dadosRoxosExtras || 0);
+  const totalDados = valorAtributo + totalRoxos;
 
-  const allResults = [...baseResults, ...extraResults, ...purpleResults];
-  const successes = allResults.filter((r) => r >= target).length;
+  // Rolagem única do pool
+  const roll = new Roll(`${totalDados}d6`);
+  await roll.evaluate();
 
-  const bug = successes === 0;
-  const strong = successes >= 2;
+  const resultados = roll.dice[0].results.map(r => r.result);
 
-  // 🐞 BUG narrativo
+  // Sucessos = quantos >= target
+  const sucessos = resultados.filter(r => r >= dificuldade.target).length;
+
+  // Resultado conforme v0.4:
+  // - sucesso: atinge o mínimo exigido (dificuldade.dice)
+  // - sucesso forte: passa do mínimo
+  // - bug: abaixo do mínimo
+  const minSucessos = Number(dificuldade.dice || 1);
+
+  const bug = sucessos < minSucessos;
+  const forte = sucessos > minSucessos;
+  const sucesso = !bug && !forte; // exatamente o mínimo
+
+  let resultadoTexto = bug
+    ? "🐞 BUG — O Nó reage."
+    : forte
+      ? "🌟 Sucesso Forte"
+      : "✨ Sucesso";
+
+  // BUG vira estado narrativo (se bug)
   if (bug) {
     await actor.update({
-      "system.meta.bug": {
-        ativo: true,
-        intensidade: target === 6 ? "pesado" : "leve",
-        descricao: "O Nó reagiu de forma inesperada.",
-      },
+      "system.meta.bug.ativo": true,
+      "system.meta.bug.intensidade": (dificuldade.target === 6) ? "pesado" : "leve",
+      "system.meta.bug.descricao": "O Nó reagiu de forma inesperada."
     });
   }
 
-  // ⚡ Consequência do Poder Gambiarra
-  if (usarDadoRoxo) {
-    const poderes = duplicate(actor.system.meta.poderes);
-    const poder = poderes.find((p) => p.estado === "ativo" && p.dadoRoxo);
+  // Mensagem de composição do pool (para as crianças verem)
+  const detalhePool = `
+    <p>
+      <strong>Pool:</strong>
+      ${valorAtributo} (atributo) + ${totalRoxos} (🟣 roxos)
+      = <strong>${totalDados}d6</strong>
+    </p>
+  `;
 
-    if (poder) {
-      poder.usos += 1;
-      if (poder.usos === 2) poder.estado = "esgotado";
-      if (poder.usos >= 3) poder.estado = "fora";
-      await actor.update({ "system.meta.poderes": poderes });
-    }
-  }
+  const detalheRoxos = `
+    <p>
+      <strong>🟣 Roxos:</strong>
+      ${dadosRoxosItens} (itens) + ${dadosRoxosExtras} (extras) = ${totalRoxos}
+    </p>
+  `;
 
-  const fmt = (arr) => arr.join(", ");
-
-  // 💬 Chat
-  await ChatMessage.create({
+  // Chat mostra todos os números rolados
+  ChatMessage.create({
     content: `
-      <h2>🎲 Desafio — ${dificuldade.label}</h2>
+      <h2>🎲 Desafio ${dificuldade.label}</h2>
 
       <p><strong>Atributo:</strong> ${atributo}</p>
 
-      <p>
-        🎲 Base: [${fmt(baseResults)}]
-        ${extraResults.length ? `<br>➕ Extra: [${fmt(extraResults)}]` : ""}
-        ${purpleResults.length ? `<br>⚡ Poder: [${fmt(purpleResults)}]` : ""}
-      </p>
+      ${detalhePool}
+      ${detalheRoxos}
 
-      <p><strong>Sucessos:</strong> ${successes}</p>
+      <p><strong>🎲 Resultados:</strong> [ ${resultados.join(", ")} ]</p>
 
-      <p><strong>Resultado:</strong>
-        ${
-          bug
-            ? "🐞 BUG — O Nó reage."
-            : strong
-              ? "🌟 Sucesso Forte"
-              : "✨ Sucesso"
-        }
-      </p>
-    `,
+      <p><strong>Alvo:</strong> ${dificuldade.target}+ — <strong>Mínimo:</strong> ${minSucessos} sucesso(s)</p>
+
+      <p><strong>Sucessos:</strong> ${sucessos}</p>
+
+      <p><strong>Resultado:</strong> ${resultadoTexto}</p>
+    `
   });
 }

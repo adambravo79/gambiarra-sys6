@@ -2,59 +2,31 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.3.0",
-
-  "authors": [
-    {
-      "name": "André 'AdamBravo79' Nascimento"
-    }
-  ],
-
-  "esmodules": ["scripts/init.js"],
-  "styles": ["styles/gambiarra.css"],
-
-  "languages": [
-    {
-      "lang": "pt-BR",
-      "name": "Português (Brasil)",
-      "path": "lang/pt-BR.json"
-    }
-  ],
-
+  "version": "0.4.0",
   "compatibility": {
     "minimum": "11",
     "verified": "12"
   },
-
-  "documentTypes": {
+  "authors": [
+    { "name": "André 'AdamBravo79' Nascimento" }
+  ],
+  "esmodules": [
+    "scripts/init.js",
+    "scripts/actor.js",
+    "scripts/rolls.js",
+    "scripts/actor-sheet.js",
+    "scripts/itens.js",
+    "scripts/item-sheet.js"
+  ],
+    "documentTypes": {
     "Actor": {
       "character": {},
       "npc": {}
     },
     "Item": {
-      "item": {},
-      "poder": {}
+      "item": {}
     }
   },
-
-  "actorTypes": {
-    "character": {
-      "label": "Personagem"
-    },
-    "npc": {
-      "label": "Entidade do Nó"
-    }
-  },
-
-  "itemTypes": {
-    "item": {
-      "label": "Item do Nó"
-    },
-    "poder": {
-      "label": "Poder Gambiarra"
-    }
-  },
-
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
-  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.3/gambiarra-sys6-system-0.3.0.zip"
+  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.4/gambiarra-sys6-system-0.4.0.zip"
 }
