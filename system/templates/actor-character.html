@@ -1,55 +1,55 @@
 <form class="gambiarra-sheet" autocomplete="off">
-
   <header class="sheet-header">
     <h1>
-      <input name="name" type="text" value="{{actor.name}}" />
+      <input name="name" type="text" value="{{actor.name}}" placeholder="Nome do personagem" />
     </h1>
 
     <p class="arquetipo">
       <label>Arquétipo</label>
-      <input name="system.meta.arquetipo" type="text" value="{{system.meta.arquetipo}}" placeholder="Ex: A Atleta, A Gênio..." />
+      <input name="system.meta.arquetipo" type="text" value="{{system.meta.arquetipo}}" placeholder="Ex: A Atleta" />
     </p>
   </header>
 
-  <!-- BUG -->
+  {{!-- BUG --}}
   {{#if system.meta.bug.ativo}}
   <section class="bug-state {{system.meta.bug.intensidade}}">
     🐞 <strong>BUG {{system.meta.bug.intensidade}}</strong><br />
     {{system.meta.bug.descricao}}
 
-    {{#if @root.isGM}}
+    {{#if isGM}}
       <button type="button" class="clear-bug">Resolver BUG</button>
     {{/if}}
   </section>
   {{/if}}
 
-  <!-- ATRIBUTOS (pool base) -->
+  {{!-- ATRIBUTOS --}}
   <section class="attributes">
+    <h2>🎲 Atributos (quantidade de dados)</h2>
+
     <div class="attribute corpo">
-      <h2>🟢 Corpo</h2>
+      <h3>🟢 Corpo</h3>
       <input name="system.attributes.corpo.value" type="number" min="1" max="4" value="{{system.attributes.corpo.value}}" />
-      <p class="hint">Quantidade de dados 🟢</p>
     </div>
 
     <div class="attribute mente">
-      <h2>🔵 Mente</h2>
+      <h3>🔵 Mente</h3>
       <input name="system.attributes.mente.value" type="number" min="1" max="4" value="{{system.attributes.mente.value}}" />
-      <p class="hint">Quantidade de dados 🔵</p>
     </div>
 
     <div class="attribute coracao">
-      <h2>🔴 Coração</h2>
+      <h3>🔴 Coração</h3>
       <input name="system.attributes.coracao.value" type="number" min="1" max="4" value="{{system.attributes.coracao.value}}" />
-      <p class="hint">Quantidade de dados 🔴</p>
     </div>
+
+    <p class="hint">Regra: Corpo + Mente + Coração = 6 (sem zeros).</p>
   </section>
 
-  <!-- ROLAGEM -->
+  {{!-- BOTÃO ROLAR --}}
   <section class="roll-section">
     <button type="button" class="roll-desafio">🎲 Rolar Desafio</button>
   </section>
 
-  <!-- PODERES (mantém seu bloco atual, pode colar o seu aqui sem mudar) -->
+  {{!-- PODERES --}}
   <section class="powers">
     <h2>⚡ Poderes Gambiarra</h2>
 
@@ -67,7 +67,19 @@
 
         <p class="description">{{poder.descricao}}</p>
 
-        {{#if @root.isGM}}
+        {{#if poder.efeitosPossiveis}}
+        <ul class="power-effects">
+          {{#each poder.efeitosPossiveis}}
+            <li>
+              {{#if (eq this "dado")}}🟣 Dado Roxo{{/if}}
+              {{#if (eq this "reduzir-dificuldade")}}🎯 Reduz dificuldade{{/if}}
+              {{#if (eq this "rerrolar")}}🔁 Re-rolar 1 dado{{/if}}
+            </li>
+          {{/each}}
+        </ul>
+        {{/if}}
+
+        {{#if isGM}}
         <div class="power-controls">
           <button type="button" data-index="{{index}}" data-set="ativo">Ativar</button>
           <button type="button" data-index="{{index}}" data-set="esgotado">Esgotar</button>
@@ -79,13 +91,13 @@
     </ul>
 
     {{#if (lt system.meta.poderes.length 2)}}
-      {{#if @root.isGM}}
+      {{#if isGM}}
         <button type="button" class="add-power">➕ Despertar Poder</button>
       {{/if}}
     {{/if}}
   </section>
 
-  <!-- EFEITOS DO NÓ (como você já tem) -->
+  {{!-- EFEITOS PERMANENTES --}}
   <section class="effects">
     <h2>🧠 Efeitos do Nó</h2>
 
@@ -120,12 +132,12 @@
       <p class="hint">Nenhum efeito permanente… ainda.</p>
     {{/if}}
 
-    {{#if @root.isGM}}
+    {{#if isGM}}
       <button type="button" class="add-effect">➕ Registrar Efeito Permanente</button>
     {{/if}}
   </section>
 
-  <!-- ITENS -->
+  {{!-- ITENS --}}
   <section class="items">
     <h2>🎒 Itens do Nó</h2>
     <ul>
@@ -133,7 +145,7 @@
       <li>
         {{item.name}}
         {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
-          {{#if @root.isGM}}
+          {{#if ../isGM}}
             <button type="button" class="use-item-bug" data-item-id="{{item.id}}">🐞 Usar no BUG</button>
           {{/if}}
         {{/if}}
@@ -141,5 +153,4 @@
       {{/each}}
     </ul>
   </section>
-
 </form>
