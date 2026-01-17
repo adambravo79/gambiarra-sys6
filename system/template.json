@@ -2,28 +2,40 @@
   "Actor": {
     "character": {
       "attributes": {
-        "corpo": { "label": "Corpo", "value": 2 },
-        "mente": { "label": "Mente", "value": 2 },
-        "coracao": { "label": "Coração", "value": 2 }
+        "corpo": {
+          "label": "Corpo",
+          "value": 2
+        },
+        "mente": {
+          "label": "Mente",
+          "value": 2
+        },
+        "coracao": {
+          "label": "Coração",
+          "value": 2
+        }
       },
+
       "meta": {
         "arquetipo": "",
+
         "poderes": [],
+
         "estados": [],
+
         "bug": {
           "ativo": false,
           "intensidade": "leve",
           "descricao": "",
           "recorrente": false
         },
+
         "marcas": [],
         "custos": [],
         "corrupcoes": []
-      },
-      "inventory": {
-        "itens": []
       }
     },
+
     "npc": {
       "description": "",
       "threat": "normal"
@@ -38,6 +50,12 @@
       "reageABug": false,
       "corrompido": false,
       "corrupcoes": []
+    },
+
+    "poder": {
+      "descricao": "",
+      "nivel": 1,
+      "efeitosPossiveis": []
     }
   }
 }

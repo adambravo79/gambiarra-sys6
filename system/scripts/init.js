@@ -1,6 +1,27 @@
+import { GambiarraActor } from "./actor.js";
+import { GambiarraActorSheet } from "./actor-sheet.js";
+
 Hooks.once("init", () => {
   console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema");
 
+  // 🔹 Registrar Actor customizado
+  CONFIG.Actor.documentClass = GambiarraActor;
+
+  // 🔹 Registrar ActorSheet (V12)
+  Actors.unregisterSheet("core", ActorSheet);
+  Actors.registerSheet("gambiarra-sys6", GambiarraActorSheet, {
+    types: ["character"],
+    makeDefault: true
+  });
+
+  // 🔹 Garantir tipo padrão
+  Hooks.on("preCreateActor", (actor, data) => {
+    if (!data.type) {
+      actor.updateSource({ type: "character" });
+    }
+  });
+
+  // 🔹 Configuração global do sistema
   game.gambiarra = {
     config: {
       difficulties: {
