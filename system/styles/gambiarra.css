@@ -1,79 +1,62 @@
-/* ==============================
- * GAMBIARRA.SYS6 — Estilos Gerais
- * ============================== */
-
 .gambiarra-sheet {
-  font-family: sans-serif;
+  padding: 12px;
 }
 
-/* ==============================
- * PODERES GAMBIARRA
- * ============================== */
+.gambiarra-sheet input[type="text"],
+.gambiarra-sheet input[type="number"],
+.gambiarra-sheet textarea,
+.gambiarra-sheet select {
+  width: 100%;
+  margin-top: 4px;
+}
 
-.powers ul {
+.attributes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.attribute {
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.hint {
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+.roll-section {
+  margin: 10px 0 16px;
+}
+
+.bug-state {
+  border: 1px solid rgba(255,100,100,0.5);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.power-list {
   list-style: none;
   padding: 0;
 }
 
 .power {
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 8px;
   padding: 10px;
-  margin-bottom: 8px;
-  transition: all 0.2s ease;
+  margin: 8px 0;
 }
 
-/* ==============================
- * NOVO: ESTADOS DE PODER
- * ============================== */
-
-/* ⚡ ATIVO — energia estável */
-.power.ativo {
-  background: linear-gradient(135deg, #e8e4ff, #f4f2ff);
-  border: 2px solid #6f5cff;
-  box-shadow: 0 0 8px rgba(111, 92, 255, 0.5);
+.power header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* 😮‍💨 ESGOTADO — ainda funciona, mas pesa */
-.power.esgotado {
-  background: #fff3cd;
-  border: 2px dashed #856404;
-  opacity: 0.85;
-}
-
-/* ⚠️ FORA DE CONTROLE — perigo */
-.power.fora {
-  background: #f8d7da;
-  border: 2px solid #721c24;
-  animation: glitch 0.4s infinite alternate;
-}
-
-/* ==============================
- * NOVO: EFEITO GLITCH VISUAL
- * ============================== */
-
-@keyframes glitch {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(2px, -1px);
-  }
-}
-
-/* ==============================
- * TEXTO DE ESTADO
- * ============================== */
-
-.power .estado {
-  font-size: 0.85em;
-  font-weight: bold;
-  margin-top: 4px;
-}
-
-/* ==============================
- * BOTÕES
- * ============================== */
-
-.power button {
-  margin-top: 6px;
+.power-controls button {
+  margin-right: 6px;
 }

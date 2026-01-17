@@ -1,81 +1,70 @@
 /**
  * GAMBIARRA.SYS6 — Rolagens (v0.4)
- * - Pool = valor do atributo (Corpo/Mente/Coração)
- * - Dados Roxos = itens (automático) + extras (ideia/ajuda/poder)
- * - Dificuldade define alvo (4+/5+/6) e "sucessos exigidos" (mínimo)
- * - Chat mostra todos os resultados do pool
- * - BUG marca estado narrativo no Actor (system.meta.bug)
+ * Regras:
+ * - Pool base = valor do atributo escolhido (Corpo/Mente/Coração)
+ * - Dificuldade define:
+ *    - successes (quantos sucessos precisa)
+ *    - target (valor mínimo no d6)
+ * - Dados roxos: adicionados no diálogo (0..N)
+ * - Extras: boa ideia / item / ajuda (0..N)
+ * - Chat mostra os números de cada grupo de dado
  *
- * Compatível com Foundry v12+
+ * OBS: Dice So Nice DESLIGADO aqui por enquanto (estava quebrando)
  */
 
-/* -------------------------------------------- */
-/* Util: soma dados roxos dos itens do ator      */
-/* -------------------------------------------- */
-function contarDadosRoxosDeItens(actor) {
-  return actor.items.reduce((total, item) => {
-    const dados = Number(item.system?.dadosRoxos || 0);
-    return total + dados;
-  }, 0);
-}
-
-/* -------------------------------------------- */
-/* Rolagem principal                             */
-/* -------------------------------------------- */
 export async function rollDesafio(actor) {
-  const difficulties = game.gambiarra?.config?.difficulties || {};
+  const difficulties = game.gambiarra?.config?.difficulties ?? {};
 
-  const dadosRoxosItens = contarDadosRoxosDeItens(actor);
+  // fallback seguro (caso algo esteja vindo vazio)
+  const attrs = actor.system?.attributes ?? {
+    corpo: { value: 2 },
+    mente: { value: 2 },
+    coracao: { value: 2 }
+  };
+
+  // valor inicial do contador de roxos no diálogo
+  let purpleCount = 0;
 
   const content = `
-  <form>
-
+  <form class="gambiarra-roll">
     <div class="form-group">
       <label>Dificuldade</label>
       <select name="difficulty">
-        ${Object.entries(difficulties)
-          .map(
-            ([key, d]) => `
-              <option value="${key}">
-                ${d.label} (mín. ${d.dice} sucesso(s), ${d.target}+)
-              </option>
-            `
-          )
-          .join("")}
+        ${Object.entries(difficulties).map(([key, d]) =>
+          `<option value="${key}">${d.label} — precisa ${d.successes} sucesso(s), ${d.target}+</option>`
+        ).join("")}
       </select>
     </div>
 
     <div class="form-group">
-      <label>Atributo usado</label>
+      <label>Atributo (pool base)</label>
       <select name="attribute">
-        <option value="corpo">🟢 Corpo</option>
-        <option value="mente">🔵 Mente</option>
-        <option value="coracao">🔴 Coração</option>
+        <option value="corpo">🟢 Corpo (${attrs.corpo?.value ?? 2}d)</option>
+        <option value="mente">🔵 Mente (${attrs.mente?.value ?? 2}d)</option>
+        <option value="coracao">🔴 Coração (${attrs.coracao?.value ?? 2}d)</option>
       </select>
     </div>
 
-    <hr>
+    <hr/>
 
     <div class="form-group">
-      <p><strong>🟣 Dados Roxos automáticos (itens):</strong> ${dadosRoxosItens}</p>
-    </div>
-
-    <div class="form-group">
-      <label>Adicionar mais dados roxos?</label>
-      <div class="number-control" style="display:flex; gap:8px; align-items:center;">
-        <button type="button" class="minus">−</button>
-        <input type="number" name="extraPurple" value="0" min="0" max="10" style="width:72px; text-align:center;">
-        <button type="button" class="plus">+</button>
+      <label>🟣 Dados Roxos (ajuda especial)</label>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button type="button" class="purple-minus">−</button>
+        <input type="number" name="purpleDice" value="0" min="0" max="20" style="width:80px;" />
+        <button type="button" class="purple-plus">+</button>
       </div>
-      <p class="hint" style="opacity:0.85;">
-        Ideia criativa, ajuda de aliado ou decisão da Programadora
-      </p>
+      <p class="hint">Ideia criativa, item, ajuda, Poder, Pessoa Estranha…</p>
     </div>
 
+    <div class="form-group">
+      <label>➕ Dados Extras (boa ideia / item / ajuda)</label>
+      <input type="number" name="extraDice" value="0" min="0" max="20" style="width:120px;" />
+    </div>
   </form>
   `;
 
-  new Dialog({
+  const dlg = new Dialog({
     title: "🎲 Rolar Desafio",
     content,
     buttons: {
@@ -85,123 +74,110 @@ export async function rollDesafio(actor) {
           const diffKey = html.find('[name="difficulty"]').val();
           const atributo = html.find('[name="attribute"]').val();
 
-          const dadosRoxosExtras =
-            Number(html.find('[name="extraPurple"]').val()) || 0;
+          const diff = difficulties[diffKey];
+          if (!diff) {
+            ui.notifications.error("Dificuldade inválida.");
+            return;
+          }
 
-          const dificuldade = difficulties[diffKey];
+          const extraDice = Math.max(0, Number(html.find('[name="extraDice"]').val()) || 0);
+          const purpleDice = Math.max(0, Number(html.find('[name="purpleDice"]').val()) || 0);
+
+          // Pool base vem do atributo (regra v0.4)
+          const baseDice = Math.max(1, Number(actor.system?.attributes?.[atributo]?.value) || 1);
 
           await executarRolagem({
             actor,
             atributo,
-            dificuldade,
-            dadosRoxosItens,
-            dadosRoxosExtras
+            baseDice,
+            extraDice,
+            purpleDice,
+            dificuldade: diff
           });
         }
       }
     },
+    default: "roll",
     render: (html) => {
-      const input = html.find('[name="extraPurple"]');
+      // botões +/- dos roxos
+      const input = html.find('[name="purpleDice"]');
 
-      html.find(".plus").click(() => {
-        input.val(Number(input.val()) + 1);
+      html.find(".purple-plus").click(() => {
+        purpleCount = Math.min(20, (Number(input.val()) || 0) + 1);
+        input.val(purpleCount);
       });
 
-      html.find(".minus").click(() => {
-        input.val(Math.max(0, Number(input.val()) - 1));
+      html.find(".purple-minus").click(() => {
+        purpleCount = Math.max(0, (Number(input.val()) || 0) - 1);
+        input.val(purpleCount);
       });
     }
-  }).render(true);
+  });
+
+  dlg.render(true);
 }
 
-/* -------------------------------------------- */
-/* Executa rolagem                               */
-/* -------------------------------------------- */
-async function executarRolagem({
-  actor,
-  atributo,
-  dificuldade,
-  dadosRoxosItens = 0,
-  dadosRoxosExtras = 0
-}) {
-  if (!dificuldade) {
-    ui.notifications.error("Dificuldade inválida. Verifique game.gambiarra.config.difficulties.");
-    return;
-  }
+async function executarRolagem({ actor, atributo, baseDice, extraDice, purpleDice, dificuldade }) {
+  const target = dificuldade.target;
+  const required = dificuldade.successes;
 
-  // Pool principal = valor do atributo
-  const valorAtributo =
-    actor.system?.attributes?.[atributo]?.value ?? 1; // fallback seguro (sem zeros)
+  // Rolagens (v12: evaluate() é async por padrão)
+  const rollBase = await new Roll(`${baseDice}d6`).evaluate();
+  const rollPurple = purpleDice > 0 ? await new Roll(`${purpleDice}d6`).evaluate() : null;
+  const rollExtra = extraDice > 0 ? await new Roll(`${extraDice}d6`).evaluate() : null;
 
-  const totalRoxos = (dadosRoxosItens || 0) + (dadosRoxosExtras || 0);
-  const totalDados = valorAtributo + totalRoxos;
+  const baseResults = rollBase.dice[0].results.map(r => r.result);
+  const purpleResults = rollPurple ? rollPurple.dice[0].results.map(r => r.result) : [];
+  const extraResults = rollExtra ? rollExtra.dice[0].results.map(r => r.result) : [];
 
-  // Rolagem única do pool
-  const roll = new Roll(`${totalDados}d6`);
-  await roll.evaluate();
+  const all = [...baseResults, ...purpleResults, ...extraResults];
 
-  const resultados = roll.dice[0].results.map(r => r.result);
+  const successes = all.filter(n => n >= target).length;
+  const strong = successes > required;
+  const pass = successes >= required;
+  const bug = !pass;
 
-  // Sucessos = quantos >= target
-  const sucessos = resultados.filter(r => r >= dificuldade.target).length;
-
-  // Resultado conforme v0.4:
-  // - sucesso: atinge o mínimo exigido (dificuldade.dice)
-  // - sucesso forte: passa do mínimo
-  // - bug: abaixo do mínimo
-  const minSucessos = Number(dificuldade.dice || 1);
-
-  const bug = sucessos < minSucessos;
-  const forte = sucessos > minSucessos;
-  const sucesso = !bug && !forte; // exatamente o mínimo
-
-  let resultadoTexto = bug
-    ? "🐞 BUG — O Nó reage."
-    : forte
-      ? "🌟 Sucesso Forte"
-      : "✨ Sucesso";
-
-  // BUG vira estado narrativo (se bug)
+  // BUG como estado narrativo no personagem
   if (bug) {
     await actor.update({
-      "system.meta.bug.ativo": true,
-      "system.meta.bug.intensidade": (dificuldade.target === 6) ? "pesado" : "leve",
-      "system.meta.bug.descricao": "O Nó reagiu de forma inesperada."
+      "system.meta.bug": {
+        ativo: true,
+        intensidade: target === 6 ? "pesado" : "leve",
+        descricao: "O Nó reagiu de forma inesperada.",
+        recorrente: false
+      }
     });
   }
 
-  // Mensagem de composição do pool (para as crianças verem)
-  const detalhePool = `
-    <p>
-      <strong>Pool:</strong>
-      ${valorAtributo} (atributo) + ${totalRoxos} (🟣 roxos)
-      = <strong>${totalDados}d6</strong>
-    </p>
-  `;
+  const resultadoTexto = bug
+    ? "🐞 **BUG** — O Nó reage (complicação)."
+    : strong
+      ? "🌟 **Sucesso Forte**"
+      : "✨ **Sucesso**";
 
-  const detalheRoxos = `
-    <p>
-      <strong>🟣 Roxos:</strong>
-      ${dadosRoxosItens} (itens) + ${dadosRoxosExtras} (extras) = ${totalRoxos}
-    </p>
-  `;
+  const fmt = (arr) => arr.length ? `[${arr.join(", ")}]` : "—";
 
-  // Chat mostra todos os números rolados
+  const extraMsg = (purpleDice + extraDice) > 0
+    ? `<p class="hint">Ajuda no pool: 🟣 ${purpleDice} roxo(s) + ➕ ${extraDice} extra(s)</p>`
+    : "";
+
   ChatMessage.create({
     content: `
-      <h2>🎲 Desafio ${dificuldade.label}</h2>
-
+      <h2>🎲 ${dificuldade.label}</h2>
       <p><strong>Atributo:</strong> ${atributo}</p>
+      <p><strong>Alvo:</strong> ${target}+ &nbsp;|&nbsp; <strong>Precisa:</strong> ${required} sucesso(s)</p>
 
-      ${detalhePool}
-      ${detalheRoxos}
+      <hr/>
 
-      <p><strong>🎲 Resultados:</strong> [ ${resultados.join(", ")} ]</p>
+      <p><strong>Base (${baseDice}d6):</strong> ${fmt(baseResults)}</p>
+      <p><strong>🟣 Roxos (${purpleDice}d6):</strong> ${fmt(purpleResults)}</p>
+      <p><strong>➕ Extras (${extraDice}d6):</strong> ${fmt(extraResults)}</p>
 
-      <p><strong>Alvo:</strong> ${dificuldade.target}+ — <strong>Mínimo:</strong> ${minSucessos} sucesso(s)</p>
+      ${extraMsg}
 
-      <p><strong>Sucessos:</strong> ${sucessos}</p>
+      <hr/>
 
+      <p><strong>Sucessos:</strong> ${successes} / ${required}</p>
       <p><strong>Resultado:</strong> ${resultadoTexto}</p>
     `
   });
