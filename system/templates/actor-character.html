@@ -1,160 +1,26 @@
-<section class="gambiarra-sheet">
-  <header class="sheet-header">
-    <h1>{{actor.name}}</h1>
-    <p class="arquetipo">{{system.meta.arquetipo}}</p>
-  </header>
+<h1>{{actor.name}}</h1>
 
-  <!-- BUG -->
-  {{#if system.meta.bug.ativo}}
-  <section class="bug-state {{system.meta.bug.intensidade}}">
-    🐞 <strong>BUG {{system.meta.bug.intensidade}}</strong><br />
-    {{system.meta.bug.descricao}}
-
-    <!-- NOVO: aviso de interação com efeitos permanentes -->
-    {{#if (or system.meta.marcas.length system.meta.custos.length
-    system.meta.corrupcoes.length)}}
-    <p class="bug-warning">⚠ O BUG interage com efeitos do Nó.</p>
-    {{/if}} {{#if @root.isGM}}
-    <button class="clear-bug">Resolver BUG</button>
-    {{/if}}
-  </section>
-  {{/if}}
-
-  <!-- ATRIBUTOS -->
-  <section class="attributes">
-    <div class="attribute corpo">
-      <h2>🟢 Corpo</h2>
-      {{system.attributes.corpo.value}}
+<section class="atributos">
+  {{#each system.atributos as |valor chave|}}
+    <div>
+      <strong>{{chave}}</strong>: {{valor}}
+      <button class="roll" data-attr="{{chave}}">🎲</button>
     </div>
-    <div class="attribute mente">
-      <h2>🔵 Mente</h2>
-      {{system.attributes.mente.value}}
-    </div>
-    <div class="attribute coracao">
-      <h2>🔴 Coração</h2>
-      {{system.attributes.coracao.value}}
-    </div>
-  </section>
+  {{/each}}
+</section>
 
-  <!-- Rolagens -->
-  <section class="roll-actions">
-    <button type="button" class="roll-desafio">🎲 Rolar Desafio</button>
-  </section>
+<section>
+  <h3>Poderes Gambiarra</h3>
+  <input value="{{system.poderes.[0]}}">
+  <input value="{{system.poderes.[1]}}">
+</section>
 
-  <!-- PODERES GAMBIARRA -->
-  <section class="powers">
-    <h2>⚡ Poderes Gambiarra</h2>
+<section>
+  <h3>Efeitos do Nó</h3>
+  <p>Nenhum efeito permanente… ainda.</p>
+</section>
 
-    {{#if (eq system.meta.poderes.length 0)}}
-    <p class="hint">
-      Nenhum poder ainda.<br />
-      Eles surgem em momentos de tensão.
-    </p>
-    {{/if}}
-
-    <ul class="power-list">
-      {{#each system.meta.poderes as |poder index|}}
-      <li class="power power-{{poder.estado}}">
-        <header>
-          <strong>{{poder.nome}}</strong>
-          <span class="state">{{poder.estado}}</span>
-        </header>
-
-        <p class="description">{{poder.descricao}}</p>
-
-        <!-- NOVO: efeitos possíveis do Poder -->
-        {{#if poder.efeitosPossiveis}}
-        <ul class="power-effects">
-          {{#each poder.efeitosPossiveis}}
-          <li>
-            {{#if (eq this "dado")}}🟣 Dado Roxo{{/if}} {{#if (eq this
-            "reduzir-dificuldade")}}🎯 Reduz dificuldade{{/if}} {{#if (eq this
-            "rerrolar")}}🔁 Re-rolar 1 dado{{/if}}
-          </li>
-          {{/each}}
-        </ul>
-        {{/if}}
-
-        <div class="power-status">
-          {{#if (eq poder.estado "ativo")}} ⚡ Ativo — pode forçar o Nó {{/if}}
-          {{#if (eq poder.estado "esgotado")}} ⚠ Esgotado — risco elevado
-          {{/if}} {{#if (eq poder.estado "fora")}} 🐞 Fora de controle — BUG
-          iminente {{/if}}
-        </div>
-
-        {{#if @root.isGM}}
-        <div class="power-controls">
-          <button data-index="{{index}}" data-set="ativo">Ativar</button>
-          <button data-index="{{index}}" data-set="esgotado">Esgotar</button>
-          <button data-index="{{index}}" data-set="fora">Fora</button>
-        </div>
-        {{/if}}
-      </li>
-      {{/each}}
-    </ul>
-
-    {{#if (lt system.meta.poderes.length 2)}} {{#if @root.isGM}}
-    <button class="add-power">➕ Despertar Poder</button>
-    {{/if}} {{/if}} {{#if (gte system.meta.poderes.length 2)}}
-    <p class="limit">⚠ Limite máximo de Poderes atingido (2).</p>
-    {{/if}}
-  </section>
-
-  <!-- EFEITOS COLATERAIS PERMANENTES -->
-  <section class="effects">
-    <h2>🧠 Efeitos do Nó</h2>
-
-    {{#if (or system.meta.marcas.length system.meta.custos.length
-    system.meta.corrupcoes.length)}} {{#if system.meta.marcas.length}}
-    <h3>🧬 Marcas do Nó</h3>
-    <ul>
-      {{#each system.meta.marcas}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{#if system.meta.custos.length}}
-    <h3>💔 Custos Emocionais</h3>
-    <ul>
-      {{#each system.meta.custos}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{#if system.meta.corrupcoes.length}}
-    <h3>🧩 Corrupções</h3>
-    <ul>
-      {{#each system.meta.corrupcoes}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{else}}
-    <p class="hint">Nenhum efeito permanente… ainda.</p>
-    {{/if}} {{#if @root.isGM}}
-    <button class="add-effect">➕ Registrar Efeito Permanente</button>
-    {{/if}}
-  </section>
-
-  <!-- ITENS -->
-  <section class="items">
-    <h2>🎒 Itens do Nó</h2>
-    <ul>
-      {{#each items as |item|}}
-      <li class="{{#if item.system.corrompido}}item-corrompido{{/if}}">
-        {{item.name}} {{#if item.system.corrupcoes.length}}
-        <ul class="item-corruption-list">
-          {{#each item.system.corrupcoes}}
-          <li>🧩 {{this.descricao}}</li>
-          {{/each}}
-        </ul>
-        {{/if}} {{#if item.system.corrompido}}
-        <span class="tag-corrompido">🧩 Corrompido</span>
-        {{/if}} {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
-        {{#if @root.isGM}}
-        <button class="use-item-bug" data-item-id="{{item.id}}">
-          🐞 Usar no BUG
-        </button>
-        {{/if}} {{/if}}
-      </li>
-      {{/each}}
-    </ul>
-  </section>
+<section>
+  <h3>Itens do Nó</h3>
+  {{> "systems/gambiarra-sys6/templates/partials/items.html"}}
 </section>

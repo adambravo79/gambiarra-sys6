@@ -1,61 +1,16 @@
 {
   "Actor": {
     "character": {
-      "attributes": {
-        "corpo": {
-          "label": "Corpo",
-          "value": 2
+      "name": "",
+      "system": {
+        "atributos": {
+          "corpo": 2,
+          "mente": 2,
+          "coracao": 2
         },
-        "mente": {
-          "label": "Mente",
-          "value": 2
-        },
-        "coracao": {
-          "label": "Coração",
-          "value": 2
-        }
-      },
-
-      "meta": {
-        "arquetipo": "",
-
-        "poderes": [],
-
-        "estados": [],
-
-        "bug": {
-          "ativo": false,
-          "intensidade": "leve",
-          "descricao": "",
-          "recorrente": false
-        },
-
-        "marcas": [],
-        "custos": [],
-        "corrupcoes": []
+        "poderes": ["", ""],
+        "efeitos": []
       }
-    },
-
-    "npc": {
-      "description": "",
-      "threat": "normal"
-    }
-  },
-
-  "Item": {
-    "item": {
-      "tipo": "gambiarra",
-      "efeito": "",
-      "consumivel": false,
-      "reageABug": false,
-      "corrompido": false,
-      "corrupcoes": []
-    },
-
-    "poder": {
-      "descricao": "",
-      "nivel": 1,
-      "efeitosPossiveis": []
     }
   }
 }
