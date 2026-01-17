@@ -95,3 +95,224 @@
 .power-controls button {
   margin-right: 6px;
 }
+
+/* =========================
+ * v0.4 — DIALOGO ROLAR DESAFIO
+ * ========================= */
+
+.gambiarra-roll .form-group {
+  margin: 10px 0;
+}
+
+.gambiarra-roll label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.gambiarra-roll select {
+  width: 100%;
+}
+
+.gambiarra-roll .hint {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.gambiarra-roll hr {
+  margin: 12px 0;
+  opacity: 0.35;
+}
+
+/* Linha dos roxos */
+.gambiarra-roll .purple-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gambiarra-roll .purple-count {
+  width: 56px;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* Botões + / - */
+.gambiarra-roll .purple-minus,
+.gambiarra-roll .purple-plus {
+  width: 36px;
+  height: 32px;
+  border-radius: 10px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.gambiarra-roll .purple-minus:hover,
+.gambiarra-roll .purple-plus:hover {
+  filter: brightness(1.08);
+}
+
+.gambiarra-roll .purple-minus:active,
+.gambiarra-roll .purple-plus:active {
+  transform: translateY(1px);
+}
+
+/* =========================
+ * v0.4 — FEEDBACK VISUAL SOMA=6 NA FICHA
+ * (aparece quando você adiciona a barrinha via JS)
+ * ========================= */
+
+.gambiarra-sumbar {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: 1px solid rgba(0,0,0,0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.gambiarra-sumbar .sum-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 700;
+}
+
+.gambiarra-sumbar .sum-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  border: 1px solid rgba(0,0,0,0.25);
+}
+
+/* Estado OK */
+.gambiarra-sumbar.ok {
+  background: rgba(31, 179, 91, 0.12);
+  border-color: rgba(31, 179, 91, 0.35);
+}
+
+.gambiarra-sumbar.ok .sum-pill {
+  background: rgba(31, 179, 91, 0.18);
+}
+
+/* Estado ERRO */
+.gambiarra-sumbar.bad {
+  background: rgba(226, 74, 74, 0.12);
+  border-color: rgba(226, 74, 74, 0.35);
+}
+
+.gambiarra-sumbar.bad .sum-pill {
+  background: rgba(226, 74, 74, 0.18);
+}
+
+/* Dica curta à direita */
+.gambiarra-sumbar .sum-right {
+  opacity: 0.85;
+}
+
+/* =========================
+ * v0.4 — EMOJIS DOS ATRIBUTOS NA FICHA
+ * ========================= */
+
+/* só pra ficar consistente com o que você pediu */
+.attribute.corpo h2::before { content: "💪 "; }
+.attribute.mente h2::before { content: "🧠 "; }
+.attribute.coracao h2::before { content: "❤️ "; }
+
+/* se você quiser remover os emojis antigos do template sem mexer nele agora,
+   este truque "tapa buraco" mantém o texto depois do emoji. */
+.attribute.corpo h2,
+.attribute.mente h2,
+.attribute.coracao h2 {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* =========================
+ * v0.4 — CHAT CARD (ROLAGENS)
+ * ========================= */
+
+.gambi-chat-card {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: rgba(255,255,255,0.04);
+}
+
+.gambi-chat-card .gambi-title {
+  font-weight: 900;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.gambi-chat-card .gambi-line {
+  margin: 6px 0;
+  line-height: 1.35;
+}
+
+.gambi-chat-card .gambi-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.gambi-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid rgba(0,0,0,0.25);
+}
+
+.gambi-badge.ok {
+  background: rgba(31, 179, 91, 0.18);
+}
+
+.gambi-badge.strong {
+  background: rgba(47, 125, 225, 0.18);
+}
+
+.gambi-badge.bug {
+  background: rgba(226, 74, 74, 0.18);
+}
+
+/* =========================
+ * v0.4 — BADGE COM COR DO ATRIBUTO
+ * ========================= */
+
+.gambi-badge.attr-corpo {
+  background: rgba(31, 179, 91, 0.16);
+  border-color: rgba(31, 179, 91, 0.35);
+}
+
+.gambi-badge.attr-mente {
+  background: rgba(47, 125, 225, 0.16);
+  border-color: rgba(47, 125, 225, 0.35);
+}
+
+.gambi-badge.attr-coracao {
+  background: rgba(226, 74, 74, 0.16);
+  border-color: rgba(226, 74, 74, 0.35);
+}
+
+/* opcional: reforço visual do tipo de resultado (sem mudar o atributo) */
+.gambi-badge.ok { filter: saturate(1.05); }
+.gambi-badge.strong { filter: saturate(1.25); }
+.gambi-badge.bug { filter: saturate(1.2) contrast(1.05); }
+
+

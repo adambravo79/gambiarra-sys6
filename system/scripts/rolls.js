@@ -57,7 +57,7 @@ export async function rollDesafio(actor) {
   const coracao = Number(attrs.coracao?.value ?? 2);
 
   const content = `
-  <form class="gambiarra-roll">
+  <form class="gambiarra-roll" autocomplete="off">
     <div class="form-group">
       <label>Dificuldade</label>
       <select name="difficulty">
@@ -74,9 +74,9 @@ export async function rollDesafio(actor) {
     <div class="form-group">
       <label>Atributo</label>
       <select name="attribute">
-        <option value="corpo">${ATTR_LABEL.corpo} (${corpo}d)</option>
-        <option value="mente">${ATTR_LABEL.mente} (${mente}d)</option>
-        <option value="coracao">${ATTR_LABEL.coracao} (${coracao}d)</option>
+        <option value="corpo">💪 Corpo (${corpo}d)</option>
+        <option value="mente">🧠 Mente (${mente}d)</option>
+        <option value="coracao">❤️ Coração (${coracao}d)</option>
       </select>
       <p class="hint">O valor do atributo é o tamanho do pool.</p>
     </div>
@@ -85,9 +85,9 @@ export async function rollDesafio(actor) {
 
     <div class="form-group">
       <label>🟣 Dados Roxos</label>
-      <div style="display:flex; gap:8px; align-items:center;">
+      <div class="purple-row">
         <button type="button" class="purple-minus">−</button>
-        <input type="text" name="purpleDice" value="0" style="width:48px; text-align:center;" readonly />
+        <input class="purple-count" type="text" name="purpleDice" value="0" readonly />
         <button type="button" class="purple-plus">+</button>
         <span class="hint">A Programadora decide (ideia, item, ajuda, poder etc.)</span>
       </div>
@@ -143,7 +143,7 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
 
   if (!pool || pool < 1) {
     ui.notifications.warn(
-      "Este personagem não tem valor nesse atributo (pool vazio). Ajuste Corpo/Mente/Coração na ficha."
+      "Este personagem não tem valor nesse atributo (pool vazio). Ajuste Corpo/Mente/Coração na ficha.",
     );
     return;
   }
@@ -169,6 +169,20 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
   const allResults = [...baseResults, ...roxoResults];
   const successes = allResults.filter((r) => r.result >= target).length;
 
+  // ✅ NOVO: quais valores foram sucessos (>= alvo)
+  const successValues = allResults
+    .filter((r) => r.result >= target)
+    .map((r) => r.result)
+    .sort((a, b) => a - b);
+
+  // ✅ NOVO: classe de cor do atributo (para o badge)
+  const attrClass =
+    atributo === "corpo"
+      ? "attr-corpo"
+      : atributo === "mente"
+        ? "attr-mente"
+        : "attr-coracao";
+
   const bug = successes < required;
   const strong = successes > required;
 
@@ -184,26 +198,44 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
     });
   }
 
-  const resultadoTexto = bug
-    ? "🐞 **BUG** — O Nó reage."
-    : strong
-    ? "🌟 **Sucesso Forte**"
-    : "✨ **Sucesso**";
+  const attrLabel =
+    atributo === "corpo"
+      ? "💪 Corpo"
+      : atributo === "mente"
+        ? "🧠 Mente"
+        : "❤️ Coração";
 
-  const attrLabel = ATTR_LABEL[atributo] ?? atributo;
-
-  const baseText = `🎲 ${attrLabel} (${pool}d6): [${formatResults(baseResults)}]`;
+  const baseText = `🎲 ${attrLabel} (${pool}d6): <strong>[${formatResults(baseResults)}]</strong>`;
   const roxoText = roxoResults.length
-    ? `<br>🟣 Dados Roxos (${roxos}d6): [${formatResults(roxoResults)}]`
+    ? `<div class="gambi-line">🟣 Roxos (${roxos}d6): <strong>[${formatResults(roxoResults)}]</strong></div>`
     : "";
+
+  const resultBadge = bug
+    ? `<span class="gambi-badge ${attrClass} bug">🐞 BUG</span>`
+    : strong
+      ? `<span class="gambi-badge ${attrClass} strong">🌟 Sucesso Forte</span>`
+      : `<span class="gambi-badge ${attrClass} ok">✨ Sucesso</span>`;
+
+  const diffLine = `<div class="gambi-sub">Dificuldade: <strong>${required}</strong> sucesso(s), alvo <strong>${target}+</strong></div>`;
+
+  // ✅ NOVO: detalhar sucessos (quantos e quais valores bateram o alvo)
+  const successLine =
+    successValues.length > 0
+      ? `<div class="gambi-sub">✅ Dados em sucesso (${successValues.length}): <strong>${successValues.join(", ")}</strong></div>`
+      : `<div class="gambi-sub">✅ Dados em sucesso (0)</div>`;
 
   ChatMessage.create({
     content: `
-      <h2>🎲 Desafio ${dificuldade?.label ?? ""}</h2>
-      <p><strong>Dificuldade:</strong> ${required} sucesso(s), alvo ${target}+</p>
-      <p>${baseText}${roxoText}</p>
-      <p><strong>Sucessos:</strong> ${successes}</p>
-      <p><strong>Resultado:</strong> ${resultadoTexto}</p>
+      <div class="gambi-chat-card">
+        <div class="gambi-title">🎲 Desafio ${dificuldade.label} ${resultBadge}</div>
+        ${diffLine}
+
+        <div class="gambi-line">${baseText}</div>
+        ${roxoText}
+
+        <div class="gambi-sub">Sucessos totais: <strong>${successes}</strong></div>
+        ${successLine}
+      </div>
     `,
   });
 }

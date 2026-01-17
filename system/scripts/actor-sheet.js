@@ -63,6 +63,54 @@ export class GambiarraActorSheet extends ActorSheet {
       const novoEstado = ev.currentTarget.dataset.set;
       this.actor._setPoderEstado?.(index, novoEstado);
     });
+
+    // Se já existir, não duplica
+    if (!html.find(".gambiarra-sumbar").length) {
+      html.find(".attributes").append(`
+      <div class="gambiarra-sumbar ok">
+        <div class="sum-left">
+          <span>📐 Soma</span>
+          <span class="sum-pill">6</span>
+        </div>
+        <div class="sum-right">Regra opcional ativa</div>
+      </div>
+    `);
+    }
+    const updateSumbar = () => {
+      const c =
+        Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
+      const m =
+        Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
+      const co =
+        Number(html.find('[name="system.attributes.coracao.value"]').val()) ||
+        0;
+      const sum = c + m + co;
+
+      const $bar = html.find(".gambiarra-sumbar");
+      $bar.find(".sum-pill").text(String(sum));
+
+      if (sum === 6 && c >= 1 && m >= 1 && co >= 1) {
+        $bar.removeClass("bad").addClass("ok");
+        $bar.find(".sum-right").text("OK ✅ (Soma = 6)");
+      } else {
+        $bar.removeClass("ok").addClass("bad");
+        $bar.find(".sum-right").text("Ajuste para Soma = 6 (mínimo 1 em cada)");
+      }
+    };
+
+    // Atualiza ao digitar
+    html
+      .find('[name="system.attributes.corpo.value"]')
+      .on("input", updateSumbar);
+    html
+      .find('[name="system.attributes.mente.value"]')
+      .on("input", updateSumbar);
+    html
+      .find('[name="system.attributes.coracao.value"]')
+      .on("input", updateSumbar);
+
+    // Estado inicial
+    updateSumbar();
   }
 
   async _updateObject(event, formData) {
