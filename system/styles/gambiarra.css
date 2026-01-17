@@ -315,4 +315,23 @@
 .gambi-badge.strong { filter: saturate(1.25); }
 .gambi-badge.bug { filter: saturate(1.2) contrast(1.05); }
 
+/* =========================
+ * v0.4 — Destaque de dados no chat
+ * ========================= */
+
+.gambi-chat-card .gambi-die {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  font-weight: 600;
+}
+
+.gambi-chat-card .gambi-die.success {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.16);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
+}
+
 

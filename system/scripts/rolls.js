@@ -25,8 +25,14 @@ function clampInt(n, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
-function formatResults(results) {
-  return results.map((r) => r.result).join(", ");
+function formatResults(results, target) {
+  return results
+    .map((r) => {
+      const n = r.result;
+      const cls = n >= target ? "gambi-die success" : "gambi-die";
+      return `<span class="${cls}">${n}</span>`;
+    })
+    .join(", ");
 }
 
 function applyDiceSoNiceAppearance(roll, colorsetId) {
@@ -205,9 +211,9 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
         ? "🧠 Mente"
         : "❤️ Coração";
 
-  const baseText = `🎲 ${attrLabel} (${pool}d6): <strong>[${formatResults(baseResults)}]</strong>`;
+  const baseText = `🎲 ${attrLabel} (${pool}d6): <strong>[${formatResults(baseResults, target)}]</strong>`;
   const roxoText = roxoResults.length
-    ? `<div class="gambi-line">🟣 Roxos (${roxos}d6): <strong>[${formatResults(roxoResults)}]</strong></div>`
+    ? `<div class="gambi-line">🟣 Roxos (${roxos}d6): <strong>[${formatResults(roxoResults, target)}]</strong></div>`
     : "";
 
   const resultBadge = bug
