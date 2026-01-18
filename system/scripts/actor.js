@@ -72,14 +72,9 @@ export class GambiarraActor extends Actor {
       const existingSource = i.system?.sourceId ? String(i.system.sourceId) : null;
       if (wantedSource && existingSource && existingSource === wantedSource) return true;
 
-      // fallback: nome igual (case-insensitive)
       return wantedName && normName(i.name) === wantedName;
     });
   }
-
-  /* =========================================================
-   * Import / Create no Actor
-   * ========================================================= */
 
   async _importPowerToActor(pack, id) {
     const doc = await this._loadPowerDoc(pack, id);
@@ -139,10 +134,6 @@ export class GambiarraActor extends Actor {
     return data;
   }
 
-  /* =========================================================
-   * Criar no pack do mundo
-   * ========================================================= */
-
   async _createPowerInWorldPack(data) {
     const pack = await this._getPack({ preferWorld: true });
 
@@ -161,12 +152,13 @@ export class GambiarraActor extends Actor {
     if (!createdDoc) return null;
 
     await pack.getIndex();
-
     return { pack, id: createdDoc.id, uuid: createdDoc.uuid, name: createdDoc.name };
   }
 
   /* =========================================================
    * Despertar Poder — dropdown + preview + anti-duplicado
+   *   ✅ desabilita duplicados no dropdown + "(já na ficha)"
+   *   ✅ aumenta "um pouco" via spacer (sem esticar botão)
    * ========================================================= */
 
   async _despertarPoder({ sortear = false, selectedId = null } = {}) {
@@ -174,7 +166,6 @@ export class GambiarraActor extends Actor {
 
     const pack = await this._getPack({ preferWorld: true });
 
-    // compêndio disponível?
     if (pack) {
       const entries = await this._listPowersFromPack(pack);
 
@@ -194,21 +185,46 @@ export class GambiarraActor extends Actor {
               return;
             }
           }
-
           ui.notifications.warn("Não consegui sortear um poder novo (todos os sorteados já estavam na ficha).");
           return;
         }
 
-        // escolher — respeita selectedId (se existir)
-        const finalSelectedId =
-          selectedId && entries.some((e) => e.id === selectedId)
-            ? selectedId
-            : entries[0].id;
+        // pré-carrega docs para ter uuid/descricao e marcar duplicados com precisão
+        const docsById = new Map();
+        for (const e of entries) {
+          const doc = await this._loadPowerDoc(pack, e.id);
+          if (doc) docsById.set(e.id, doc);
+        }
+
+        // selecionado inicial
+        const requestedId =
+          selectedId && entries.some((e) => e.id === selectedId) ? selectedId : null;
+
+        const firstAvailableId = (() => {
+          for (const e of entries) {
+            const doc = docsById.get(e.id);
+            const dup = this._hasDuplicatePower({ sourceId: doc?.uuid ?? null, name: doc?.name ?? e.name });
+            if (!dup) return e.id;
+          }
+          return entries[0].id;
+        })();
+
+        const initialId = (() => {
+          if (!requestedId) return firstAvailableId;
+
+          const doc = docsById.get(requestedId);
+          const dup = this._hasDuplicatePower({ sourceId: doc?.uuid ?? null, name: doc?.name ?? "" });
+          return dup ? firstAvailableId : requestedId;
+        })();
 
         const optionsHtml = entries
           .map((e) => {
-            const sel = e.id === finalSelectedId ? "selected" : "";
-            return `<option value="${e.id}" ${sel}>${e.name}</option>`;
+            const doc = docsById.get(e.id);
+            const dup = this._hasDuplicatePower({ sourceId: doc?.uuid ?? null, name: doc?.name ?? e.name });
+            const label = dup ? `${e.name} (já na ficha)` : e.name;
+            const dis = dup ? "disabled" : "";
+            const sel = e.id === initialId ? "selected" : "";
+            return `<option value="${e.id}" ${sel} ${dis}>${label}</option>`;
           })
           .join("");
 
@@ -225,7 +241,7 @@ export class GambiarraActor extends Actor {
 
               <div class="form-group">
                 <label>Descrição</label>
-                <div class="hint power-preview" style="border:1px solid #0002; border-radius:10px; padding:10px;">
+                <div class="hint power-preview" style="border:1px solid #0002; border-radius:10px; padding:10px; min-height:110px;">
                   Carregando...
                 </div>
               </div>
@@ -233,6 +249,8 @@ export class GambiarraActor extends Actor {
               <p class="hint dup-warning" style="display:none; margin-top:8px;">
                 ⚠️ Este poder já está na ficha.
               </p>
+
+              <div class="gambiarra-dialog-spacer" style="height: 48px;"></div>
             </form>
           `,
           buttons: {
@@ -243,9 +261,9 @@ export class GambiarraActor extends Actor {
                 if (!id) return;
                 if (!this._canAddPower()) return;
 
-                const doc = await this._loadPowerDoc(pack, id);
+                const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
                 const sourceId = doc?.uuid ?? null;
-                const name = doc?.name ?? "";
+                const name = String(doc?.name ?? "").trim();
 
                 if (this._hasDuplicatePower({ sourceId, name })) {
                   ui.notifications.warn(`Este poder já está na ficha: ${name}`);
@@ -264,7 +282,8 @@ export class GambiarraActor extends Actor {
 
             const refresh = async () => {
               const id = $select.val();
-              const doc = await this._loadPowerDoc(pack, id);
+              const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
+
               const desc = String(doc?.system?.descricao ?? "").trim();
               const name = String(doc?.name ?? "").trim();
               const sourceId = doc?.uuid ?? null;
@@ -295,7 +314,7 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * Criar Poder em mesa — perfeito + anti-duplicado
+   * Criar Poder em mesa (salvar no world e/ou adicionar na ficha)
    * ========================================================= */
 
   async _criarPoderNoCompendioOuFicha() {
@@ -383,8 +402,6 @@ export class GambiarraActor extends Actor {
             const data = read(html);
             if (!data) return;
 
-            // Evita duplicar por nome (no mínimo na ficha, e no pack você decide se aceita repetidos)
-            // Aqui impedimos duplicado NA FICHA. No pack a gente deixa (você pode querer variações).
             if (!canWritePack) {
               ui.notifications.warn("Não consigo salvar no compêndio (precisa ser GM e pack world).");
               return;
@@ -394,8 +411,6 @@ export class GambiarraActor extends Actor {
             if (!created) return;
 
             ui.notifications.info("✅ Poder criado no compêndio do mundo.");
-
-            // abre escolher poder já nele (e a UI marca duplicado se já estiver na ficha)
             await this._despertarPoder({ sortear: false, selectedId: created.id });
           },
         },
@@ -431,7 +446,6 @@ export class GambiarraActor extends Actor {
             if (!data) return;
             if (!this._canAddPower()) return;
 
-            // bloqueia duplicado na ficha
             if (this._hasDuplicatePower({ name: data.name })) {
               ui.notifications.warn(`Este poder já está na ficha: ${data.name}`);
               return;
@@ -446,14 +460,12 @@ export class GambiarraActor extends Actor {
               ui.notifications.warn("⚠️ Não deu para salvar no compêndio — vou apenas adicionar à ficha.");
             }
 
-            // Se salvou no pack, importa o doc real (com sourceId)
             if (created?.pack && created?.id) {
               await this._importPowerToActor(created.pack, created.id);
               ui.notifications.info("✅ Poder adicionado à ficha (vindo do compêndio).");
               return;
             }
 
-            // Senão, cria embedado
             await this._criarPoderEmbedado({
               nome: data.name,
               descricao: data.system.descricao,

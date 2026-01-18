@@ -9,7 +9,7 @@ e este projeto segue versionamento semântico aproximado.
 
 ## [V0.5]
 Integrado aos dados 3D do Dice So Nice!
-Poderes Gambiarra e Itens funcionais
+Poderes Gambiarra funcionais com compêndio
 
 ---
 ## [V0.4]

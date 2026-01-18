@@ -2,7 +2,7 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "minimumCoreVersion": "12",
   "compatibility": {
     "minimum": "12",
@@ -51,5 +51,5 @@
     }
   },
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
-  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.4/gambiarra-sys6-system-0.4.0.zip"
+  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.5/gambiarra-sys6-system-0.5.0.zip"
 }

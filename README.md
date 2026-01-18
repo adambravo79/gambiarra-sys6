@@ -13,7 +13,7 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ## 📦 Versão atual
 
-## **v0.3 — Núcleo Jogável Estável**
+## **v0.5 — Núcleo Jogável Estável**
 
 ### O que já existe
 
@@ -21,8 +21,6 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 - 🟢🔵🔴 Atributos: Corpo, Mente, Coração
 - 🐞 BUG como estado narrativo real
 - ⚡ Poderes Gambiarra (máx. 2)
-- Estados de Poder (ativo / esgotado / fora)
-- Itens que reagem a BUG
 - Interface clara para crianças e Programadora
 
 ### O que ainda NÃO existe

@@ -1,6 +1,16 @@
 <form class="gambiarra-sheet" autocomplete="off">
   <header class="sheet-header">
-    <h1>{{actor.name}}</h1>
+    {{!-- ✅ Nome editável e sincronizado com o Actor --}}
+    <h1 class="charname">
+      <input
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="Nome do Personagem"
+        style="width:100%;"
+      />
+    </h1>
+
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
 
@@ -101,32 +111,34 @@
     <h2>🧠 Efeitos do Nó</h2>
 
     {{#if (or system.meta.marcas.length system.meta.custos.length system.meta.corrupcoes.length)}}
+
       {{#if system.meta.marcas.length}}
-        <h3>🧬 Marcas do Nó</h3>
-        <ul>
-          {{#each system.meta.marcas}}
-            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-          {{/each}}
-        </ul>
+      <h3>🧬 Marcas do Nó</h3>
+      <ul>
+        {{#each system.meta.marcas}}
+        <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+        {{/each}}
+      </ul>
       {{/if}}
 
       {{#if system.meta.custos.length}}
-        <h3>💔 Custos Emocionais</h3>
-        <ul>
-          {{#each system.meta.custos}}
-            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-          {{/each}}
-        </ul>
+      <h3>💔 Custos Emocionais</h3>
+      <ul>
+        {{#each system.meta.custos}}
+        <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+        {{/each}}
+      </ul>
       {{/if}}
 
       {{#if system.meta.corrupcoes.length}}
-        <h3>🧩 Corrupções</h3>
-        <ul>
-          {{#each system.meta.corrupcoes}}
-            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-          {{/each}}
-        </ul>
+      <h3>🧩 Corrupções</h3>
+      <ul>
+        {{#each system.meta.corrupcoes}}
+        <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+        {{/each}}
+      </ul>
       {{/if}}
+
     {{else}}
       <p class="hint">Nenhum efeito permanente… ainda.</p>
     {{/if}}
@@ -142,16 +154,16 @@
     <h2>🎒 Itens do Nó</h2>
     <ul>
       {{#each items as |item|}}
-        <li>
-          {{item.name}}
-          {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
-            {{#if @root.isGM}}
-              <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
-                🐞 Usar no BUG
-              </button>
-            {{/if}}
+      <li>
+        {{item.name}}
+        {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
+          {{#if @root.isGM}}
+          <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
+            🐞 Usar no BUG
+          </button>
           {{/if}}
-        </li>
+        {{/if}}
+      </li>
       {{/each}}
     </ul>
   </section>
