@@ -49,6 +49,41 @@ export class GambiarraActorSheet extends ActorSheet {
     html.find(".roll-power").click(() => this.actor._despertarPoder({ sortear: true }));
     html.find(".add-power").click(() => this.actor._despertarPoder({ sortear: false }));
 
+    // remover poder
+html.find(".power-remove").on("click", async (ev) => {
+  ev.preventDefault();
+  const itemId = ev.currentTarget.dataset.itemId;
+  const poder = this.actor.items.get(itemId);
+  if (!poder) return;
+
+  const ok = await Dialog.confirm({
+    title: "Remover Poder",
+    content: `<p>Remover <strong>${poder.name}</strong> da ficha?</p>`,
+  });
+
+  if (!ok) return;
+  await poder.delete();
+});
+
+// trocar poder (remove + abre escolher)
+html.find(".power-replace").on("click", async (ev) => {
+  ev.preventDefault();
+  const itemId = ev.currentTarget.dataset.itemId;
+  const poder = this.actor.items.get(itemId);
+  if (!poder) return;
+
+  const ok = await Dialog.confirm({
+    title: "Trocar Poder",
+    content: `<p>Trocar <strong>${poder.name}</strong> por outro?</p>`,
+  });
+
+  if (!ok) return;
+
+  await poder.delete();
+  await this.actor._despertarPoder({ sortear: false });
+});
+
+
     // 🐞 BUG
     html.find(".clear-bug").on("click", () => this.actor._resolverBug?.());
     

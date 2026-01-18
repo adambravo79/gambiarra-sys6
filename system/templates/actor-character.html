@@ -65,81 +65,45 @@
   </section>
 
   {{!-- PODERES --}}
-  <section class="powers">
-    <h2>⚡ Poderes Gambiarra</h2>
+<section class="powers">
+  <h2>⚡ Poderes Gambiarra</h2>
 
-    {{#if (eq poderes.length 0)}}
-    <p class="hint">
-      Nenhum poder ainda.<br />Eles surgem em momentos de tensão.
-    </p>
-    {{/if}}
+  {{#if (eq poderes.length 0)}}
+    <p class="hint">Nenhum poder ainda.</p>
+  {{/if}}
 
-    <ul class="power-list">
-      {{#each poderes as |poder|}}
+  <ul class="power-list">
+    {{#each poderes as |poder|}}
       <li class="power power-{{poder.system.estado}}">
-        <header>
+        <header class="power-header">
           <strong>{{poder.name}}</strong>
           <span class="state">{{poder.system.estado}}</span>
+
+          {{#if @root.isGM}}
+          <div class="power-actions">
+            <button type="button" class="power-remove" data-item-id="{{poder.id}}">
+              🗑️ Remover
+            </button>
+            <button type="button" class="power-replace" data-item-id="{{poder.id}}">
+              🔁 Trocar
+            </button>
+          </div>
+          {{/if}}
         </header>
 
         <p class="description">{{poder.system.descricao}}</p>
-
-        {{#if poder.system.efeitosPossiveis.length}}
-        <ul class="power-effects">
-          {{#each poder.system.efeitosPossiveis}}
-          <li>
-            {{#if (eq this "dado-roxo")}}🟣 Dado Roxo{{/if}} {{#if (eq this
-            "reduzir-dificuldade")}}🎯 Reduz dificuldade{{/if}} {{#if (eq this
-            "rerrolar")}}🔁 Re-rolar 1 dado{{/if}}
-          </li>
-          {{/each}}
-        </ul>
-        {{/if}}
-
-        <div class="power-status">
-          {{#if (eq poder.system.estado "ativo")}} ⚡ Ativo — pode forçar o Nó
-          {{/if}} {{#if (eq poder.system.estado "esgotado")}} ⚠ Esgotado — risco
-          elevado {{/if}} {{#if (eq poder.system.estado "fora")}} 🐞 Fora de
-          controle — BUG iminente {{/if}}
-        </div>
-
-        {{#if @root.isGM}}
-        <div class="power-controls">
-          <button
-            type="button"
-            class="power-state"
-            data-item-id="{{poder.id}}"
-            data-set="ativo"
-          >
-            Ativar
-          </button>
-          <button
-            type="button"
-            class="power-state"
-            data-item-id="{{poder.id}}"
-            data-set="esgotado"
-          >
-            Esgotar
-          </button>
-          <button
-            type="button"
-            class="power-state"
-            data-item-id="{{poder.id}}"
-            data-set="fora"
-          >
-            Fora
-          </button>
-        </div>
-        {{/if}}
       </li>
-      {{/each}}
-    </ul>
+    {{/each}}
+  </ul>
 
-    {{#if @root.isGM}}
-    <button type="button" class="add-power">➕ Despertar Poder</button>
-    <button type="button" class="roll-power">🎲 Sortear Poder</button>
+  {{#if @root.isGM}}
+    {{#if (lt poderes.length 2)}}
+      <button type="button" class="add-power">➕ Escolher Poder</button>
+      <button type="button" class="roll-power">🎲 Sortear Poder</button>
     {{/if}}
-  </section>
+  {{/if}}
+</section>
+
 
   {{!-- EFEITOS --}}
   <section class="effects">

@@ -9,7 +9,7 @@ import { GambiarraNpcModel } from "./data/actor-npc-model.js";
 import { GambiarraItemModel } from "./data/item-item-model.js";
 import { GambiarraPoderModel } from "./data/item-poder-model.js";
 
-import {seedPoderesCompendio} from "./seed-compendiums.js";
+import { seedPoderesCompendio } from "./seed-compendiums.js";
 
 Hooks.once("init", () => {
   console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.4)");
@@ -79,7 +79,7 @@ Hooks.once("init", () => {
 
       // Corpo = verde
       dice3d.addColorset?.({
-        name: "gambi-corpo",                 // ✅ ID que vamos usar no rolls.js
+        name: "gambi-corpo", // ✅ ID que vamos usar no rolls.js
         description: "Corpo (Verde)",
         category,
         foreground: "#ffffff",
@@ -121,17 +121,36 @@ Hooks.once("init", () => {
         edge: "#8a4de8",
       });
 
-      console.log("🎲 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados (IDs estáveis)");
+      console.log(
+        "🎲 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados (IDs estáveis)",
+      );
     } catch (e) {
-      console.warn("GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice", e);
+      console.warn(
+        "GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice",
+        e,
+      );
     }
+  });
+
+  game.settings.register("gambiarra-sys6", "poderesSeeded", {
+    name: "Poderes seedados",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
   });
 });
 
 Hooks.once("ready", async () => {
+  if (!game.user.isGM) return;
+
+  const already = game.settings.get("gambiarra-sys6", "poderesSeeded");
+  if (already) return;
+
   try {
-    await seedPoderesCompendio();
+    await seedPoderesCompendio(); // vai garantir world pack e popular
+    await game.settings.set("gambiarra-sys6", "poderesSeeded", true);
   } catch (e) {
-    console.warn("GAMBIARRA.SYS6 | Falha ao seedar compêndios", e);
+    console.warn("GAMBIARRA.SYS6 | Falha ao seedar poderes", e);
   }
 });
