@@ -45,51 +45,63 @@ export class GambiarraActorSheet extends ActorSheet {
 
     html.find(".roll-desafio").on("click", () => rollDesafio(this.actor));
 
+    // adicionar poder
+    html
+      .find(".roll-power")
+      .click(() => this.actor._despertarPoder({ sortear: true }));
+    html
+      .find(".add-power")
+      .click(() => this.actor._despertarPoder({ sortear: false }));
+
     // criar poder
-    html.find(".roll-power").click(() => this.actor._despertarPoder({ sortear: true }));
-    html.find(".add-power").click(() => this.actor._despertarPoder({ sortear: false }));
+    html
+      .find(".create-power")
+      .on("click", () => this.actor._criarPoderNoCompendioOuFicha());
 
     // remover poder
-html.find(".power-remove").on("click", async (ev) => {
-  ev.preventDefault();
-  const itemId = ev.currentTarget.dataset.itemId;
-  const poder = this.actor.items.get(itemId);
-  if (!poder) return;
+    html.find(".power-remove").on("click", async (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const poder = this.actor.items.get(itemId);
+      if (!poder) return;
 
-  const ok = await Dialog.confirm({
-    title: "Remover Poder",
-    content: `<p>Remover <strong>${poder.name}</strong> da ficha?</p>`,
-  });
+      const ok = await Dialog.confirm({
+        title: "Remover Poder",
+        content: `<p>Remover <strong>${poder.name}</strong> da ficha?</p>`,
+      });
 
-  if (!ok) return;
-  await poder.delete();
-});
+      if (!ok) return;
+      await poder.delete();
+    });
 
-// trocar poder (remove + abre escolher)
-html.find(".power-replace").on("click", async (ev) => {
-  ev.preventDefault();
-  const itemId = ev.currentTarget.dataset.itemId;
-  const poder = this.actor.items.get(itemId);
-  if (!poder) return;
+    // trocar poder (remove + abre escolher)
+    html.find(".power-replace").on("click", async (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const poder = this.actor.items.get(itemId);
+      if (!poder) return;
 
-  const ok = await Dialog.confirm({
-    title: "Trocar Poder",
-    content: `<p>Trocar <strong>${poder.name}</strong> por outro?</p>`,
-  });
+      const ok = await Dialog.confirm({
+        title: "Trocar Poder",
+        content: `<p>Trocar <strong>${poder.name}</strong> por outro?</p>`,
+      });
 
-  if (!ok) return;
+      if (!ok) return;
 
-  await poder.delete();
-  await this.actor._despertarPoder({ sortear: false });
-});
-
+      await poder.delete();
+      await this.actor._despertarPoder({ sortear: false });
+    });
 
     // 🐞 BUG
     html.find(".clear-bug").on("click", () => this.actor._resolverBug?.());
-    
+
     // 🧠 efeitos permanentes
-    html.find(".add-effect").on("click", () => this.actor._adicionarEfeitoPermanente?.());
-    html.find(".bug-effect").on("click", () => this.actor._converterBugEmEfeito?.());
+    html
+      .find(".add-effect")
+      .on("click", () => this.actor._adicionarEfeitoPermanente?.());
+    html
+      .find(".bug-effect")
+      .on("click", () => this.actor._converterBugEmEfeito?.());
 
     // 🎒 item contra bug
     html.find(".use-item-bug").on("click", (ev) => {
@@ -188,5 +200,4 @@ html.find(".power-replace").on("click", async (ev) => {
 
     return this.actor.update(formData);
   }
-
 }
