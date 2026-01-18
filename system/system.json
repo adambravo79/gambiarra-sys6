@@ -8,6 +8,16 @@
     "minimum": "12",
     "verified": "12"
   },
+  "packs": [
+    {
+      "name": "gambiarra-poderes",
+      "label": "⚡ Poderes Gambiarra",
+      "type": "Item",
+      "path": "packs/gambiarra-poderes",
+      "system": "gambiarra-sys6",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    }
+  ],
   "relationships": {
     "recommends": [
       {

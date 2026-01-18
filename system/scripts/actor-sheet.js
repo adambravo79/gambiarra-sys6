@@ -35,8 +35,6 @@ export class GambiarraActorSheet extends ActorSheet {
       items: itens,
       poderes,
       isGM: game.user.isGM,
-
-      // ✅ NOVO (feedback visual)
       attrSum,
       attrOk,
     };
@@ -48,32 +46,17 @@ export class GambiarraActorSheet extends ActorSheet {
     html.find(".roll-desafio").on("click", () => rollDesafio(this.actor));
 
     // criar poder
-    html.find(".add-power").on("click", () => this._despertarPoder());
+    html.find(".roll-power").click(() => this.actor._despertarPoder({ sortear: true }));
+    html.find(".add-power").click(() => this.actor._despertarPoder({ sortear: false }));
 
-    // mudar estado do poder
-    html.find(".power-state").on("click", async (ev) => {
-      ev.preventDefault();
-      const itemId = ev.currentTarget.dataset.itemId;
-      const novoEstado = ev.currentTarget.dataset.set;
-
-      const poder = this.actor.items.get(itemId);
-      if (!poder) return;
-
-      const update = { "system.estado": novoEstado };
-      if (novoEstado === "ativo") update["system.usos"] = 0;
-
-      await poder.update(update);
-    });
-
+    // 🐞 BUG
     html.find(".clear-bug").on("click", () => this.actor._resolverBug?.());
-    html.find(".add-power").on("click", () => this.actor._despertarPoder?.());
-    html
-      .find(".add-effect")
-      .on("click", () => this.actor._adicionarEfeitoPermanente?.());
-    html
-      .find(".bug-effect")
-      .on("click", () => this.actor._converterBugEmEfeito?.());
+    
+    // 🧠 efeitos permanentes
+    html.find(".add-effect").on("click", () => this.actor._adicionarEfeitoPermanente?.());
+    html.find(".bug-effect").on("click", () => this.actor._converterBugEmEfeito?.());
 
+    // 🎒 item contra bug
     html.find(".use-item-bug").on("click", (ev) => {
       ev.preventDefault();
       const itemId = ev.currentTarget.dataset.itemId;
@@ -81,13 +64,14 @@ export class GambiarraActorSheet extends ActorSheet {
       if (item?.usarContraBug) item.usarContraBug(this.actor);
     });
 
+    // (se ainda existir no template antigo) controles de estado por dataset.index
     html.find(".power-controls button").on("click", (ev) => {
       const index = Number(ev.currentTarget.dataset.index);
       const novoEstado = ev.currentTarget.dataset.set;
       this.actor._setPoderEstado?.(index, novoEstado);
     });
 
-    // Se já existir, não duplica
+    // ✅ Feedback visual da soma (sumbar)
     if (!html.find(".gambiarra-sumbar").length) {
       html.find(".attributes").append(`
       <div class="gambiarra-sumbar ok">
@@ -99,6 +83,7 @@ export class GambiarraActorSheet extends ActorSheet {
       </div>
     `);
     }
+
     const updateSumbar = () => {
       const c =
         Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
@@ -140,6 +125,7 @@ export class GambiarraActorSheet extends ActorSheet {
     // Atualiza normal
     // (mas antes: regra opcional soma=6)
     const enforce = game.gambiarra?.config?.enforceSum6 ?? false;
+
     if (enforce) {
       const corpo = Number(
         formData["system.attributes.corpo.value"] ??
@@ -168,58 +154,4 @@ export class GambiarraActorSheet extends ActorSheet {
     return this.actor.update(formData);
   }
 
-  async _despertarPoder() {
-    const poderesAtuais = this.actor.items.filter((i) => i.type === "poder");
-    if (poderesAtuais.length >= 2) {
-      ui.notifications.warn("Limite máximo de Poderes Gambiarra atingido (2).");
-      return;
-    }
-
-    new Dialog({
-      title: "⚡ Despertar Poder Gambiarra",
-      content: `
-        <p>Este poder surge de um momento narrativo intenso.</p>
-        <div class="form-group">
-          <label>Nome do Poder</label>
-          <input type="text" name="nome" />
-        </div>
-        <div class="form-group">
-          <label>Descrição</label>
-          <textarea name="descricao" rows="3"></textarea>
-        </div>
-      `,
-      buttons: {
-        ok: {
-          label: "Despertar",
-          callback: async (html) => {
-            const nome = String(html.find('[name="nome"]').val() ?? "").trim();
-            const descricao = String(
-              html.find('[name="descricao"]').val() ?? "",
-            ).trim();
-
-            if (!nome) {
-              ui.notifications.warn("Dê um nome para o Poder.");
-              return;
-            }
-
-            await this.actor.createEmbeddedDocuments("Item", [
-              {
-                name: nome,
-                type: "poder",
-                system: {
-                  descricao,
-                  estado: "ativo",
-                  usos: 0,
-                  limiteAtivo: 2,
-                  limiteFora: 3,
-                  efeitosPossiveis: [],
-                  obsSeguranca: "",
-                },
-              },
-            ]);
-          },
-        },
-      },
-    }).render(true);
-  }
 }
