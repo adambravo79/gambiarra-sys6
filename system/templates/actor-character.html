@@ -4,15 +4,6 @@
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
 
-  {{!-- BUG --}} {{#if system.meta.bug.ativo}}
-  <section class="bug-state {{system.meta.bug.intensidade}}">
-    🐞 <strong>BUG {{system.meta.bug.intensidade}}</strong><br />
-    {{system.meta.bug.descricao}} {{#if @root.isGM}}
-    <button type="button" class="clear-bug">Resolver BUG</button>
-    {{/if}}
-  </section>
-  {{/if}} 
-  
   {{!-- ATRIBUTOS (EDITÁVEIS) --}}
   <section class="attributes">
     <div class="attribute corpo">
@@ -65,79 +56,84 @@
   </section>
 
   {{!-- PODERES --}}
-<section class="powers">
-  <h2>⚡ Poderes Gambiarra</h2>
+  <section class="powers">
+    <h2>⚡ Poderes Gambiarra</h2>
 
-  {{#if (eq poderes.length 0)}}
-    <p class="hint">Nenhum poder ainda.</p>
-  {{/if}}
-
-  <ul class="power-list">
-    {{#each poderes as |poder|}}
-      <li class="power power-{{poder.system.estado}}">
-        <header class="power-header">
-          <strong>{{poder.name}}</strong>
-          <span class="state">{{poder.system.estado}}</span>
-
-          {{#if @root.isGM}}
-          <div class="power-actions">
-            <button type="button" class="power-remove" data-item-id="{{poder.id}}">
-              🗑️ Remover
-            </button>
-            <button type="button" class="power-replace" data-item-id="{{poder.id}}">
-              🔁 Trocar
-            </button>
-          </div>
-          {{/if}}
-        </header>
-
-        <p class="description">{{poder.system.descricao}}</p>
-      </li>
-    {{/each}}
-  </ul>
-
-  {{#if @root.isGM}}
-    {{#if (lt poderes.length 2)}}
-      <button type="button" class="add-power">➕ Escolher Poder</button>
-      <button type="button" class="roll-power">🎲 Sortear Poder</button>
+    {{#if (eq poderes.length 0)}}
+      <p class="hint">Nenhum poder ainda.</p>
     {{/if}}
-  {{/if}}
-</section>
 
+    <ul class="power-list">
+      {{#each poderes as |poder|}}
+        <li class="power power-{{poder.system.estado}}">
+          <header class="power-header">
+            <strong>{{poder.name}}</strong>
+            <span class="state">{{poder.system.estado}}</span>
+
+            {{#if @root.isGM}}
+            <div class="power-actions">
+              <button type="button" class="power-remove" data-item-id="{{poder.id}}">
+                🗑️ Remover
+              </button>
+              <button type="button" class="power-replace" data-item-id="{{poder.id}}">
+                🔁 Trocar
+              </button>
+            </div>
+            {{/if}}
+          </header>
+
+          <p class="description">{{poder.system.descricao}}</p>
+        </li>
+      {{/each}}
+    </ul>
+
+    {{#if @root.isGM}}
+      {{#if (lt poderes.length 2)}}
+        <button type="button" class="add-power">➕ Escolher Poder</button>
+        <button type="button" class="roll-power">🎲 Sortear Poder</button>
+        <button type="button" class="create-power">🧩 Criar Poder (em mesa)</button>
+      {{/if}}
+    {{/if}}
+  </section>
 
   {{!-- EFEITOS --}}
   <section class="effects">
     <h2>🧠 Efeitos do Nó</h2>
 
-    {{#if (or system.meta.marcas.length system.meta.custos.length
-    system.meta.corrupcoes.length)}} {{#if system.meta.marcas.length}}
-    <h3>🧬 Marcas do Nó</h3>
-    <ul>
-      {{#each system.meta.marcas}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{#if system.meta.custos.length}}
-    <h3>💔 Custos Emocionais</h3>
-    <ul>
-      {{#each system.meta.custos}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{#if system.meta.corrupcoes.length}}
-    <h3>🧩 Corrupções</h3>
-    <ul>
-      {{#each system.meta.corrupcoes}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{else}}
-    <p class="hint">Nenhum efeito permanente… ainda.</p>
-    {{/if}} {{#if @root.isGM}}
-    <button type="button" class="add-effect">
-      ➕ Registrar Efeito Permanente
-    </button>
-    <button type="button" class="bug-effect">🐞 BUG → Efeito Permanente</button>
+    {{#if (or system.meta.marcas.length system.meta.custos.length system.meta.corrupcoes.length)}}
+      {{#if system.meta.marcas.length}}
+        <h3>🧬 Marcas do Nó</h3>
+        <ul>
+          {{#each system.meta.marcas}}
+            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
+
+      {{#if system.meta.custos.length}}
+        <h3>💔 Custos Emocionais</h3>
+        <ul>
+          {{#each system.meta.custos}}
+            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
+
+      {{#if system.meta.corrupcoes.length}}
+        <h3>🧩 Corrupções</h3>
+        <ul>
+          {{#each system.meta.corrupcoes}}
+            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
+    {{else}}
+      <p class="hint">Nenhum efeito permanente… ainda.</p>
+    {{/if}}
+
+    {{#if @root.isGM}}
+      <button type="button" class="add-effect">➕ Registrar Efeito Permanente</button>
+      <button type="button" class="bug-effect">🐞 BUG → Efeito Permanente</button>
     {{/if}}
   </section>
 
@@ -146,14 +142,16 @@
     <h2>🎒 Itens do Nó</h2>
     <ul>
       {{#each items as |item|}}
-      <li>
-        {{item.name}} {{#if (and ../system.meta.bug.ativo
-        item.system.reageABug)}} {{#if @root.isGM}}
-        <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
-          🐞 Usar no BUG
-        </button>
-        {{/if}} {{/if}}
-      </li>
+        <li>
+          {{item.name}}
+          {{#if (and ../system.meta.bug.ativo item.system.reageABug)}}
+            {{#if @root.isGM}}
+              <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
+                🐞 Usar no BUG
+              </button>
+            {{/if}}
+          {{/if}}
+        </li>
       {{/each}}
     </ul>
   </section>
