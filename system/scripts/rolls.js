@@ -3,7 +3,7 @@
  * - Pool = valor do atributo
  * - Dificuldade = sucessos necessários (required) + alvo (target)
  * - Dados Roxos = bônus decidido pela Programadora no diálogo
- * - Chat mostra os valores rolados
+ * - Chat mostra os valores rolados (com destaque dos sucessos)
  * - Integração Dice So Nice (se instalado)
  */
 
@@ -15,9 +15,9 @@ const COLORSET = {
 };
 
 const ATTR_LABEL = {
-  corpo: "💪 Corpo",
-  mente: "🧠 Mente",
-  coracao: "❤️ Coração",
+  corpo: { icon: "💪", label: "Corpo" },
+  mente: { icon: "🧠", label: "Mente" },
+  coracao: { icon: "❤️", label: "Coração" },
 };
 
 function clampInt(n, min, max) {
@@ -25,42 +25,45 @@ function clampInt(n, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
-function formatResults(results, target) {
-  return results
-    .map((r) => {
-      const n = r.result;
-      const cls = n >= target ? "gambi-die success" : "gambi-die";
-      return `<span class="${cls}">${n}</span>`;
-    })
-    .join(", ");
-}
-
-function applyDiceSoNiceAppearance(roll, colorsetId) {
-  // Dice So Nice v4+ aceita appearance no DiceTerm
+function applyDiceSoNiceColorset(roll, colorsetId) {
   for (const die of roll.dice ?? []) {
-    die.options = die.options ?? {};
-    // compat
+    die.options ??= {};
     die.options.colorset = colorsetId;
-    // v4+ appearance
-    die.options.appearance = die.options.appearance ?? {};
+
+    // alguns builds leem via appearance
+    die.options.appearance ??= {};
     die.options.appearance.colorset = colorsetId;
   }
 }
 
 async function show3dIfAvailable(roll) {
-  // Assinatura comum: showForRoll(roll, user, synchronize?)
   if (!game.dice3d?.showForRoll) return;
   await game.dice3d.showForRoll(roll, game.user, true);
+}
+
+function renderDiceLine(results, target) {
+  // retorna HTML com cada dado, marcando sucesso
+  // results = [{result: 5}, ...]
+  return results
+    .map((r) => {
+      const ok = r.result >= target;
+      return `<span class="gambi-die ${ok ? "is-success" : ""}">${r.result}</span>`;
+    })
+    .join(" ");
+}
+
+function listSuccesses(results, target) {
+  const suc = results.filter((r) => r.result >= target).map((r) => r.result);
+  return suc.join(", ");
 }
 
 export async function rollDesafio(actor) {
   const difficulties = game.gambiarra?.config?.difficulties ?? {};
 
-  // Valores seguros (caso algum ator antigo esteja incompleto)
   const attrs = actor.system?.attributes ?? {};
-  const corpo = Number(attrs.corpo?.value ?? 2);
-  const mente = Number(attrs.mente?.value ?? 2);
-  const coracao = Number(attrs.coracao?.value ?? 2);
+  const corpo = attrs.corpo?.value ?? 2;
+  const mente = attrs.mente?.value ?? 2;
+  const coracao = attrs.coracao?.value ?? 2;
 
   const content = `
   <form class="gambiarra-roll" autocomplete="off">
@@ -90,11 +93,12 @@ export async function rollDesafio(actor) {
     <hr/>
 
     <div class="form-group">
-      <label>🟣 Dados Roxos</label>
+      <label class="purple-label">🟣 Dados Roxos</label>
+
       <div class="purple-row">
-        <button type="button" class="purple-minus">−</button>
-        <input class="purple-count" type="text" name="purpleDice" value="0" readonly />
-        <button type="button" class="purple-plus">+</button>
+        <button type="button" class="purple-btn purple-minus" aria-label="Diminuir">−</button>
+        <input class="purple-value" type="text" name="purpleDice" value="0" readonly />
+        <button type="button" class="purple-btn purple-plus" aria-label="Aumentar">+</button>
         <span class="hint">A Programadora decide (ideia, item, ajuda, poder etc.)</span>
       </div>
     </div>
@@ -149,23 +153,23 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
 
   if (!pool || pool < 1) {
     ui.notifications.warn(
-      "Este personagem não tem valor nesse atributo (pool vazio). Ajuste Corpo/Mente/Coração na ficha.",
+      "Pool vazio. Ajuste Corpo/Mente/Coração na ficha (mínimo 1)."
     );
     return;
   }
 
-  // 1) Rolagem base (cor do atributo)
-  const rollBase = await new Roll(`${pool}d6`).evaluate(); // v12: sem {async:true}
-  applyDiceSoNiceAppearance(rollBase, COLORSET[atributo] ?? "gambi-corpo");
+  // 1) Base (atributo)
+  const rollBase = await new Roll(`${pool}d6`).evaluate();
+  applyDiceSoNiceColorset(rollBase, COLORSET[atributo] ?? COLORSET.corpo);
 
-  // 2) Rolagem roxa (se existir)
+  // 2) Roxos (bônus)
   let rollRoxo = null;
   if (roxos > 0) {
     rollRoxo = await new Roll(`${roxos}d6`).evaluate();
-    applyDiceSoNiceAppearance(rollRoxo, COLORSET.roxo);
+    applyDiceSoNiceColorset(rollRoxo, COLORSET.roxo);
   }
 
-  // Mostrar 3D (se módulo existir)
+  // 3D (se existir)
   await show3dIfAvailable(rollBase);
   if (rollRoxo) await show3dIfAvailable(rollRoxo);
 
@@ -174,20 +178,6 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
 
   const allResults = [...baseResults, ...roxoResults];
   const successes = allResults.filter((r) => r.result >= target).length;
-
-  // ✅ NOVO: quais valores foram sucessos (>= alvo)
-  const successValues = allResults
-    .filter((r) => r.result >= target)
-    .map((r) => r.result)
-    .sort((a, b) => a - b);
-
-  // ✅ NOVO: classe de cor do atributo (para o badge)
-  const attrClass =
-    atributo === "corpo"
-      ? "attr-corpo"
-      : atributo === "mente"
-        ? "attr-mente"
-        : "attr-coracao";
 
   const bug = successes < required;
   const strong = successes > required;
@@ -204,44 +194,76 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
     });
   }
 
-  const attrLabel =
-    atributo === "corpo"
-      ? "💪 Corpo"
-      : atributo === "mente"
-        ? "🧠 Mente"
-        : "❤️ Coração";
+  const resultadoTexto = bug
+    ? "🐞 **BUG** — O Nó reage."
+    : strong
+    ? "🌟 **Sucesso Forte**"
+    : "✨ **Sucesso**";
 
-  const baseText = `🎲 ${attrLabel} (${pool}d6): <strong>[${formatResults(baseResults, target)}]</strong>`;
-  const roxoText = roxoResults.length
-    ? `<div class="gambi-line">🟣 Roxos (${roxos}d6): <strong>[${formatResults(roxoResults, target)}]</strong></div>`
+  const a = ATTR_LABEL[atributo] ?? { icon: "🎲", label: atributo };
+
+  const baseSuccessList = listSuccesses(baseResults, target);
+  const roxoSuccessList = listSuccesses(roxoResults, target);
+  const allSuccessList = listSuccesses(allResults, target);
+
+  const badge = bug
+    ? `<span class="gambi-badge is-bug">🐞 BUG</span>`
+    : strong
+    ? `<span class="gambi-badge is-strong">🌟 Sucesso Forte</span>`
+    : `<span class="gambi-badge is-ok">✨ Sucesso</span>`;
+
+  const baseLine = `
+    <div class="gambi-line">
+      <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
+      <div class="gambi-dice">${renderDiceLine(baseResults, target)}</div>
+      ${
+        baseSuccessList
+          ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
+          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+      }
+    </div>
+  `;
+
+  const roxoLine = roxos
+    ? `
+    <div class="gambi-line">
+      <div class="gambi-line-title">🟣 Roxos (${roxos}d6)</div>
+      <div class="gambi-dice">${renderDiceLine(roxoResults, target)}</div>
+      ${
+        roxoSuccessList
+          ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
+          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+      }
+    </div>
+  `
     : "";
 
-  const resultBadge = bug
-    ? `<span class="gambi-badge ${attrClass} bug">🐞 BUG</span>`
-    : strong
-      ? `<span class="gambi-badge ${attrClass} strong">🌟 Sucesso Forte</span>`
-      : `<span class="gambi-badge ${attrClass} ok">✨ Sucesso</span>`;
-
-  const diffLine = `<div class="gambi-sub">Dificuldade: <strong>${required}</strong> sucesso(s), alvo <strong>${target}+</strong></div>`;
-
-  // ✅ NOVO: detalhar sucessos (quantos e quais valores bateram o alvo)
-  const successLine =
-    successValues.length > 0
-      ? `<div class="gambi-sub">✅ Dados em sucesso (${successValues.length}): <strong>${successValues.join(", ")}</strong></div>`
-      : `<div class="gambi-sub">✅ Dados em sucesso (0)</div>`;
-
-  ChatMessage.create({
-    content: `
-      <div class="gambi-chat-card">
-        <div class="gambi-title">🎲 Desafio ${dificuldade.label} ${resultBadge}</div>
-        ${diffLine}
-
-        <div class="gambi-line">${baseText}</div>
-        ${roxoText}
-
-        <div class="gambi-sub">Sucessos totais: <strong>${successes}</strong></div>
-        ${successLine}
+  const chatHtml = `
+    <div class="gambi-chat">
+      <div class="gambi-chat-head">
+        <h2>🎲 ${dificuldade.label}</h2>
+        ${badge}
       </div>
-    `,
-  });
+
+      <div class="gambi-chat-meta">
+        <div><strong>Dificuldade:</strong> ${required} sucesso(s)</div>
+        <div><strong>Alvo:</strong> ${target}+</div>
+      </div>
+
+      ${baseLine}
+      ${roxoLine}
+
+      <div class="gambi-chat-summary">
+        <div><strong>Sucessos totais:</strong> ${successes}</div>
+        ${
+          allSuccessList
+            ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter(r=>r.result>=target).length}): ${allSuccessList}</div>`
+            : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
+        }
+        <div class="gambi-result"><strong>Resultado:</strong> ${resultadoTexto}</div>
+      </div>
+    </div>
+  `;
+
+  ChatMessage.create({ content: chatHtml });
 }

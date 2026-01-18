@@ -9,10 +9,12 @@ import { GambiarraNpcModel } from "./data/actor-npc-model.js";
 import { GambiarraItemModel } from "./data/item-item-model.js";
 import { GambiarraPoderModel } from "./data/item-poder-model.js";
 
+import {seedPoderesCompendio} from "./seed-compendiums.js";
+
 Hooks.once("init", () => {
   console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.4)");
 
-  // ✅ V12: registrar DataModels por tipo (isso resolve "character não é tipo válido")
+  // ✅ V12: registrar DataModels por tipo
   CONFIG.Actor.dataModels = {
     character: GambiarraCharacterModel,
     npc: GambiarraNpcModel,
@@ -70,68 +72,66 @@ Hooks.once("init", () => {
     },
   };
 
+  // ✅ Dice So Nice: registrar colorsets com IDs estáveis (name = id)
   Hooks.once("diceSoNiceReady", (dice3d) => {
     try {
-      // cores “fixas” do sistema
-      dice3d.addColorset?.(
-        {
-          name: "GAMBI Corpo (Verde)",
-          description: "GAMBIARRA.SYS6",
-          category: "GAMBIARRA.SYS6",
-          foreground: "#ffffff",
-          background: "#1fb35b",
-          outline: "#0a3d22",
-          edge: "#1fb35b",
-        },
-        "gambi-corpo",
-      );
+      const category = "GAMBIARRA.SYS6";
 
-      dice3d.addColorset?.(
-        {
-          name: "GAMBI Mente (Azul)",
-          description: "GAMBIARRA.SYS6",
-          category: "GAMBIARRA.SYS6",
-          foreground: "#ffffff",
-          background: "#2f7de1",
-          outline: "#123a73",
-          edge: "#2f7de1",
-        },
-        "gambi-mente",
-      );
+      // Corpo = verde
+      dice3d.addColorset?.({
+        name: "gambi-corpo",                 // ✅ ID que vamos usar no rolls.js
+        description: "Corpo (Verde)",
+        category,
+        foreground: "#ffffff",
+        background: "#1fb35b",
+        outline: "#0a3d22",
+        edge: "#1fb35b",
+      });
 
-      dice3d.addColorset?.(
-        {
-          name: "GAMBI Coração (Vermelho)",
-          description: "GAMBIARRA.SYS6",
-          category: "GAMBIARRA.SYS6",
-          foreground: "#ffffff",
-          background: "#e24a4a",
-          outline: "#6e1515",
-          edge: "#e24a4a",
-        },
-        "gambi-coracao",
-      );
+      // Mente = azul
+      dice3d.addColorset?.({
+        name: "gambi-mente",
+        description: "Mente (Azul)",
+        category,
+        foreground: "#ffffff",
+        background: "#2f7de1",
+        outline: "#123a73",
+        edge: "#2f7de1",
+      });
 
-      dice3d.addColorset?.(
-        {
-          name: "GAMBI Dado Roxo",
-          description: "GAMBIARRA.SYS6",
-          category: "GAMBIARRA.SYS6",
-          foreground: "#ffffff",
-          background: "#8a4de8",
-          outline: "#3a1b6e",
-          edge: "#8a4de8",
-        },
-        "gambi-roxo",
-      );
+      // Coração = vermelho
+      dice3d.addColorset?.({
+        name: "gambi-coracao",
+        description: "Coração (Vermelho)",
+        category,
+        foreground: "#ffffff",
+        background: "#e24a4a",
+        outline: "#6e1515",
+        edge: "#e24a4a",
+      });
 
-      console.log("🟣 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados");
+      // Roxo = bônus
+      dice3d.addColorset?.({
+        name: "gambi-roxo",
+        description: "Dado Roxo (Bônus)",
+        category,
+        foreground: "#ffffff",
+        background: "#8a4de8",
+        outline: "#3a1b6e",
+        edge: "#8a4de8",
+      });
+
+      console.log("🎲 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados (IDs estáveis)");
     } catch (e) {
-      console.warn(
-        "GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice",
-        e,
-      );
+      console.warn("GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice", e);
     }
   });
-  
+});
+
+Hooks.once("ready", async () => {
+  try {
+    await seedPoderesCompendio();
+  } catch (e) {
+    console.warn("GAMBIARRA.SYS6 | Falha ao seedar compêndios", e);
+  }
 });

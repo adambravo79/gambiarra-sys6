@@ -1,12 +1,46 @@
-// scripts/data/item-poder-model.js
-export class GambiarraPoderModel extends foundry.abstract.TypeDataModel {
+export class GambiarraPoderModel extends foundry.abstract.DataModel {
   static defineSchema() {
-    const f = foundry.data.fields;
+    const fields = foundry.data.fields;
 
     return {
-      descricao: new f.StringField({ initial: "" }),
-      nivel: new f.NumberField({ initial: 1, integer: true, min: 1, max: 2 }),
-      efeitosPossiveis: new f.ArrayField(new f.StringField({ initial: "" }), { initial: [] })
+      descricao: new fields.StringField({ required: false, initial: "" }),
+
+      estado: new fields.StringField({
+        required: true,
+        initial: "ativo",
+        choices: ["ativo", "esgotado", "fora"],
+      }),
+
+      usos: new fields.NumberField({
+        required: true,
+        integer: true,
+        min: 0,
+        initial: 0,
+      }),
+
+      // thresholds simples (padrão do seu texto anterior)
+      limiteAtivo: new fields.NumberField({
+        required: true,
+        integer: true,
+        min: 1,
+        initial: 2,
+      }),
+
+      limiteFora: new fields.NumberField({
+        required: true,
+        integer: true,
+        min: 2,
+        initial: 3,
+      }),
+
+      efeitosPossiveis: new fields.ArrayField(
+        new fields.StringField({
+          choices: ["dado-roxo", "reduzir-dificuldade", "rerrolar"],
+        }),
+        { required: true, initial: [] },
+      ),
+
+      obsSeguranca: new fields.StringField({ required: false, initial: "" }),
     };
   }
 }

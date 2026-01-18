@@ -22,13 +22,18 @@ export class GambiarraActorSheet extends ActorSheet {
       context.actor.system?.attributes?.coracao?.value ?? 0,
     );
 
+    const items = context.actor.items ?? [];
+    const poderes = items.filter((i) => i.type === "poder");
+    const itens = items.filter((i) => i.type === "item");
+
     const attrSum = corpo + mente + coracao;
     const attrOk = corpo >= 1 && mente >= 1 && coracao >= 1 && attrSum === 6;
 
     return {
       ...context,
       system: context.actor.system,
-      items: context.actor.items,
+      items: itens,
+      poderes,
       isGM: game.user.isGM,
 
       // ✅ NOVO (feedback visual)
@@ -41,6 +46,24 @@ export class GambiarraActorSheet extends ActorSheet {
     super.activateListeners(html);
 
     html.find(".roll-desafio").on("click", () => rollDesafio(this.actor));
+
+    // criar poder
+    html.find(".add-power").on("click", () => this._despertarPoder());
+
+    // mudar estado do poder
+    html.find(".power-state").on("click", async (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const novoEstado = ev.currentTarget.dataset.set;
+
+      const poder = this.actor.items.get(itemId);
+      if (!poder) return;
+
+      const update = { "system.estado": novoEstado };
+      if (novoEstado === "ativo") update["system.usos"] = 0;
+
+      await poder.update(update);
+    });
 
     html.find(".clear-bug").on("click", () => this.actor._resolverBug?.());
     html.find(".add-power").on("click", () => this.actor._despertarPoder?.());
@@ -143,5 +166,60 @@ export class GambiarraActorSheet extends ActorSheet {
     }
 
     return this.actor.update(formData);
+  }
+
+  async _despertarPoder() {
+    const poderesAtuais = this.actor.items.filter((i) => i.type === "poder");
+    if (poderesAtuais.length >= 2) {
+      ui.notifications.warn("Limite máximo de Poderes Gambiarra atingido (2).");
+      return;
+    }
+
+    new Dialog({
+      title: "⚡ Despertar Poder Gambiarra",
+      content: `
+        <p>Este poder surge de um momento narrativo intenso.</p>
+        <div class="form-group">
+          <label>Nome do Poder</label>
+          <input type="text" name="nome" />
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea name="descricao" rows="3"></textarea>
+        </div>
+      `,
+      buttons: {
+        ok: {
+          label: "Despertar",
+          callback: async (html) => {
+            const nome = String(html.find('[name="nome"]').val() ?? "").trim();
+            const descricao = String(
+              html.find('[name="descricao"]').val() ?? "",
+            ).trim();
+
+            if (!nome) {
+              ui.notifications.warn("Dê um nome para o Poder.");
+              return;
+            }
+
+            await this.actor.createEmbeddedDocuments("Item", [
+              {
+                name: nome,
+                type: "poder",
+                system: {
+                  descricao,
+                  estado: "ativo",
+                  usos: 0,
+                  limiteAtivo: 2,
+                  limiteFora: 3,
+                  efeitosPossiveis: [],
+                  obsSeguranca: "",
+                },
+              },
+            ]);
+          },
+        },
+      },
+    }).render(true);
   }
 }

@@ -11,7 +11,9 @@
     <button type="button" class="clear-bug">Resolver BUG</button>
     {{/if}}
   </section>
-  {{/if}} {{!-- ATRIBUTOS (EDITÁVEIS) --}}
+  {{/if}} 
+  
+  {{!-- ATRIBUTOS (EDITÁVEIS) --}}
   <section class="attributes">
     <div class="attribute corpo">
       <h2>🟢 Corpo</h2>
@@ -49,17 +51,12 @@
       />
     </div>
 
-    <p class="hint">Regra: Corpo + Mente + Coração = 6 (sem zeros).</p>
-
-    <div class="sum-bar {{#if attrOk}}ok{{else}}bad{{/if}}">
-      <span class="sum-label">Soma</span>
-      <span class="sum-value">{{attrSum}} / 6</span>
-
-      {{#if attrOk}}
-      <span class="sum-msg">✅ Tudo certo.</span>
-      {{else}}
-      <span class="sum-msg">⚠ Ajuste até dar 6 (sem zeros).</span>
-      {{/if}}
+    <div class="gambiarra-sumbar ok">
+      <div class="sum-left">
+        <span>📐 Soma</span>
+        <span class="sum-pill">6</span>
+      </div>
+      <div class="sum-right">Regra opcional ativa</div>
     </div>
   </section>
 
@@ -71,27 +68,27 @@
   <section class="powers">
     <h2>⚡ Poderes Gambiarra</h2>
 
-    {{#if (eq system.meta.poderes.length 0)}}
+    {{#if (eq poderes.length 0)}}
     <p class="hint">
       Nenhum poder ainda.<br />Eles surgem em momentos de tensão.
     </p>
     {{/if}}
 
     <ul class="power-list">
-      {{#each system.meta.poderes as |poder index|}}
-      <li class="power power-{{poder.estado}}">
+      {{#each poderes as |poder|}}
+      <li class="power power-{{poder.system.estado}}">
         <header>
-          <strong>{{poder.nome}}</strong>
-          <span class="state">{{poder.estado}}</span>
+          <strong>{{poder.name}}</strong>
+          <span class="state">{{poder.system.estado}}</span>
         </header>
 
-        <p class="description">{{poder.descricao}}</p>
+        <p class="description">{{poder.system.descricao}}</p>
 
-        {{#if poder.efeitosPossiveis}}
+        {{#if poder.system.efeitosPossiveis.length}}
         <ul class="power-effects">
-          {{#each poder.efeitosPossiveis}}
+          {{#each poder.system.efeitosPossiveis}}
           <li>
-            {{#if (eq this "dado")}}🟣 Dado Roxo{{/if}} {{#if (eq this
+            {{#if (eq this "dado-roxo")}}🟣 Dado Roxo{{/if}} {{#if (eq this
             "reduzir-dificuldade")}}🎯 Reduz dificuldade{{/if}} {{#if (eq this
             "rerrolar")}}🔁 Re-rolar 1 dado{{/if}}
           </li>
@@ -100,21 +97,36 @@
         {{/if}}
 
         <div class="power-status">
-          {{#if (eq poder.estado "ativo")}} ⚡ Ativo — pode forçar o Nó {{/if}}
-          {{#if (eq poder.estado "esgotado")}} ⚠ Esgotado — risco elevado
-          {{/if}} {{#if (eq poder.estado "fora")}} 🐞 Fora de controle — BUG
-          iminente {{/if}}
+          {{#if (eq poder.system.estado "ativo")}} ⚡ Ativo — pode forçar o Nó
+          {{/if}} {{#if (eq poder.system.estado "esgotado")}} ⚠ Esgotado — risco
+          elevado {{/if}} {{#if (eq poder.system.estado "fora")}} 🐞 Fora de
+          controle — BUG iminente {{/if}}
         </div>
 
         {{#if @root.isGM}}
         <div class="power-controls">
-          <button type="button" data-index="{{index}}" data-set="ativo">
+          <button
+            type="button"
+            class="power-state"
+            data-item-id="{{poder.id}}"
+            data-set="ativo"
+          >
             Ativar
           </button>
-          <button type="button" data-index="{{index}}" data-set="esgotado">
+          <button
+            type="button"
+            class="power-state"
+            data-item-id="{{poder.id}}"
+            data-set="esgotado"
+          >
             Esgotar
           </button>
-          <button type="button" data-index="{{index}}" data-set="fora">
+          <button
+            type="button"
+            class="power-state"
+            data-item-id="{{poder.id}}"
+            data-set="fora"
+          >
             Fora
           </button>
         </div>
@@ -123,9 +135,9 @@
       {{/each}}
     </ul>
 
-    {{#if (lt system.meta.poderes.length 2)}} {{#if @root.isGM}}
+    {{#if @root.isGM}}
     <button type="button" class="add-power">➕ Despertar Poder</button>
-    {{/if}} {{/if}}
+    {{/if}}
   </section>
 
   {{!-- EFEITOS --}}

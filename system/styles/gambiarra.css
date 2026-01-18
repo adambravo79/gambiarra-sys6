@@ -44,7 +44,6 @@
   background: rgba(200, 0, 0, 0.08);
 }
 
-
 .attributes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -53,7 +52,7 @@
 }
 
 .attribute {
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   padding: 10px;
 }
@@ -68,7 +67,7 @@
 }
 
 .bug-state {
-  border: 1px solid rgba(255,100,100,0.5);
+  border: 1px solid rgba(255, 100, 100, 0.5);
   border-radius: 8px;
   padding: 10px;
   margin: 10px 0;
@@ -80,7 +79,7 @@
 }
 
 .power {
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   padding: 10px;
   margin: 8px 0;
@@ -172,9 +171,9 @@
   padding: 8px 10px;
   border-radius: 12px;
   font-size: 12px;
-  border: 1px solid rgba(0,0,0,0.25);
+  border: 1px solid rgba(0, 0, 0, 0.25);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 10px;
 }
@@ -191,7 +190,7 @@
   border-radius: 999px;
   font-weight: 900;
   letter-spacing: 0.4px;
-  border: 1px solid rgba(0,0,0,0.25);
+  border: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 /* Estado OK */
@@ -224,9 +223,15 @@
  * ========================= */
 
 /* só pra ficar consistente com o que você pediu */
-.attribute.corpo h2::before { content: "💪 "; }
-.attribute.mente h2::before { content: "🧠 "; }
-.attribute.coracao h2::before { content: "❤️ "; }
+.attribute.corpo h2::before {
+  content: "💪 ";
+}
+.attribute.mente h2::before {
+  content: "🧠 ";
+}
+.attribute.coracao h2::before {
+  content: "❤️ ";
+}
 
 /* se você quiser remover os emojis antigos do template sem mexer nele agora,
    este truque "tapa buraco" mantém o texto depois do emoji. */
@@ -245,8 +250,8 @@
 .gambi-chat-card {
   padding: 10px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(0,0,0,0.25);
-  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .gambi-chat-card .gambi-title {
@@ -276,7 +281,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 900;
-  border: 1px solid rgba(0,0,0,0.25);
+  border: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 .gambi-badge.ok {
@@ -311,9 +316,15 @@
 }
 
 /* opcional: reforço visual do tipo de resultado (sem mudar o atributo) */
-.gambi-badge.ok { filter: saturate(1.05); }
-.gambi-badge.strong { filter: saturate(1.25); }
-.gambi-badge.bug { filter: saturate(1.2) contrast(1.05); }
+.gambi-badge.ok {
+  filter: saturate(1.05);
+}
+.gambi-badge.strong {
+  filter: saturate(1.25);
+}
+.gambi-badge.bug {
+  filter: saturate(1.2) contrast(1.05);
+}
 
 /* =========================
  * v0.4 — Destaque de dados no chat
@@ -323,15 +334,143 @@
   display: inline-block;
   padding: 0 6px;
   border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
   font-weight: 600;
 }
 
 .gambi-chat-card .gambi-die.success {
-  border-color: rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.16);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+/* ============================
+   ROLAGEM (DIALOG)
+   ============================ */
+.gambiarra-roll .purple-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
 }
 
+.gambiarra-roll .purple-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 20px;
+  line-height: 34px;
+  padding: 0;
+}
 
+.gambiarra-roll .purple-value {
+  width: 54px !important;
+  height: 36px;
+  text-align: center;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.gambiarra-roll .hint {
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+/* ============================
+   CHAT CARD (rolagens)
+   ============================ */
+.gambi-chat {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.gambi-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.gambi-chat h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.gambi-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.gambi-badge.is-ok {
+}
+.gambi-badge.is-strong {
+}
+.gambi-badge.is-bug {
+}
+
+.gambi-chat-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  opacity: 0.9;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.gambi-line {
+  padding: 8px 0;
+  border-top: 1px dashed rgba(0, 0, 0, 0.15);
+}
+
+.gambi-line-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.gambi-dice {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gambi-die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  font-weight: 800;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.gambi-die.is-success {
+  border-width: 2px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.gambi-sub {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.gambi-sub.is-muted {
+  opacity: 0.7;
+}
+
+.gambi-chat-summary {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.gambi-result {
+  margin-top: 6px;
+}

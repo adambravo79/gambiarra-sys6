@@ -1,20 +1,19 @@
 export class GambiarraItemSheet extends ItemSheet {
-
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["gambiarra", "sheet", "item"],
-      template: `systems/gambiarra-sys6/templates/item/item-sheet.html`,
-      width: 420,
-      height: "auto"
+      width: 440,
+      height: 420,
     });
   }
 
+  get template() {
+    const base = "systems/gambiarra-sys6/templates/item";
+    if (this.item.type === "poder") return `${base}/item-poder.html`;
+    return `${base}/item-item.html`; // seu item normal (o que reage a BUG)
+  }
+
   getData() {
-    const data = super.getData();
-
-    data.system.dadosRoxos ??= 0;
-    data.system.efeitosBug ??= [];
-
-    return data;
+    return super.getData();
   }
 }

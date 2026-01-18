@@ -1,0 +1,531 @@
+[
+  {
+    "name": "Rebobinar",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nVolta o tempo em 10 segundos para refazer uma ação. Ideal para corrigir algo importante ou salvar alguém.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Use para proteger e salvar. Evite cenas assustadoras."
+    }
+  },
+  {
+    "name": "Pulo de Glitch",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nTeletransporte curto (5 metros) para onde você está olhando.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite teletransportar para lugares perigosos sem combinar antes."
+    }
+  },
+  {
+    "name": "Gravidade Zero",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nPermite flutuar ou andar no teto por alguns segundos.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Se alguém ficar com medo de altura: pause e ajuste a cena."
+    }
+  },
+  {
+    "name": "Velocidade Turbo",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nMove-se tão rápido que parece um vulto borrado.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Use para fugir/ajudar, não para machucar."
+    }
+  },
+  {
+    "name": "Elasticidade",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nEstica membros para alcançar lugares distantes.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Atravessar Dados",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nPode passar por paredes sólidas que tenham circuitos.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite atravessar pessoas. Prefira portas/paredes."
+    }
+  },
+  {
+    "name": "Salto Duplo",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nFaz um segundo salto no ar, pisando em um pixel invisível.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Caminho de Luz",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Movimento e Espaço\nCria uma ponte temporária de neon sob os pés.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+
+  {
+    "name": "Pele de Pixel",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nTorna o corpo duro como pedra (defesa absoluta).",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite descrever violência. Foque em proteger."
+    }
+  },
+  {
+    "name": "Super Força",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nPode erguer objetos 10x maiores que você.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Use para levantar/segurar, não para ferir."
+    }
+  },
+  {
+    "name": "Sopro de Gelo",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nCongela mecanismos ou inimigos de estática.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Transforme ‘inimigos’ em obstáculos engraçados, não em dor."
+    }
+  },
+  {
+    "name": "Ímã Humano",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nAtrai ou repele objetos de metal com as mãos.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Escudo de Erro",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nCria uma bolha que rebate ataques de volta.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Rebater pode virar ‘empurrão de volta’ sem machucar."
+    }
+  },
+  {
+    "name": "Mãos de Faísca",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nGera eletricidade para carregar baterias ou dar choques.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Prefira ‘carregar’ e ‘assustar’, não machucar."
+    }
+  },
+  {
+    "name": "Rajada de Bits",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nDispara pequenos cubos de energia pelos dedos.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Descreva como empurrão/efeito visual."
+    }
+  },
+  {
+    "name": "Grito Sônico",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Combate e Defesa\nUm som tão alto que empurra tudo à frente.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Pode assustar — cheque se está tudo bem."
+    }
+  },
+
+  {
+    "name": "Visão de Código",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nEnxergar através de paredes ou ver o ‘HP’ das coisas.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Invisibilidade Digital",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nFicar transparente e silencioso por um curto período.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite usar para ‘assustar’ alguém do grupo."
+    }
+  },
+  {
+    "name": "Tradução Universal",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nEntende qualquer língua, inclusive de máquinas.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Sentido de Perigo",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nUm arrepio que avisa quando algo ruim vai acontecer.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Transforme em aviso divertido, não medo pesado."
+    }
+  },
+  {
+    "name": "Cópia de Dados",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nCria uma ilusão de si mesmo para enganar guardas.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Flash de Memória",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nToca em um objeto e vê quem o usou por último.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite revelar segredos desconfortáveis."
+    }
+  },
+  {
+    "name": "Raio-X Neon",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nVê os circuitos e engrenagens dentro de qualquer máquina.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Telepatia",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Percepção e Mente\nConversa mentalmente com os outros dois, não importa a distância.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Sempre com consentimento — sem invadir pensamento."
+    }
+  },
+
+  {
+    "name": "Voz de Comando",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nDá ordens simples a objetos inanimados (ex: “Porta, abra!”).",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Luz Neon",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nEmana um brilho forte que cega inimigos ou ilumina tudo.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite desconforto sensorial — descreva como ‘luz suave’ se preciso."
+    }
+  },
+  {
+    "name": "Conserto Rápido",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nToca em algo quebrado e os pixels se reorganizam sozinhos.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Cura de Dados",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nToca em um personagem e recupera a energia dele.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Cura como cuidado, não ‘remendo de pancadaria’."
+    }
+  },
+  {
+    "name": "Hackear à Distância",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nControla computadores ou painéis apenas olhando.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Alterar Tamanho",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nPode encolher até o tamanho de um rato ou crescer 3 metros.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite cenas claustrofóbicas; combine com o grupo."
+    }
+  },
+  {
+    "name": "Voo Planado",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nCapas ou roupas se transformam em ‘asas de código’.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+  {
+    "name": "Invocar Item",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Utilidade e Suporte\nPode criar um objeto simples de pixels (ex: uma corda) que dura 1 minuto.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": ""
+    }
+  },
+
+  {
+    "name": "Mestre do Clima",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nCria pequenas nuvens de chuva ou vento dentro de salas.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Para o 2º poder. Ajuste se alguém não curtir tempestade."
+    }
+  },
+  {
+    "name": "Fusão de Pixels",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nPode se camuflar perfeitamente em qualquer superfície.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite usar para ‘assustar’ NPCs do grupo."
+    }
+  },
+  {
+    "name": "Paralisia Temporal",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nCongela um objeto ou inimigo no tempo por 5 segundos.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Descreva como pausa/estátua, sem violência."
+    }
+  },
+  {
+    "name": "Ondas de Rádio",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nCapta conversas que estão acontecendo em outros setores.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Evite conteúdo sensível; mantenha leve."
+    }
+  },
+  {
+    "name": "Eco Duplicador",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nSuas ações acontecem duas vezes (na história).",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Se virar confuso, simplifique a cena."
+    }
+  },
+  {
+    "name": "Armadura de Plasma",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nEnvolve o corpo em chamas azuis que não queimam os personagens.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Deixe claro que não machuca ninguém."
+    }
+  },
+  {
+    "name": "Piso Aderente",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nConsegue escalar qualquer superfície como um inseto.",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Se alguém não gosta de insetos, descreva como ‘ventosas de pixel’."
+    }
+  },
+  {
+    "name": "Sorte Programada",
+    "type": "poder",
+    "system": {
+      "descricao": "Categoria: Avançados\nUma vez por sessão, transforma uma falha em sucesso total (na história).",
+      "estado": "ativo",
+      "usos": 0,
+      "limiteAtivo": 2,
+      "limiteFora": 3,
+      "efeitosPossiveis": [],
+      "obsSeguranca": "Use para momentos emocionais importantes."
+    }
+  },
+
+  { "name": "Luz Interior", "type": "poder", "system": { "descricao": "Categoria: Utilidade e Suporte\nO corpo emite uma luz que afasta o medo, revela o invisível ou acalma aliados.", "estado": "ativo", "usos": 0, "limiteAtivo": 2, "limiteFora": 3, "efeitosPossiveis": [], "obsSeguranca": "Boa pra acalmar cenas tensas." } },
+  { "name": "Atração Impossível", "type": "poder", "system": { "descricao": "Categoria: Utilidade e Suporte\nObjetos próximos se movem como se fossem puxados por uma força invisível.", "estado": "ativo", "usos": 0, "limiteAtivo": 2, "limiteFora": 3, "efeitosPossiveis": [], "obsSeguranca": "" } },
+
+  { "name": "Sopro de Gelo (variante)", "type": "poder", "system": { "descricao": "Categoria: Combate e Defesa\nVariante opcional (se você quiser manter apenas 40, apague este item).", "estado": "ativo", "usos": 0, "limiteAtivo": 2, "limiteFora": 3, "efeitosPossiveis": [], "obsSeguranca": "" } }
+]

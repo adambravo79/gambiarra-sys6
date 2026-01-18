@@ -7,6 +7,8 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 > Os dados existem para perguntar:  
 > **“Isso dá certo… ou o Nó reage?”**
 
+“Ao iniciar o mundo pela primeira vez como GM, o sistema cria automaticamente o compêndio ⚡ Poderes Gambiarra e importa os poderes iniciais.”
+
 ---
 
 ## 📦 Versão atual
