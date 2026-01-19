@@ -134,17 +134,60 @@
   {{!-- ITENS --}}
   <section class="items">
     <h2>🎒 Itens do Nó</h2>
-    <ul>
-      {{#each items as |item|}}
-      <li>
-        {{item.name}} {{#if (and ../system.meta.bug.ativo
-        item.system.reageABug)}} {{#if @root.isGM}}
-        <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
-          🐞 Usar no BUG
-        </button>
-        {{/if}} {{/if}}
-      </li>
-      {{/each}}
-    </ul>
+
+    {{#if (eq items.length 0)}}
+    <p class="hint">Nenhum item ainda.</p>
+    {{/if}}
+
+    <ul class="gambi-items">
+  {{#each items as |item|}}
+    <li class="gambi-item
+      {{#if item.system.usado}}is-used{{/if}}
+      {{#if (eq item.system.tipoItem "consumivel")}}is-consumivel{{else}}is-reliquia{{/if}}
+    ">
+
+      <div class="gambi-item-left">
+        <span class="item-name">{{item.name}}</span>
+
+        {{!-- badge tipo --}}
+        {{#if (eq item.system.tipoItem "consumivel")}}
+          <span class="gambi-item-badge">🔸 Consumível</span>
+        {{else}}
+          <span class="gambi-item-badge">🔹 Relíquia</span>
+        {{/if}}
+
+        {{!-- status de carga --}}
+        {{#if (eq item.system.tipoItem "consumivel")}}
+          {{#if item.system.usado}}
+            <span class="gambi-item-meta">(usado/sem carga)</span>
+          {{else}}
+            <span class="gambi-item-meta">(cargas: {{item.system.cargas}})</span>
+          {{/if}}
+        {{/if}}
+      </div>
+
+      {{#if @root.isGM}}
+        <div class="gambi-item-actions">
+          {{!-- 🎒 usar na cena: não faz sentido se já está usado --}}
+          {{#if item.system.usado}}
+            <button type="button" class="use-item-scene" data-item-id="{{item.id}}" disabled title="Consumível já usado">
+              🎒 Usar
+            </button>
+          {{else}}
+            <button type="button" class="use-item-scene" data-item-id="{{item.id}}">
+              🎒 Usar
+            </button>
+          {{/if}}
+
+          <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
+            🐞 Usar no BUG
+          </button>
+        </div>
+      {{/if}}
+
+    </li>
+  {{/each}}
+</ul>
+
   </section>
 </form>

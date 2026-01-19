@@ -22,6 +22,23 @@ const ATTR_LABEL = {
   coracao: { icon: "❤️", label: "Coração" },
 };
 
+function itemLabel(item) {
+  const tipoItem =
+    item?.system?.tipoItem ??
+    (item?.system?.consumivel ? "consumivel" : "reliquia");
+  const badge = tipoItem === "consumivel" ? "🔸" : "🔹";
+  return `${badge} ${item.name}`;
+}
+
+function actorItemsForRoll(actor) {
+  const itens = (actor.items ?? []).filter((i) => i.type === "item");
+  return itens;
+}
+
+function clampPurple(val) {
+  return clampInt(val, 0, 10);
+}
+
 function clampInt(n, min, max) {
   const v = Number.isFinite(n) ? Math.trunc(n) : 0;
   return Math.max(min, Math.min(max, v));
@@ -45,7 +62,11 @@ async function show3dIfAvailable(roll) {
   await game.dice3d.showForRoll(roll, game.user, true);
 }
 
-function renderDiceLine(results, target, { baseAttr = null, source = "base", tintPurpleByAttr = false } = {}) {
+function renderDiceLine(
+  results,
+  target,
+  { baseAttr = null, source = "base", tintPurpleByAttr = false } = {},
+) {
   // source: "base" | "roxo"
   // baseAttr: "corpo" | "mente" | "coracao"
   // tintPurpleByAttr: se true, dado roxo em sucesso usa a cor do atributo em vez do roxo
@@ -76,12 +97,10 @@ function renderDiceLine(results, target, { baseAttr = null, source = "base", tin
     .join(" ");
 }
 
-
 function listSuccesses(results, target) {
   const suc = results.filter((r) => r.result >= target).map((r) => r.result);
   return suc.join(", ");
 }
-
 
 export async function rollDesafio(actor) {
   const difficulties = game.gambiarra?.config?.difficulties ?? {};
@@ -90,6 +109,7 @@ export async function rollDesafio(actor) {
   const corpo = attrs.corpo?.value ?? 2;
   const mente = attrs.mente?.value ?? 2;
   const coracao = attrs.coracao?.value ?? 2;
+  const itens = actorItemsForRoll(actor);
 
   const content = `
   <form class="gambiarra-roll">
@@ -117,6 +137,39 @@ export async function rollDesafio(actor) {
     </div>
 
     <hr/>
+        <div class="form-group">
+      <label>🎒 Item do Nó (opcional)</label>
+      <select name="sceneItem">
+        <option value="">— nenhum —</option>
+        ${itens
+          .map((it) => `<option value="${it.id}">${itemLabel(it)}</option>`)
+          .join("")}
+      </select>
+
+      <div class="hint" style="margin-top:6px;">
+        Se escolher um item e marcar “+1 dado”, ele vira +1 🟣 automaticamente.
+      </div>
+
+      <div class="gambi-item-effects" style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">
+        <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+          <input type="checkbox" name="itemAddDie" />
+          🎲 +1 dado (vira 🟣)
+        </label>
+
+        <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+          <input type="checkbox" name="itemShiftDiff" />
+          ➖ Reduzir dificuldade (1 passo)
+        </label>
+
+        <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+          <input type="checkbox" name="itemSwapAttr" />
+          🔁 Trocar atributo do desafio
+        </label>
+      </div>
+    </div>
+
+    <hr/>
+
 
     <div class="form-group">
       <label class="purple-label">🟣 Dados Roxos</label>
@@ -156,6 +209,42 @@ export async function rollDesafio(actor) {
     default: "roll",
     render: (html) => {
       const $val = html.find('[name="purpleDice"]');
+      const $item = html.find('[name="sceneItem"]');
+      const $addDie = html.find('[name="itemAddDie"]');
+
+      function bumpPurple(delta) {
+        const cur = Number($val.val()) || 0;
+        $val.val(String(clampPurple(cur + delta)));
+      }
+
+      // Ao marcar/desmarcar “+1 dado”, aplica/remove +1 roxo automaticamente
+      $addDie.on("change", () => {
+        const checked = $addDie.prop("checked");
+        bumpPurple(checked ? +1 : -1);
+      });
+
+      // Se trocar o item, não mexe em roxos automaticamente (evita somas fantasmas)
+      // (Depois a gente pode “autossugerir” o checkbox com base no item.efeitosPossiveis.)
+      $item.on("change", async () => {
+        const itemId = String($item.val() || "");
+        if (!itemId) return;
+
+        const it = actor.items.get(itemId);
+        const efeitos = Array.isArray(it?.system?.efeitosPossiveis)
+          ? it.system.efeitosPossiveis
+          : [];
+        const shouldAdd = efeitos.includes("add-dado");
+
+        // se for marcar automaticamente e já não estiver marcado
+        if (shouldAdd && !$addDie.prop("checked")) {
+          $addDie.prop("checked", true).trigger("change");
+        }
+
+        // se trocar para item que NÃO tem e estava marcado, desmarca e remove o +1
+        if (!shouldAdd && $addDie.prop("checked")) {
+          $addDie.prop("checked", false).trigger("change");
+        }
+      });
 
       html.find(".purple-minus").on("click", () => {
         const cur = Number($val.val()) || 0;
@@ -180,7 +269,7 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
 
   if (!pool || pool < 1) {
     ui.notifications.warn(
-      "Este personagem não tem valor nesse atributo (pool vazio). Ajuste Corpo/Mente/Coração na ficha. (mínimo 1)"
+      "Este personagem não tem valor nesse atributo (pool vazio). Ajuste Corpo/Mente/Coração na ficha. (mínimo 1)",
     );
     return;
   }
@@ -212,8 +301,8 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
   const resultadoTexto = bug
     ? "🐞 **BUG** — O Nó reage (complicação)."
     : strong
-    ? "🌟 **Sucesso Forte**"
-    : "✨ **Sucesso**";
+      ? "🌟 **Sucesso Forte**"
+      : "✨ **Sucesso**";
 
   const a = ATTR_LABEL[atributo] ?? { icon: "🎲", label: atributo };
 
@@ -224,8 +313,8 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
   const badge = bug
     ? `<span class="gambi-badge is-bug">🐞 BUG</span>`
     : strong
-    ? `<span class="gambi-badge is-strong">🌟 Sucesso Forte</span>`
-    : `<span class="gambi-badge is-ok">✨ Sucesso</span>`;
+      ? `<span class="gambi-badge is-strong">🌟 Sucesso Forte</span>`
+      : `<span class="gambi-badge is-ok">✨ Sucesso</span>`;
 
   const baseLine = `
     <div class="gambi-line">
@@ -273,12 +362,12 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
         <div><strong>Sucessos totais:</strong> ${successes}</div>
         ${
           allSuccessList
-            ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter(r=>r.result>=target).length}): ${allSuccessList}</div>`
+            ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
             : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
         }
         <div class="gambi-result"><strong>Resultado:</strong> ${resultadoTexto}</div>
       </div>
     </div>
   `;
-    ChatMessage.create({ content: chatHtml });
+  ChatMessage.create({ content: chatHtml });
 }

@@ -1,11 +1,89 @@
-<form class="item-sheet">
+<form class="item-sheet" autocomplete="off">
   <header class="sheet-header">
-    <h1>{{item.name}}</h1>
+    <h1>
+      <input name="name" type="text" value="{{item.name}}" />
+    </h1>
   </header>
 
   <section class="sheet-body">
-    <p><strong>Tipo:</strong> {{system.tipo}}</p>
-    <p><strong>Consumível:</strong> {{system.consumivel}}</p>
-    <p><strong>Corrompido:</strong> {{system.corrompido}}</p>
+    <div class="form-group">
+      <label>Categoria</label>
+      <select name="system.categoria">
+        <option value="direcao"  {{#if (eq system.categoria "direcao")}}selected{{/if}}>🧭 Direção</option>
+        <option value="gambiarra" {{#if (eq system.categoria "gambiarra")}}selected{{/if}}>🔧 Gambiarra</option>
+        <option value="protecao" {{#if (eq system.categoria "protecao")}}selected{{/if}}>🛡️ Proteção</option>
+        <option value="estranho" {{#if (eq system.categoria "estranho")}}selected{{/if}}>🎁 Estranho</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Tipo</label>
+      <select name="system.tipoItem">
+        <option value="reliquia" {{#if (eq system.tipoItem "reliquia")}}selected{{/if}}>🔹 Relíquia</option>
+        <option value="consumivel" {{#if (eq system.tipoItem "consumivel")}}selected{{/if}}>🔸 Consumível</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea name="system.descricao" rows="4">{{system.descricao}}</textarea>
+    </div>
+
+    <hr/>
+
+    <div class="form-group">
+      <label>Efeitos possíveis (referência)</label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="shift-dificuldade"
+          {{checked (includes system.efeitosPossiveis "shift-dificuldade")}} />
+        ➖ Reduzir dificuldade (1 passo)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="add-dado"
+          {{checked (includes system.efeitosPossiveis "add-dado")}} />
+        🎲 +1 dado na rolagem (recomendado: roxo)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="suavizar-bug"
+          {{checked (includes system.efeitosPossiveis "suavizar-bug")}} />
+        🐞 Suavizar / anular BUG (narrativo)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="permitir-impossivel"
+          {{checked (includes system.efeitosPossiveis "permitir-impossivel")}} />
+        🧩 Permitir tentar algo “impossível”
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="swap-atributo"
+          {{checked (includes system.efeitosPossiveis "swap-atributo")}} />
+        🔁 Trocar atributo do desafio
+      </label>
+
+      <p class="hint">Não automatiza sozinho — serve pra Programadora decidir na cena.</p>
+    </div>
+
+    <hr/>
+
+    <div class="form-group">
+      <label>Cargas</label>
+      <input type="number" name="system.cargas" value="{{system.cargas}}" min="0" step="1" />
+      <p class="hint">Consumíveis gastam 1 carga ao usar. Se chegar em 0, desaparece.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Custo narrativo (opcional)</label>
+      <input type="text" name="system.custoNarrativo" value="{{system.custoNarrativo}}" />
+      <p class="hint">Ex.: “faz barulho”, “chama atenção”, “fica instável”, etc.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Segurança emocional (nota rápida)</label>
+      <textarea name="system.notasSeguranca" rows="2">{{system.notasSeguranca}}</textarea>
+    </div>
   </section>
 </form>

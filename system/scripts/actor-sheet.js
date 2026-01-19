@@ -18,11 +18,40 @@ export class GambiarraActorSheet extends ActorSheet {
 
     const corpo = Number(context.actor.system?.attributes?.corpo?.value ?? 0);
     const mente = Number(context.actor.system?.attributes?.mente?.value ?? 0);
-    const coracao = Number(context.actor.system?.attributes?.coracao?.value ?? 0);
+    const coracao = Number(
+      context.actor.system?.attributes?.coracao?.value ?? 0,
+    );
 
-    const items = context.actor.items ?? [];
-    const poderes = items.filter((i) => i.type === "poder");
-    const itens = items.filter((i) => i.type === "item");
+    const itemsAll = context.actor.items ?? [];
+    const poderes = itemsAll.filter((i) => i.type === "poder");
+    const itens = itemsAll.filter((i) => i.type === "item");
+
+    // ✅ ordenação: relíquias -> consumíveis ativos -> consumíveis usados
+    const norm = (s) =>
+      String(s ?? "")
+        .trim()
+        .toLocaleLowerCase("pt-BR");
+
+    const rankItem = (it) => {
+      const tipo =
+        it.system?.tipoItem ??
+        (it.system?.consumivel ? "consumivel" : "reliquia");
+      const usado = Boolean(it.system?.usado);
+
+      if (tipo === "reliquia") return 0;
+      if (tipo === "consumivel" && !usado) return 1;
+      return 2; // consumível usado (ou qualquer outro caso)
+    };
+
+    const itensOrdenados = [...itens].sort((a, b) => {
+      const ra = rankItem(a);
+      const rb = rankItem(b);
+      if (ra !== rb) return ra - rb;
+
+      const an = norm(a.name);
+      const bn = norm(b.name);
+      return an.localeCompare(bn, "pt-BR");
+    });
 
     const attrSum = corpo + mente + coracao;
     const attrOk = corpo >= 1 && mente >= 1 && coracao >= 1 && attrSum === 6;
@@ -30,7 +59,7 @@ export class GambiarraActorSheet extends ActorSheet {
     return {
       ...context,
       system: context.actor.system,
-      items: itens,
+      items: itensOrdenados, // ✅ aqui
       poderes,
       isGM: game.user.isGM,
       attrSum,
@@ -45,9 +74,15 @@ export class GambiarraActorSheet extends ActorSheet {
     html.find(".roll-desafio").on("click", () => rollDesafio(this.actor));
 
     // poderes
-    html.find(".roll-power").on("click", () => this.actor._despertarPoder({ sortear: true }));
-    html.find(".add-power").on("click", () => this.actor._despertarPoder({ sortear: false }));
-    html.find(".create-power").on("click", () => this.actor._criarPoderNoCompendioOuFicha());
+    html
+      .find(".roll-power")
+      .on("click", () => this.actor._despertarPoder({ sortear: true }));
+    html
+      .find(".add-power")
+      .on("click", () => this.actor._despertarPoder({ sortear: false }));
+    html
+      .find(".create-power")
+      .on("click", () => this.actor._criarPoderNoCompendioOuFicha());
 
     // remover poder
     html.find(".power-remove").on("click", async (ev) => {
@@ -84,10 +119,22 @@ export class GambiarraActorSheet extends ActorSheet {
     });
 
     // 🧠 efeitos permanentes
-    html.find(".add-effect").on("click", () => this.actor._adicionarEfeitoPermanente?.());
-    html.find(".bug-effect").on("click", () => this.actor._converterBugEmEfeito?.());
+    html
+      .find(".add-effect")
+      .on("click", () => this.actor._adicionarEfeitoPermanente?.());
+    html
+      .find(".bug-effect")
+      .on("click", () => this.actor._converterBugEmEfeito?.());
 
-    // 🎒 item contra bug
+    // 🎒 usar item na cena
+    html.find(".use-item-scene").on("click", (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const item = this.actor.items.get(itemId);
+      if (item?.usarNaCena) item.usarNaCena(this.actor);
+    });
+
+    // 🐞 item no BUG (sempre disponível)
     html.find(".use-item-bug").on("click", (ev) => {
       ev.preventDefault();
       const itemId = ev.currentTarget.dataset.itemId;
@@ -116,9 +163,13 @@ export class GambiarraActorSheet extends ActorSheet {
     }
 
     const updateSumbar = () => {
-      const c = Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
-      const m = Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
-      const co = Number(html.find('[name="system.attributes.coracao.value"]').val()) || 0;
+      const c =
+        Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
+      const m =
+        Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
+      const co =
+        Number(html.find('[name="system.attributes.coracao.value"]').val()) ||
+        0;
 
       const sum = c + m + co;
 
@@ -134,9 +185,15 @@ export class GambiarraActorSheet extends ActorSheet {
       }
     };
 
-    html.find('[name="system.attributes.corpo.value"]').on("input", updateSumbar);
-    html.find('[name="system.attributes.mente.value"]').on("input", updateSumbar);
-    html.find('[name="system.attributes.coracao.value"]').on("input", updateSumbar);
+    html
+      .find('[name="system.attributes.corpo.value"]')
+      .on("input", updateSumbar);
+    html
+      .find('[name="system.attributes.mente.value"]')
+      .on("input", updateSumbar);
+    html
+      .find('[name="system.attributes.coracao.value"]')
+      .on("input", updateSumbar);
 
     updateSumbar();
   }
@@ -145,19 +202,30 @@ export class GambiarraActorSheet extends ActorSheet {
     const enforce = game.gambiarra?.config?.enforceSum6 ?? false;
 
     if (enforce) {
-      const corpo = Number(formData["system.attributes.corpo.value"] ?? this.actor.system.attributes.corpo.value);
-      const mente = Number(formData["system.attributes.mente.value"] ?? this.actor.system.attributes.mente.value);
-      const coracao = Number(formData["system.attributes.coracao.value"] ?? this.actor.system.attributes.coracao.value);
+      const corpo = Number(
+        formData["system.attributes.corpo.value"] ??
+          this.actor.system.attributes.corpo.value,
+      );
+      const mente = Number(
+        formData["system.attributes.mente.value"] ??
+          this.actor.system.attributes.mente.value,
+      );
+      const coracao = Number(
+        formData["system.attributes.coracao.value"] ??
+          this.actor.system.attributes.coracao.value,
+      );
 
       const sum = corpo + mente + coracao;
       const hasZero = corpo < 1 || mente < 1 || coracao < 1;
 
       if (hasZero || sum !== 6) {
-        ui.notifications.warn("Regra opcional: Corpo+Mente+Coração deve somar 6 e nenhum pode ser 0.");
+        ui.notifications.warn(
+          "Regra opcional: Corpo+Mente+Coração deve somar 6 e nenhum pode ser 0.",
+        );
         return;
       }
     }
 
     return this.actor.update(formData);
   }
-} 
+}
