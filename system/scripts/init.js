@@ -9,10 +9,10 @@ import { GambiarraNpcModel } from "./data/actor-npc-model.js";
 import { GambiarraItemModel } from "./data/item-item-model.js";
 import { GambiarraPoderModel } from "./data/item-poder-model.js";
 
-import { seedPoderesCompendio } from "./seed-compendiums.js";
+import { seedWorldFromSystemPackIfEmpty } from "./seed-compendiums.js";
 
 Hooks.once("init", () => {
-  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.4)");
+  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.5)");
 
   // ✅ V12: registrar DataModels por tipo
   CONFIG.Actor.dataModels = {
@@ -45,7 +45,7 @@ Hooks.once("init", () => {
   // Sheets
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("gambiarra-sys6", GambiarraActorSheet, {
-    types: ["character"],
+    types: ["character", "npc"],
     makeDefault: true,
   });
 
@@ -59,7 +59,7 @@ Hooks.once("init", () => {
     if (!createData.type) doc.updateSource({ type: "character" });
   });
 
-  // Config do sistema (v0.4): dificuldade = sucessos necessários + alvo
+  // Config do sistema (v0.5): dificuldade = sucessos necessários + alvo
   game.gambiarra = {
     config: {
       difficulties: {
@@ -132,25 +132,10 @@ Hooks.once("init", () => {
     }
   });
 
-  game.settings.register("gambiarra-sys6", "poderesSeeded", {
-    name: "Poderes seedados",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
 });
 
 Hooks.once("ready", async () => {
   if (!game.user.isGM) return;
-
-  const already = game.settings.get("gambiarra-sys6", "poderesSeeded");
-  if (already) return;
-
-  try {
-    await seedPoderesCompendio(); // vai garantir world pack e popular
-    await game.settings.set("gambiarra-sys6", "poderesSeeded", true);
-  } catch (e) {
-    console.warn("GAMBIARRA.SYS6 | Falha ao seedar poderes", e);
-  }
+  await seedWorldFromSystemPackIfEmpty();
 });
+

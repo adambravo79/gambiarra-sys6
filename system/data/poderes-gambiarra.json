@@ -522,10 +522,5 @@
       "efeitosPossiveis": [],
       "obsSeguranca": "Use para momentos emocionais importantes."
     }
-  },
-
-  { "name": "Luz Interior", "type": "poder", "system": { "descricao": "Categoria: Utilidade e Suporte\nO corpo emite uma luz que afasta o medo, revela o invisível ou acalma aliados.", "estado": "ativo", "usos": 0, "limiteAtivo": 2, "limiteFora": 3, "efeitosPossiveis": [], "obsSeguranca": "Boa pra acalmar cenas tensas." } },
-  { "name": "Atração Impossível", "type": "poder", "system": { "descricao": "Categoria: Utilidade e Suporte\nObjetos próximos se movem como se fossem puxados por uma força invisível.", "estado": "ativo", "usos": 0, "limiteAtivo": 2, "limiteFora": 3, "efeitosPossiveis": [], "obsSeguranca": "" } },
-
-  { "name": "Sopro de Gelo (variante)", "type": "poder", "system": { "descricao": "Categoria: Combate e Defesa\nVariante opcional (se você quiser manter apenas 40, apague este item).", "estado": "ativo", "usos": 0, "limiteAtivo": 2, "limiteFora": 3, "efeitosPossiveis": [], "obsSeguranca": "" } }
+  }
 ]

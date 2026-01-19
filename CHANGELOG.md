@@ -6,6 +6,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/),
 e este projeto segue versionamento semântico aproximado.
 
 ---
+## [V0.5.1]
+Poderes Gambiarra funcionais com compêndio novamente.
 
 ## [V0.5]
 Integrado aos dados 3D do Dice So Nice!

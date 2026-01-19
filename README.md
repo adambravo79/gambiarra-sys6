@@ -13,19 +13,18 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ## 📦 Versão atual
 
-## **v0.5 — Núcleo Jogável Estável**
+## **v0.5.1 — Núcleo Jogável Estável**
 
 ### O que já existe
 
 - 🎲 Sistema de rolagem d6 visual (Dice So Nice)
 - 🟢🔵🔴 Atributos: Corpo, Mente, Coração
-- 🐞 BUG como estado narrativo real
 - ⚡ Poderes Gambiarra (máx. 2)
 - Interface clara para crianças e Programadora
 
 ### O que ainda NÃO existe
 
-- ❌ penalidades numéricas fixas
+- ❌ items do nó
 - ❌ efeitos permanentes mecânicos
 - ❌ progressão tradicional
 - ❌ combate tático

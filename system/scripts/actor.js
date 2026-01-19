@@ -110,7 +110,7 @@ export class GambiarraActor extends Actor {
   }
 
   async _criarPoderEmbedado({ nome, descricao, categoria = "", obsSeguranca = "", meta = {} }) {
-    if (this._hasDuplicatePower({ sourceId: meta.sourceId ?? null, name: nome })) {
+    if (this._hasDuplicatePower({ sourceId: meta.sourceId ?? "", name: nome })) {
       ui.notifications.warn(`Este poder já está na ficha: ${nome}`);
       return null;
     }
@@ -126,7 +126,7 @@ export class GambiarraActor extends Actor {
         efeitosPossiveis: [],
         obsSeguranca: String(obsSeguranca ?? ""),
         origem: meta.origem ?? "criado-em-mesa",
-        sourceId: meta.sourceId ?? null,
+        sourceId: meta.sourceId ?? "",
       },
     };
 

@@ -5,6 +5,10 @@ export class GambiarraPoderModel extends foundry.abstract.DataModel {
     return {
       descricao: new fields.StringField({ required: false, initial: "" }),
 
+      categoria: new fields.StringField({ required: false, initial: "" }),
+      origem: new fields.StringField({ required: false, initial: "compendio" }),
+      sourceId: new fields.StringField({ required: false, initial: "" }),
+
       estado: new fields.StringField({
         required: true,
         initial: "ativo",
