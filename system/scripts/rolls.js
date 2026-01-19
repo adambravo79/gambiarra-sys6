@@ -45,16 +45,37 @@ async function show3dIfAvailable(roll) {
   await game.dice3d.showForRoll(roll, game.user, true);
 }
 
-function renderDiceLine(results, target) {
-  // retorna HTML com cada dado, marcando sucesso
-  // results = [{result: 5}, ...]
+function renderDiceLine(results, target, { baseAttr = null, source = "base", tintPurpleByAttr = false } = {}) {
+  // source: "base" | "roxo"
+  // baseAttr: "corpo" | "mente" | "coracao"
+  // tintPurpleByAttr: se true, dado roxo em sucesso usa a cor do atributo em vez do roxo
+
   return results
     .map((r) => {
       const ok = r.result >= target;
-      return `<span class="gambi-die ${ok ? "is-success" : ""}">${r.result}</span>`;
+
+      // classes base
+      const cls = ["gambi-die"];
+
+      if (ok) cls.push("is-success");
+
+      // cor do sucesso
+      if (ok) {
+        if (source === "roxo") {
+          cls.push(tintPurpleByAttr ? `suc-${baseAttr}` : "suc-roxo");
+        } else {
+          cls.push(`suc-${baseAttr}`);
+        }
+      }
+
+      // marca a origem (opcional, útil p/ debug/estilo)
+      cls.push(source === "roxo" ? "is-roxo" : "is-base");
+
+      return `<span class="${cls.join(" ")}">${r.result}</span>`;
     })
     .join(" ");
 }
+
 
 function listSuccesses(results, target) {
   const suc = results.filter((r) => r.result >= target).map((r) => r.result);
@@ -209,7 +230,7 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
   const baseLine = `
     <div class="gambi-line">
       <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
-      <div class="gambi-dice">${renderDiceLine(baseResults, target)}</div>
+      <div class="gambi-dice">${renderDiceLine(baseResults, target, { baseAttr: atributo, source: "base" })}</div>
       ${
         baseSuccessList
           ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
@@ -222,7 +243,8 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
     ? `
     <div class="gambi-line">
       <div class="gambi-line-title">🟣 Roxos (${roxos}d6)</div>
-      <div class="gambi-dice">${renderDiceLine(roxoResults, target)}</div>
+      <div class="gambi-dice">${renderDiceLine(roxoResults, target, { baseAttr: atributo, source: "roxo", tintPurpleByAttr: false })}</div>
+
       ${
         roxoSuccessList
           ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
