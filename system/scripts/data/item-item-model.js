@@ -10,45 +10,37 @@ export class GambiarraItemModel extends foundry.abstract.TypeDataModel {
     });
 
     return {
-      // categorização (apoio narrativo)
-      categoria: new f.StringField({
-        initial: "gambiarra",
-        choices: ["direcao", "gambiarra", "protecao", "estranho"],
+      // categoria ajuda só a “taggear” no item sheet
+      // direcao | gambiarra | protecao | estranho
+      categoria: new f.StringField({ initial: "gambiarra" }),
+
+      // reliquia | consumivel
+      tipoItem: new f.StringField({ initial: "reliquia" }),
+
+      // cargas (para consumíveis)
+      cargas: new f.NumberField({
+        initial: 1,
+        integer: true,
+        min: 0,
       }),
 
-      // ✅ novo: reliquia|consumivel
-      tipoItem: new f.StringField({
-        initial: "reliquia",
-        choices: ["reliquia", "consumivel"],
-      }),
-
-      // ✅ controle de “consumível” sem deletar
-      cargas: new f.NumberField({ initial: 1, integer: true, min: 0 }),
+      // consumível “recebido pelo Nó”: usado = true
       usado: new f.BooleanField({ initial: false }),
 
-      // descrição/efeito (texto livre, sem automatizar)
+      // texto principal do item
       descricao: new f.StringField({ initial: "" }),
 
-      // lista de “o que ele pode fazer” (para o diálogo de rolagem sugerir)
-      efeitosPossiveis: new f.ArrayField(
-        new f.StringField({
-          choices: [
-            "add-dado",
-            "reduzir-dificuldade",
-            "trocar-atributo",
-            "permitir",
-            "bug-suavizar",
-            "bug-anular",
-            "bug-transformar",
-          ],
-        }),
-        { initial: [] },
-      ),
+      // referência do que este item pode fazer (não automatiza por si só)
+      // add-dado, reduzir-dificuldade, permitir, trocar-atributo,
+      // bug-suavizar, bug-anular, bug-transformar
+      efeitosPossiveis: new f.ArrayField(new f.StringField({ initial: "" }), {
+        initial: [],
+      }),
 
-      // BUG (só pro botão “Usar no BUG” aparecer)
+      // aparece o botão “Usar no BUG” + opções na UI
       reageABug: new f.BooleanField({ initial: false }),
 
-      // corrupção (mantém seu conceito; não mexe em actor)
+      // corrupção (se você quiser usar isso depois)
       corrompido: new f.BooleanField({ initial: false }),
       corrupcoes: new f.ArrayField(corrupcaoSchema, { initial: [] }),
     };

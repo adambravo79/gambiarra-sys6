@@ -22,35 +22,27 @@ export class GambiarraActorSheet extends ActorSheet {
       context.actor.system?.attributes?.coracao?.value ?? 0,
     );
 
-    const itemsAll = context.actor.items ?? [];
-    const poderes = itemsAll.filter((i) => i.type === "poder");
-    const itens = itemsAll.filter((i) => i.type === "item");
+    const all = context.actor.items ?? [];
+    const poderes = all.filter((i) => i.type === "poder");
+    const itens = all.filter((i) => i.type === "item");
 
-    // ✅ ordenação: relíquias -> consumíveis ativos -> consumíveis usados
-    const norm = (s) =>
-      String(s ?? "")
-        .trim()
-        .toLocaleLowerCase("pt-BR");
-
-    const rankItem = (it) => {
-      const tipo =
-        it.system?.tipoItem ??
-        (it.system?.consumivel ? "consumivel" : "reliquia");
+    // ✅ Ordenação sem depender de CSS:
+    // 1) Relíquias (não usadas)
+    // 2) Consumíveis não usados
+    // 3) Consumíveis usados (final)
+    const scoreItem = (it) => {
+      const tipo = it.system?.tipoItem ?? "reliquia";
       const usado = Boolean(it.system?.usado);
-
-      if (tipo === "reliquia") return 0;
-      if (tipo === "consumivel" && !usado) return 1;
-      return 2; // consumível usado (ou qualquer outro caso)
+      if (tipo === "consumivel" && usado) return 30;
+      if (tipo === "consumivel") return 20;
+      return 10; // reliquia
     };
 
-    const itensOrdenados = [...itens].sort((a, b) => {
-      const ra = rankItem(a);
-      const rb = rankItem(b);
-      if (ra !== rb) return ra - rb;
-
-      const an = norm(a.name);
-      const bn = norm(b.name);
-      return an.localeCompare(bn, "pt-BR");
+    const itemsSorted = [...itens].sort((a, b) => {
+      const sa = scoreItem(a);
+      const sb = scoreItem(b);
+      if (sa !== sb) return sa - sb;
+      return String(a.name).localeCompare(String(b.name), "pt-BR");
     });
 
     const attrSum = corpo + mente + coracao;
@@ -59,7 +51,7 @@ export class GambiarraActorSheet extends ActorSheet {
     return {
       ...context,
       system: context.actor.system,
-      items: itensOrdenados, // ✅ aqui
+      items: itemsSorted,
       poderes,
       isGM: game.user.isGM,
       attrSum,
@@ -118,6 +110,57 @@ export class GambiarraActorSheet extends ActorSheet {
       await this.actor._despertarPoder({ sortear: false });
     });
 
+    // (se ainda existir no template antigo) controles de estado por dataset.index
+    html.find(".power-controls button").on("click", (ev) => {
+      const index = Number(ev.currentTarget.dataset.index);
+      const novoEstado = ev.currentTarget.dataset.set;
+      this.actor._setPoderEstado?.(index, novoEstado);
+    });
+
+    // ✅ itens: usar
+    html.find(".use-item-scene").on("click", (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const item = this.actor.items.get(itemId);
+      if (item?.usarNaCena) item.usarNaCena(this.actor);
+    });
+
+    html.find(".use-item-bug").on("click", (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      const item = this.actor.items.get(itemId);
+      if (item?.usarContraBug) item.usarContraBug(this.actor);
+    });
+
+    // ✅ itens: criar em mesa
+    html
+      .find(".create-item")
+      .on("click", () => this.actor._criarItemNoCompendioOuFicha?.());
+
+    // 🎒 usar item na cena
+    html
+      .find(".use-item-scene")
+      .off("click")
+      .on("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const itemId = ev.currentTarget.dataset.itemId;
+        const item = this.actor.items.get(itemId);
+        if (item?.usarNaCena) item.usarNaCena(this.actor);
+      });
+
+    // 🐞 item no BUG (sempre disponível)
+    html
+      .find(".use-item-bug")
+      .off("click")
+      .on("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const itemId = ev.currentTarget.dataset.itemId;
+        const item = this.actor.items.get(itemId);
+        if (item?.usarContraBug) item.usarContraBug(this.actor);
+      });
+
     // 🧠 efeitos permanentes
     html
       .find(".add-effect")
@@ -126,30 +169,8 @@ export class GambiarraActorSheet extends ActorSheet {
       .find(".bug-effect")
       .on("click", () => this.actor._converterBugEmEfeito?.());
 
-    // 🎒 usar item na cena
-    html.find(".use-item-scene").on("click", (ev) => {
-      ev.preventDefault();
-      const itemId = ev.currentTarget.dataset.itemId;
-      const item = this.actor.items.get(itemId);
-      if (item?.usarNaCena) item.usarNaCena(this.actor);
-    });
-
-    // 🐞 item no BUG (sempre disponível)
-    html.find(".use-item-bug").on("click", (ev) => {
-      ev.preventDefault();
-      const itemId = ev.currentTarget.dataset.itemId;
-      const item = this.actor.items.get(itemId);
-      if (item?.usarContraBug) item.usarContraBug(this.actor);
-    });
-
-    // (se ainda existir no template antigo) controles de estado por dataset.index
-    html.find(".power-controls button").on("click", (ev) => {
-      const index = Number(ev.currentTarget.dataset.index);
-      const novoEstado = ev.currentTarget.dataset.set;
-      this.actor._setPoderEstado?.(index, novoEstado);
-    });
-
     // ✅ Feedback visual da soma (sumbar)
+    // sumbar (mantido)
     if (!html.find(".gambiarra-sumbar").length) {
       html.find(".attributes").append(`
         <div class="gambiarra-sumbar ok">

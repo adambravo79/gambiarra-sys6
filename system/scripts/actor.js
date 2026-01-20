@@ -1,15 +1,29 @@
 // scripts/actor.js
+// 0.6.2
+
+/* =========================================================
+ * PODERES — packs
+ * ========================================================= */
 
 const POWERS_PACK_IDS = [
-  "world.gambiarra-poderes",          // ✅ editável
+  "world.gambiarra-poderes", // ✅ editável
   "gambiarra-sys6.gambiarra-poderes", // fallback leitura
 ];
 
 // fallback (só para não travar se pack sumir)
 const FALLBACK_POWERS = [
-  { nome: "Rebobinar", descricao: "Volta o tempo ~10 segundos para refazer uma ação recente." },
-  { nome: "Pulo de Glitch", descricao: "Teletransporte curto (até 5m) para onde você está olhando." },
-  { nome: "Gravidade Zero", descricao: "Flutua ou anda no teto por alguns segundos." },
+  {
+    nome: "Rebobinar",
+    descricao: "Volta o tempo ~10 segundos para refazer uma ação recente.",
+  },
+  {
+    nome: "Pulo de Glitch",
+    descricao: "Teletransporte curto (até 5m) para onde você está olhando.",
+  },
+  {
+    nome: "Gravidade Zero",
+    descricao: "Flutua ou anda no teto por alguns segundos.",
+  },
 ];
 
 function pickRandom(arr) {
@@ -22,10 +36,18 @@ function normName(s) {
     .toLocaleLowerCase("pt-BR");
 }
 
-export class GambiarraActor extends Actor {
+/* =========================================================
+ * ITENS — packs
+ * ========================================================= */
 
+const ITEMS_PACK_IDS = [
+  "world.gambiarra-itens", // ✅ editável
+  "gambiarra-sys6.gambiarra-itens", // fallback leitura
+];
+
+export class GambiarraActor extends Actor {
   /* =========================================================
-   * Helpers — packs
+   * Helpers — packs (PODERES)
    * ========================================================= */
 
   async _getPack({ preferWorld = true } = {}) {
@@ -69,8 +91,11 @@ export class GambiarraActor extends Actor {
     return this.items.some((i) => {
       if (i.type !== "poder") return false;
 
-      const existingSource = i.system?.sourceId ? String(i.system.sourceId) : null;
-      if (wantedSource && existingSource && existingSource === wantedSource) return true;
+      const existingSource = i.system?.sourceId
+        ? String(i.system.sourceId)
+        : null;
+      if (wantedSource && existingSource && existingSource === wantedSource)
+        return true;
 
       return wantedName && normName(i.name) === wantedName;
     });
@@ -109,8 +134,16 @@ export class GambiarraActor extends Actor {
     return data;
   }
 
-  async _criarPoderEmbedado({ nome, descricao, categoria = "", obsSeguranca = "", meta = {} }) {
-    if (this._hasDuplicatePower({ sourceId: meta.sourceId ?? "", name: nome })) {
+  async _criarPoderEmbedado({
+    nome,
+    descricao,
+    categoria = "",
+    obsSeguranca = "",
+    meta = {},
+  }) {
+    if (
+      this._hasDuplicatePower({ sourceId: meta.sourceId ?? "", name: nome })
+    ) {
       ui.notifications.warn(`Este poder já está na ficha: ${nome}`);
       return null;
     }
@@ -138,27 +171,84 @@ export class GambiarraActor extends Actor {
     const pack = await this._getPack({ preferWorld: true });
 
     if (!pack) {
-      ui.notifications.warn("Nenhum compêndio encontrado (world.gambiarra-poderes).");
+      ui.notifications.warn(
+        "Nenhum compêndio encontrado (world.gambiarra-poderes).",
+      );
       return null;
     }
     const isWorld = String(pack.collection ?? "").startsWith("world.");
     if (!isWorld || !game.user.isGM) {
-      ui.notifications.warn("Para salvar no compêndio: precisa ser GM e o pack precisa ser world.gambiarra-poderes.");
+      ui.notifications.warn(
+        "Para salvar no compêndio: precisa ser GM e o pack precisa ser world.gambiarra-poderes.",
+      );
       return null;
     }
 
-    const created = await Item.createDocuments([data], { pack: pack.collection });
+    const created = await Item.createDocuments([data], {
+      pack: pack.collection,
+    });
     const createdDoc = created?.[0];
     if (!createdDoc) return null;
 
     await pack.getIndex();
-    return { pack, id: createdDoc.id, uuid: createdDoc.uuid, name: createdDoc.name };
+    return {
+      pack,
+      id: createdDoc.id,
+      uuid: createdDoc.uuid,
+      name: createdDoc.name,
+    };
+  }
+
+  /* =========================================================
+   * Helpers — packs (ITENS)
+   * ========================================================= */
+
+  async _getItemsPack({ preferWorld = true } = {}) {
+    if (preferWorld) {
+      const world = game.packs.get("world.gambiarra-itens");
+      if (world) return world;
+    }
+    for (const id of ITEMS_PACK_IDS) {
+      const pack = game.packs.get(id);
+      if (pack) return pack;
+    }
+    return null;
+  }
+
+  async _createItemInWorldPack(data) {
+    const pack = await this._getItemsPack({ preferWorld: true });
+
+    if (!pack) {
+      ui.notifications.warn(
+        "Nenhum compêndio encontrado (world.gambiarra-itens).",
+      );
+      return null;
+    }
+    const isWorld = String(pack.collection ?? "").startsWith("world.");
+    if (!isWorld || !game.user.isGM) {
+      ui.notifications.warn(
+        "Para salvar no compêndio: precisa ser GM e o pack precisa ser world.gambiarra-itens.",
+      );
+      return null;
+    }
+
+    const created = await Item.createDocuments([data], {
+      pack: pack.collection,
+    });
+    const createdDoc = created?.[0];
+    if (!createdDoc) return null;
+
+    await pack.getIndex();
+    return {
+      pack,
+      id: createdDoc.id,
+      uuid: createdDoc.uuid,
+      name: createdDoc.name,
+    };
   }
 
   /* =========================================================
    * Despertar Poder — dropdown + preview + anti-duplicado
-   *   ✅ desabilita duplicados no dropdown + "(já na ficha)"
-   *   ✅ aumenta "um pouco" via spacer (sem esticar botão)
    * ========================================================= */
 
   async _despertarPoder({ sortear = false, selectedId = null } = {}) {
@@ -185,7 +275,9 @@ export class GambiarraActor extends Actor {
               return;
             }
           }
-          ui.notifications.warn("Não consegui sortear um poder novo (todos os sorteados já estavam na ficha).");
+          ui.notifications.warn(
+            "Não consegui sortear um poder novo (todos os sorteados já estavam na ficha).",
+          );
           return;
         }
 
@@ -198,12 +290,17 @@ export class GambiarraActor extends Actor {
 
         // selecionado inicial
         const requestedId =
-          selectedId && entries.some((e) => e.id === selectedId) ? selectedId : null;
+          selectedId && entries.some((e) => e.id === selectedId)
+            ? selectedId
+            : null;
 
         const firstAvailableId = (() => {
           for (const e of entries) {
             const doc = docsById.get(e.id);
-            const dup = this._hasDuplicatePower({ sourceId: doc?.uuid ?? null, name: doc?.name ?? e.name });
+            const dup = this._hasDuplicatePower({
+              sourceId: doc?.uuid ?? null,
+              name: doc?.name ?? e.name,
+            });
             if (!dup) return e.id;
           }
           return entries[0].id;
@@ -213,14 +310,20 @@ export class GambiarraActor extends Actor {
           if (!requestedId) return firstAvailableId;
 
           const doc = docsById.get(requestedId);
-          const dup = this._hasDuplicatePower({ sourceId: doc?.uuid ?? null, name: doc?.name ?? "" });
+          const dup = this._hasDuplicatePower({
+            sourceId: doc?.uuid ?? null,
+            name: doc?.name ?? "",
+          });
           return dup ? firstAvailableId : requestedId;
         })();
 
         const optionsHtml = entries
           .map((e) => {
             const doc = docsById.get(e.id);
-            const dup = this._hasDuplicatePower({ sourceId: doc?.uuid ?? null, name: doc?.name ?? e.name });
+            const dup = this._hasDuplicatePower({
+              sourceId: doc?.uuid ?? null,
+              name: doc?.name ?? e.name,
+            });
             const label = dup ? `${e.name} (já na ficha)` : e.name;
             const dis = dup ? "disabled" : "";
             const sel = e.id === initialId ? "selected" : "";
@@ -261,7 +364,8 @@ export class GambiarraActor extends Actor {
                 if (!id) return;
                 if (!this._canAddPower()) return;
 
-                const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
+                const doc =
+                  docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
                 const sourceId = doc?.uuid ?? null;
                 const name = String(doc?.name ?? "").trim();
 
@@ -282,7 +386,8 @@ export class GambiarraActor extends Actor {
 
             const refresh = async () => {
               const id = $select.val();
-              const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
+              const doc =
+                docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
 
               const desc = String(doc?.system?.descricao ?? "").trim();
               const name = String(doc?.name ?? "").trim();
@@ -304,7 +409,9 @@ export class GambiarraActor extends Actor {
     }
 
     // fallback
-    ui.notifications.warn("Compêndio vazio/indisponível — usando fallback interno.");
+    ui.notifications.warn(
+      "Compêndio vazio/indisponível — usando fallback interno.",
+    );
     const p = sortear ? pickRandom(FALLBACK_POWERS) : FALLBACK_POWERS[0];
     await this._criarPoderEmbedado({
       nome: p.nome,
@@ -364,16 +471,24 @@ export class GambiarraActor extends Actor {
 
     const read = (html) => {
       const nome = String(html.find('[name="nome"]').val() ?? "").trim();
-      const descricao = String(html.find('[name="descricao"]').val() ?? "").trim();
-      const categoria = String(html.find('[name="categoria"]').val() ?? "").trim();
-      const obsSeguranca = String(html.find('[name="obsSeguranca"]').val() ?? "").trim();
+      const descricao = String(
+        html.find('[name="descricao"]').val() ?? "",
+      ).trim();
+      const categoria = String(
+        html.find('[name="categoria"]').val() ?? "",
+      ).trim();
+      const obsSeguranca = String(
+        html.find('[name="obsSeguranca"]').val() ?? "",
+      ).trim();
 
       if (!nome) {
         ui.notifications.warn("Dê um nome para o Poder.");
         return null;
       }
       if (!descricao) {
-        ui.notifications.warn("Escreva uma descrição curta do que o poder faz.");
+        ui.notifications.warn(
+          "Escreva uma descrição curta do que o poder faz.",
+        );
         return null;
       }
 
@@ -403,7 +518,9 @@ export class GambiarraActor extends Actor {
             if (!data) return;
 
             if (!canWritePack) {
-              ui.notifications.warn("Não consigo salvar no compêndio (precisa ser GM e pack world).");
+              ui.notifications.warn(
+                "Não consigo salvar no compêndio (precisa ser GM e pack world).",
+              );
               return;
             }
 
@@ -411,7 +528,10 @@ export class GambiarraActor extends Actor {
             if (!created) return;
 
             ui.notifications.info("✅ Poder criado no compêndio do mundo.");
-            await this._despertarPoder({ sortear: false, selectedId: created.id });
+            await this._despertarPoder({
+              sortear: false,
+              selectedId: created.id,
+            });
           },
         },
 
@@ -423,7 +543,9 @@ export class GambiarraActor extends Actor {
             if (!this._canAddPower()) return;
 
             if (this._hasDuplicatePower({ name: data.name })) {
-              ui.notifications.warn(`Este poder já está na ficha: ${data.name}`);
+              ui.notifications.warn(
+                `Este poder já está na ficha: ${data.name}`,
+              );
               return;
             }
 
@@ -447,7 +569,9 @@ export class GambiarraActor extends Actor {
             if (!this._canAddPower()) return;
 
             if (this._hasDuplicatePower({ name: data.name })) {
-              ui.notifications.warn(`Este poder já está na ficha: ${data.name}`);
+              ui.notifications.warn(
+                `Este poder já está na ficha: ${data.name}`,
+              );
               return;
             }
 
@@ -455,14 +579,19 @@ export class GambiarraActor extends Actor {
 
             if (canWritePack) {
               created = await this._createPowerInWorldPack(data);
-              if (created) ui.notifications.info("✅ Poder salvo no compêndio do mundo.");
+              if (created)
+                ui.notifications.info("✅ Poder salvo no compêndio do mundo.");
             } else {
-              ui.notifications.warn("⚠️ Não deu para salvar no compêndio — vou apenas adicionar à ficha.");
+              ui.notifications.warn(
+                "⚠️ Não deu para salvar no compêndio — vou apenas adicionar à ficha.",
+              );
             }
 
             if (created?.pack && created?.id) {
               await this._importPowerToActor(created.pack, created.id);
-              ui.notifications.info("✅ Poder adicionado à ficha (vindo do compêndio).");
+              ui.notifications.info(
+                "✅ Poder adicionado à ficha (vindo do compêndio).",
+              );
               return;
             }
 
@@ -474,6 +603,225 @@ export class GambiarraActor extends Actor {
               meta: { origem: "criado-em-mesa" },
             });
             ui.notifications.info("✅ Poder adicionado à ficha.");
+          },
+        },
+      },
+      default: "saveAndAdd",
+    }).render(true);
+  }
+
+  /* =========================================================
+   * ✅ NOVO: Criar Item em mesa (salvar no world e/ou adicionar na ficha)
+   * ========================================================= */
+
+  async _criarItemNoCompendioOuFicha() {
+    if (!game.user.isGM) {
+      ui.notifications.warn(
+        "Apenas a Programadora (GM) pode criar itens em mesa.",
+      );
+      return;
+    }
+
+    const worldPack = game.packs.get("world.gambiarra-itens") ?? null;
+    const canWritePack = !!worldPack && game.user.isGM;
+
+    const content = `
+      <form class="gambiarra-create-item">
+        <p class="hint">
+          Crie um item junto com o grupo. Itens não dão bônus fixos: eles mudam o contexto da cena.
+        </p>
+
+        <div class="form-group">
+          <label>Nome do Item</label>
+          <input type="text" name="nome" placeholder="Ex: Frasco Vazio" />
+        </div>
+
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea name="descricao" rows="3" placeholder="O que ele sugere/permite na história?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Categoria</label>
+          <select name="categoria">
+            <option value="direcao">🧭 Direção</option>
+            <option value="gambiarra">🔧 Gambiarra</option>
+            <option value="protecao">🛡️ Proteção</option>
+            <option value="estranho">🎁 Estranho</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo</label>
+          <select name="tipoItem">
+            <option value="reliquia">🔹 Relíquia (acompanha)</option>
+            <option value="consumivel">🔸 Consumível (some quando usado)</option>
+          </select>
+        </div>
+
+        <hr/>
+
+        <div class="form-group">
+          <label>Efeitos possíveis (referência)</label>
+
+          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" name="efeitos" value="reduzir" />
+            ➖ Reduzir dificuldade (1 passo)
+          </label>
+
+          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" name="efeitos" value="dado" />
+            🎲 +1 dado (vira 🟣)
+          </label>
+
+          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" name="efeitos" value="permitir" />
+            🧩 Permitir a tentativa
+          </label>
+
+          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" name="efeitos" value="trocar" />
+            🔁 Trocar atributo do desafio
+          </label>
+
+          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" name="efeitos" value="complicar" />
+            🌀 Criar complicação narrativa
+          </label>
+
+          <p class="hint">Esses efeitos são “tags” para sugerir automações leves no diálogo de rolagem.</p>
+        </div>
+
+        <hr/>
+
+        <div class="form-group">
+          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+            <input type="checkbox" name="reageABug" />
+            🐞 Reage a BUG
+          </label>
+          <p class="hint">Se marcar, o item aparece com “Usar no BUG”.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Cargas (consumível)</label>
+          <input type="number" name="cargas" min="1" max="9" value="1" />
+          <p class="hint">Quando chegar a 0: item vira “usado/sem carga”.</p>
+        </div>
+
+        ${
+          canWritePack
+            ? `<p class="hint">✅ Pode salvar em <strong>world.gambiarra-itens</strong>.</p>`
+            : `<p class="hint">⚠️ Para salvar no compêndio: precisa existir <strong>world.gambiarra-itens</strong> e você ser GM.</p>`
+        }
+      </form>
+    `;
+
+    const read = (html) => {
+      const nome = String(html.find('[name="nome"]').val() ?? "").trim();
+      const descricao = String(
+        html.find('[name="descricao"]').val() ?? "",
+      ).trim();
+      const categoria = String(
+        html.find('[name="categoria"]').val() ?? "gambiarra",
+      ).trim();
+      const tipoItem = String(
+        html.find('[name="tipoItem"]').val() ?? "reliquia",
+      ).trim();
+      const reageABug = Boolean(
+        html.find('[name="reageABug"]').prop("checked"),
+      );
+      const cargas = Math.max(
+        1,
+        Number(html.find('[name="cargas"]').val() ?? 1),
+      );
+
+      const efeitos = html
+        .find('input[name="efeitos"]:checked')
+        .map((_, el) => el.value)
+        .get();
+
+      if (!nome) {
+        ui.notifications.warn("Dê um nome para o Item.");
+        return null;
+      }
+      if (!descricao) {
+        ui.notifications.warn("Escreva uma descrição curta do item.");
+        return null;
+      }
+
+      return {
+        name: nome,
+        type: "item",
+        img: "icons/tools/misc/toolbox.webp",
+        system: {
+          categoria,
+          tipoItem,
+          cargas: tipoItem === "consumivel" ? cargas : 1,
+          usado: false,
+          descricao,
+          efeitosPossiveis: efeitos,
+          reageABug,
+          efeitosBug: reageABug ? ["suavizar"] : [],
+          corrompido: false,
+          corrupcoes: [],
+        },
+      };
+    };
+
+    new Dialog({
+      title: "🎒 Criar Item do Nó (em mesa)",
+      content,
+      buttons: {
+        addActor: {
+          label: "➕ Adicionar à ficha",
+          callback: async (html) => {
+            const data = read(html);
+            if (!data) return;
+            await this.createEmbeddedDocuments("Item", [data]);
+            ui.notifications.info("✅ Item adicionado à ficha.");
+          },
+        },
+
+        savePack: {
+          label: "📦 Salvar no Compêndio",
+          callback: async (html) => {
+            const data = read(html);
+            if (!data) return;
+
+            if (!canWritePack) {
+              ui.notifications.warn(
+                "Não consigo salvar no compêndio (precisa ser GM e pack world).",
+              );
+              return;
+            }
+
+            const created = await this._createItemInWorldPack(data);
+            if (!created) return;
+
+            ui.notifications.info("✅ Item criado no compêndio do mundo.");
+          },
+        },
+
+        saveAndAdd: {
+          label: "✅ Salvar + Adicionar",
+          callback: async (html) => {
+            const data = read(html);
+            if (!data) return;
+
+            // 1) adiciona na ficha
+            await this.createEmbeddedDocuments("Item", [data]);
+
+            // 2) tenta salvar no compendio
+            if (canWritePack) {
+              await this._createItemInWorldPack(data);
+              ui.notifications.info(
+                "✅ Item salvo no compêndio e adicionado à ficha.",
+              );
+            } else {
+              ui.notifications.warn(
+                "⚠️ Não deu para salvar no compêndio — mas o item foi adicionado à ficha.",
+              );
+            }
           },
         },
       },

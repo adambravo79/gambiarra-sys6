@@ -1,12 +1,12 @@
 /**
- * GAMBIARRA.SYS6 — Rolagens (v0.5)
+ * GAMBIARRA.SYS6 — Rolagens (v0.6.2)
  * - Pool = valor do atributo
- * - Dificuldade = sucessos necessários (required) + alvo (target)
- * - Dados Roxos = bônus decidido pela Programadora no diálogo
- * - Chat mostra os valores rolados
+ * - Dificuldade = required + target
+ * - Dados Roxos = bônus (diálogo / item)
  * - Integração Dice So Nice (se instalado)
  *
- * ✅ v0.5.x: NÃO aplica mais estado de BUG no Actor (sem uso por enquanto)
+ * Presets (B):
+ * rollDesafio(actor, { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName })
  */
 
 const COLORSET = {
@@ -22,30 +22,16 @@ const ATTR_LABEL = {
   coracao: { icon: "❤️", label: "Coração" },
 };
 
-function itemLabel(item) {
-  const tipoItem =
-    item?.system?.tipoItem ??
-    (item?.system?.consumivel ? "consumivel" : "reliquia");
-  const badge = tipoItem === "consumivel" ? "🔸" : "🔹";
-  return `${badge} ${item.name}`;
-}
-
-function actorItemsForRoll(actor) {
-  const itens = (actor.items ?? []).filter((i) => i.type === "item");
-  return itens;
-}
-
-function clampPurple(val) {
-  return clampInt(val, 0, 10);
-}
+// Ordem para "reduzir 1 passo"
+const DIFF_ORDER = ["impossivel", "epico", "bug", "complexo", "normal"]; // do mais pesado -> mais leve
 
 function clampInt(n, min, max) {
   const v = Number.isFinite(n) ? Math.trunc(n) : 0;
   return Math.max(min, Math.min(max, v));
 }
 
-function formatResults(results) {
-  return results.map((r) => r.result).join(", ");
+function clampPurple(val) {
+  return clampInt(val, 0, 10);
 }
 
 function applyDiceSoNiceAppearance(roll, colorsetId) {
@@ -97,19 +83,45 @@ function renderDiceLine(
     .join(" ");
 }
 
-function listSuccesses(results, target) {
-  const suc = results.filter((r) => r.result >= target).map((r) => r.result);
-  return suc.join(", ");
+function itemLabel(item) {
+  const tipoItem = item?.system?.tipoItem ?? "reliquia";
+  const badge = tipoItem === "consumivel" ? "🔸" : "🔹";
+  const usado = item?.system?.usado ? " (usado)" : "";
+  return `${badge} ${item.name}${usado}`;
 }
 
-export async function rollDesafio(actor) {
+function actorItemsForRoll(actor) {
+  return (actor.items ?? []).filter((i) => i.type === "item");
+}
+
+function shiftDifficultyKey(currentKey, delta) {
+  if (!delta) return currentKey;
+  const idx = DIFF_ORDER.indexOf(currentKey);
+  if (idx === -1) return currentKey;
+
+  // delta negativo = reduzir (vai "pra direita" na lista: impossivel -> epico -> ... -> normal)
+  const next = clampInt(idx - delta, 0, DIFF_ORDER.length - 1);
+  return DIFF_ORDER[next];
+}
+
+function formatResults(results) {
+  return results.map((r) => r.result).join(", ");
+}
+
+// opts: { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName }
+export async function rollDesafio(actor, opts = {}) {
   const difficulties = game.gambiarra?.config?.difficulties ?? {};
 
   const attrs = actor.system?.attributes ?? {};
   const corpo = attrs.corpo?.value ?? 2;
   const mente = attrs.mente?.value ?? 2;
   const coracao = attrs.coracao?.value ?? 2;
+
   const itens = actorItemsForRoll(actor);
+
+  const presetAttr = opts.presetAttr || "corpo";
+  const presetDiffKey = opts.presetDiffKey || "normal";
+  const presetPurple = clampPurple(Number(opts.addPurple ?? 0));
 
   const content = `
   <form class="gambiarra-roll">
@@ -124,6 +136,7 @@ export async function rollDesafio(actor) {
           })
           .join("")}
       </select>
+      ${opts.shiftDiff ? `<p class="hint">Item sugeriu: reduzir dificuldade (${opts.shiftDiff} passo).</p>` : ""}
     </div>
 
     <div class="form-group">
@@ -137,17 +150,16 @@ export async function rollDesafio(actor) {
     </div>
 
     <hr/>
-        <div class="form-group">
+
+    <div class="form-group">
       <label>🎒 Item do Nó (opcional)</label>
       <select name="sceneItem">
         <option value="">— nenhum —</option>
-        ${itens
-          .map((it) => `<option value="${it.id}">${itemLabel(it)}</option>`)
-          .join("")}
+        ${itens.map((it) => `<option value="${it.id}">${itemLabel(it)}</option>`).join("")}
       </select>
 
       <div class="hint" style="margin-top:6px;">
-        Se escolher um item e marcar “+1 dado”, ele vira +1 🟣 automaticamente.
+        “🎲 +1 dado” do item vira +1 🟣 automaticamente.
       </div>
 
       <div class="gambi-item-effects" style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -166,10 +178,11 @@ export async function rollDesafio(actor) {
           🔁 Trocar atributo do desafio
         </label>
       </div>
+
+      ${opts.itemName ? `<p class="hint">Pré-selecionado por item: <strong>${opts.itemName}</strong></p>` : ""}
     </div>
 
     <hr/>
-
 
     <div class="form-group">
       <label class="purple-label">🟣 Dados Roxos</label>
@@ -180,11 +193,9 @@ export async function rollDesafio(actor) {
         <button type="button" class="purple-btn purple-plus" aria-label="Aumentar">+</button>
         <span class="hint">A Programadora decide (ideia, item, ajuda, poder etc.)</span>
       </div>
-
     </div>
   </form>
   `;
-
   const dlg = new Dialog({
     title: "🎲 Rolar Desafio",
     content,
@@ -192,8 +203,12 @@ export async function rollDesafio(actor) {
       roll: {
         label: "Rolar",
         callback: async (html) => {
-          const diffKey = html.find('[name="difficulty"]').val();
-          const atributo = html.find('[name="attribute"]').val();
+          const diffKey = String(
+            html.find('[name="difficulty"]').val() || "normal",
+          );
+          const atributo = String(
+            html.find('[name="attribute"]').val() || "corpo",
+          );
           const purple = Number(html.find('[name="purpleDice"]').val()) || 0;
 
           const dificuldade = difficulties[diffKey];
@@ -208,23 +223,53 @@ export async function rollDesafio(actor) {
     },
     default: "roll",
     render: (html) => {
+      const $difficulty = html.find('[name="difficulty"]');
+      const $attribute = html.find('[name="attribute"]');
       const $val = html.find('[name="purpleDice"]');
+
       const $item = html.find('[name="sceneItem"]');
       const $addDie = html.find('[name="itemAddDie"]');
+      const $shiftDiff = html.find('[name="itemShiftDiff"]');
+      const $swapAttr = html.find('[name="itemSwapAttr"]');
 
       function bumpPurple(delta) {
         const cur = Number($val.val()) || 0;
         $val.val(String(clampPurple(cur + delta)));
       }
 
-      // Ao marcar/desmarcar “+1 dado”, aplica/remove +1 roxo automaticamente
+      // presets iniciais
+      $attribute.val(presetAttr);
+      $difficulty.val(
+        shiftDifficultyKey(presetDiffKey, Number(opts.shiftDiff ?? 0)),
+      );
+      $val.val(String(presetPurple));
+
+      if (opts.itemId) $item.val(String(opts.itemId));
+      if (opts.addPurple) $addDie.prop("checked", true);
+      if (opts.shiftDiff) $shiftDiff.prop("checked", true);
+      if (opts.forceSwapAttr) $swapAttr.prop("checked", true);
+
+      // checkbox +1 dado -> +1 roxo
       $addDie.on("change", () => {
         const checked = $addDie.prop("checked");
         bumpPurple(checked ? +1 : -1);
       });
 
-      // Se trocar o item, não mexe em roxos automaticamente (evita somas fantasmas)
-      // (Depois a gente pode “autossugerir” o checkbox com base no item.efeitosPossiveis.)
+      // reduzir dificuldade 1 passo (aplica na combo)
+      $shiftDiff.on("change", () => {
+        const checked = $shiftDiff.prop("checked");
+        const cur = String($difficulty.val() || "normal");
+        const next = shiftDifficultyKey(cur, checked ? -1 : +1);
+        $difficulty.val(next);
+      });
+
+      // trocar atributo: só marca intenção (a Programadora escolhe na hora)
+      // (se quiser, depois fazemos abrir um mini-dialog pra escolher qual atributo trocar)
+      if (opts.forceSwapAttr) {
+        // nada automático aqui além do check
+      }
+
+      // auto-sugerir checkboxes ao trocar item
       $item.on("change", async () => {
         const itemId = String($item.val() || "");
         if (!itemId) return;
@@ -233,17 +278,18 @@ export async function rollDesafio(actor) {
         const efeitos = Array.isArray(it?.system?.efeitosPossiveis)
           ? it.system.efeitosPossiveis
           : [];
-        const shouldAdd = efeitos.includes("add-dado");
 
-        // se for marcar automaticamente e já não estiver marcado
-        if (shouldAdd && !$addDie.prop("checked")) {
-          $addDie.prop("checked", true).trigger("change");
-        }
+        const shouldAdd = efeitos.includes("dado");
+        const shouldShift = efeitos.includes("reduzir");
+        const shouldSwap = efeitos.includes("trocar");
 
-        // se trocar para item que NÃO tem e estava marcado, desmarca e remove o +1
-        if (!shouldAdd && $addDie.prop("checked")) {
-          $addDie.prop("checked", false).trigger("change");
-        }
+        // add-dado -> dado (padrao novo)
+        if (shouldAdd !== $addDie.prop("checked"))
+          $addDie.prop("checked", shouldAdd).trigger("change");
+        if (shouldShift !== $shiftDiff.prop("checked"))
+          $shiftDiff.prop("checked", shouldShift).trigger("change");
+        if (shouldSwap !== $swapAttr.prop("checked"))
+          $swapAttr.prop("checked", shouldSwap);
       });
 
       html.find(".purple-minus").on("click", () => {
@@ -370,4 +416,9 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
     </div>
   `;
   ChatMessage.create({ content: chatHtml });
+}
+
+function listSuccesses(results, target) {
+  const suc = results.filter((r) => r.result >= target).map((r) => r.result);
+  return suc.join(", ");
 }

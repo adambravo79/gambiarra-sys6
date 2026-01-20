@@ -1,5 +1,105 @@
-<form class="item-sheet">
+<form class="item-sheet" autocomplete="off">
+  <header class="sheet-header">
+    <h1>
+      <input name="name" type="text" value="{{item.name}}" placeholder="Nome do Item" />
+    </h1>
+  </header>
 
-  {{> "systems/gambiarra-sys6/templates/item-item.html"}}
+  <section class="sheet-body">
+    <div class="form-group">
+      <label>Categoria</label>
+      <select name="system.categoria">
+        <option value="direcao" {{#if (eq system.categoria "direcao")}}selected{{/if}}>🧭 Direção</option>
+        <option value="gambiarra" {{#if (eq system.categoria "gambiarra")}}selected{{/if}}>🔧 Gambiarra</option>
+        <option value="protecao" {{#if (eq system.categoria "protecao")}}selected{{/if}}>🛡️ Proteção</option>
+        <option value="estranho" {{#if (eq system.categoria "estranho")}}selected{{/if}}>🎁 Estranho</option>
+      </select>
+    </div>
 
+    <div class="form-group">
+      <label>Tipo do Item</label>
+      <select name="system.tipoItem">
+        <option value="reliquia" {{#if (eq system.tipoItem "reliquia")}}selected{{/if}}>🔹 Relíquia</option>
+        <option value="consumivel" {{#if (eq system.tipoItem "consumivel")}}selected{{/if}}>🔸 Consumível</option>
+      </select>
+      <p class="hint">Consumível = tem cargas e pode ser “recebido pelo Nó” (usado/sem carga).</p>
+    </div>
+
+    <hr/>
+
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea name="system.descricao" rows="4" placeholder="O que este item faz na história?">{{system.descricao}}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Reage a BUG?</label>
+      <input type="checkbox" name="system.reageABug" {{checked system.reageABug}} />
+      <p class="hint">Se marcado, a ficha mostra “🐞 Usar no BUG”.</p>
+    </div>
+
+    <hr/>
+
+    <div class="form-group">
+      <label>Efeitos possíveis (referência)</label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="add-dado"
+          {{checked (includes system.efeitosPossiveis "add-dado")}} />
+        🎲 +1 dado (vira 🟣)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="reduzir-dificuldade"
+          {{checked (includes system.efeitosPossiveis "reduzir-dificuldade")}} />
+        ➖ Reduzir dificuldade (1 passo)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="permitir"
+          {{checked (includes system.efeitosPossiveis "permitir")}} />
+        🧩 Permitir tentar algo que antes não dava
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="trocar-atributo"
+          {{checked (includes system.efeitosPossiveis "trocar-atributo")}} />
+        🔁 Trocar atributo do desafio
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="bug-suavizar"
+          {{checked (includes system.efeitosPossiveis "bug-suavizar")}} />
+        🧯 (BUG) Suavizar
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="bug-anular"
+          {{checked (includes system.efeitosPossiveis "bug-anular")}} />
+        🛡️ (BUG) Anular (nesta cena)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="bug-transformar"
+          {{checked (includes system.efeitosPossiveis "bug-transformar")}} />
+        🔀 (BUG) Transformar (vira outro custo)
+      </label>
+
+      <p class="hint">Isso não automatiza nada “sozinho” — serve pra ajudar a Programadora.</p>
+    </div>
+
+    <hr/>
+
+    <div class="form-group">
+      <label>Cargas</label>
+      <input type="number" name="system.cargas" value="{{system.cargas}}" min="0" step="1" />
+      <p class="hint">Usado principalmente para Consumíveis. Se chegar a 0, o item vira “usado/sem carga”.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Usado / Sem carga (recebido pelo Nó)</label>
+      <input type="checkbox" name="system.usado" {{checked system.usado}} />
+      <p class="hint">Marca manualmente se quiser. Consumíveis chegam aqui automaticamente quando gastam a última carga.</p>
+    </div>
+  </section>
 </form>

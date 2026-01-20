@@ -12,6 +12,7 @@
     </h1>
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
+
   {{!-- ATRIBUTOS (EDITÁVEIS) --}}
   <section class="attributes">
     <div class="attribute corpo">
@@ -139,55 +140,29 @@
     <p class="hint">Nenhum item ainda.</p>
     {{/if}}
 
-    <ul class="gambi-items">
-  {{#each items as |item|}}
-    <li class="gambi-item
-      {{#if item.system.usado}}is-used{{/if}}
-      {{#if (eq item.system.tipoItem "consumivel")}}is-consumivel{{else}}is-reliquia{{/if}}
-    ">
-
-      <div class="gambi-item-left">
+    <ul>
+      {{#each items as |item|}}
+      <li class="gambi-item {{#if item.system.usado}}is-used{{/if}}">
         <span class="item-name">{{item.name}}</span>
 
-        {{!-- badge tipo --}}
-        {{#if (eq item.system.tipoItem "consumivel")}}
-          <span class="gambi-item-badge">🔸 Consumível</span>
-        {{else}}
-          <span class="gambi-item-badge">🔹 Relíquia</span>
-        {{/if}}
+        {{#if item.system.usado}}
+        <span class="hint">(usado/sem carga)</span>
+        {{/if}} {{#if @root.isGM}}
+        <button type="button" class="use-item-scene" data-item-id="{{item.id}}">
+          🎒 Usar
+        </button>
 
-        {{!-- status de carga --}}
-        {{#if (eq item.system.tipoItem "consumivel")}}
-          {{#if item.system.usado}}
-            <span class="gambi-item-meta">(usado/sem carga)</span>
-          {{else}}
-            <span class="gambi-item-meta">(cargas: {{item.system.cargas}})</span>
-          {{/if}}
-        {{/if}}
-      </div>
+        {{#if item.system.reageABug}}
+        <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
+          🐞 Usar no BUG
+        </button>
+        {{/if}} {{/if}}
+      </li>
+      {{/each}}
+    </ul>
 
-      {{#if @root.isGM}}
-        <div class="gambi-item-actions">
-          {{!-- 🎒 usar na cena: não faz sentido se já está usado --}}
-          {{#if item.system.usado}}
-            <button type="button" class="use-item-scene" data-item-id="{{item.id}}" disabled title="Consumível já usado">
-              🎒 Usar
-            </button>
-          {{else}}
-            <button type="button" class="use-item-scene" data-item-id="{{item.id}}">
-              🎒 Usar
-            </button>
-          {{/if}}
-
-          <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
-            🐞 Usar no BUG
-          </button>
-        </div>
-      {{/if}}
-
-    </li>
-  {{/each}}
-</ul>
-
+    {{#if @root.isGM}}
+    <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
+    {{/if}}
   </section>
 </form>
