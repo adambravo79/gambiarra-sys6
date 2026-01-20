@@ -9,7 +9,10 @@ import { GambiarraNpcModel } from "./data/actor-npc-model.js";
 import { GambiarraItemModel } from "./data/item-item-model.js";
 import { GambiarraPoderModel } from "./data/item-poder-model.js";
 
-import { seedWorldFromSystemPackIfEmpty } from "./seed-compendiums.js";
+import {
+  seedWorldFromSystemPackIfEmpty,
+  seedWorldItemsFromSystemPackIfEmpty,
+} from "./seed-compendiums.js";
 
 Hooks.once("init", () => {
   console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.5)");
@@ -131,11 +134,11 @@ Hooks.once("init", () => {
       );
     }
   });
-
 });
 
 Hooks.once("ready", async () => {
   if (!game.user.isGM) return;
-  await seedWorldFromSystemPackIfEmpty();
-});
 
+  await seedWorldFromSystemPackIfEmpty();
+  await seedWorldItemsFromSystemPackIfEmpty();
+});
