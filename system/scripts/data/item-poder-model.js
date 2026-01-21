@@ -1,3 +1,4 @@
+// scripts/data/item-poder-model.js
 export class GambiarraPoderModel extends foundry.abstract.DataModel {
   static defineSchema() {
     const fields = foundry.data.fields;

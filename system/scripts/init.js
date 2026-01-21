@@ -1,3 +1,4 @@
+// scripts/init.js v(0.6.2)
 import { GambiarraActor } from "./actor.js";
 import { GambiarraActorSheet } from "./actor-sheet.js";
 

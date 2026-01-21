@@ -1,3 +1,4 @@
+// scripts/actor-sheet.js v(0.6.2)
 import { rollDesafio } from "./rolls.js";
 
 export class GambiarraActorSheet extends ActorSheet {

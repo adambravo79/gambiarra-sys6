@@ -1,4 +1,4 @@
-// scripts/data/item-item-model.js (v0.6)
+// scripts/data/item-item-model.js (v0.6.2)
 
 export class GambiarraItemModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {

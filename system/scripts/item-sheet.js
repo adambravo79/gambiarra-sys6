@@ -1,3 +1,4 @@
+// scripts/item-sheet.js v(0.6.2)
 export class GambiarraItemSheet extends ItemSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
