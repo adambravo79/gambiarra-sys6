@@ -155,6 +155,13 @@ export class GambiarraActorSheet extends ActorSheet {
       .off("click")
       .on("click", () => this.actor._criarItemNoCompendioOuFicha?.());
 
+    html
+      .find(".add-item")
+      .off("click")
+      .on("click", () => {
+        this.actor._escolherItemDoCompendio();
+      });
+
     // efeitos permanentes
     html
       .find(".add-effect")

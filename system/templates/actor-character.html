@@ -154,8 +154,10 @@
       {{/each}}
     </ul>
 
-    {{#if @root.isGM}}
-      <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
-    {{/if}}
+{{#if @root.isGM}}
+  <button type="button" class="add-item">➕ Adicionar Item</button>
+  <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
+{{/if}}
+
   </section>
 </form>

@@ -611,6 +611,191 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
+   * ITENS — packs
+   * ========================================================= */
+
+  async _getItemsPack({ preferWorld = true } = {}) {
+    if (preferWorld) {
+      const world = game.packs.get("world.gambiarra-itens");
+      if (world) return world;
+    }
+    const sys = game.packs.get("gambiarra-sys6.gambiarra-itens");
+    if (sys) return sys;
+    return null;
+  }
+
+  async _listItemsFromPack(pack) {
+    if (!pack) return [];
+    await pack.getIndex();
+    return [...pack.index.values()]
+      .map((e) => ({ id: e._id, name: e.name }))
+      .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  }
+
+  async _loadItemDoc(pack, id) {
+    if (!pack || !id) return null;
+    return pack.getDocument(id);
+  }
+
+  _hasDuplicateItem({ sourceId = null, name = "" } = {}) {
+    const wantedSource = sourceId ? String(sourceId) : null;
+    const wantedName = String(name ?? "")
+      .trim()
+      .toLowerCase();
+
+    return this.items.some((i) => {
+      if (i.type !== "item") return false;
+
+      const existingSource = i.system?.sourceId
+        ? String(i.system.sourceId)
+        : null;
+
+      if (wantedSource && existingSource && existingSource === wantedSource)
+        return true;
+
+      return wantedName && i.name.toLowerCase() === wantedName;
+    });
+  }
+
+  async _importItemToActor(pack, id) {
+    const doc = await this._loadItemDoc(pack, id);
+    if (!doc) return null;
+
+    const sourceId = doc.uuid;
+    const name = doc.name;
+
+    if (this._hasDuplicateItem({ sourceId, name })) {
+      ui.notifications.warn(`Este item já está na ficha: ${name}`);
+      return null;
+    }
+
+    const data = doc.toObject();
+    delete data._id;
+
+    data.type = "item";
+    data.system = {
+      ...(data.system ?? {}),
+      sourceId,
+    };
+
+    await this.createEmbeddedDocuments("Item", [data]);
+    return data;
+  }
+
+  /* =========================================================
+   * Escolher Item do Compêndio
+   * ========================================================= */
+
+  async _escolherItemDoCompendio() {
+    const pack = await this._getItemsPack({ preferWorld: true });
+
+    if (!pack) {
+      ui.notifications.warn("Nenhum compêndio de itens encontrado.");
+      return;
+    }
+
+    const entries = await this._listItemsFromPack(pack);
+    if (entries.length === 0) {
+      ui.notifications.warn("Compêndio de itens está vazio.");
+      return;
+    }
+
+    // pré-carrega docs
+    const docsById = new Map();
+    for (const e of entries) {
+      const doc = await this._loadItemDoc(pack, e.id);
+      if (doc) docsById.set(e.id, doc);
+    }
+
+    const firstAvailableId = (() => {
+      for (const e of entries) {
+        const doc = docsById.get(e.id);
+        const dup = this._hasDuplicateItem({
+          sourceId: doc?.uuid ?? null,
+          name: doc?.name ?? e.name,
+        });
+        if (!dup) return e.id;
+      }
+      return entries[0].id;
+    })();
+
+    const optionsHtml = entries
+      .map((e) => {
+        const doc = docsById.get(e.id);
+        const dup = this._hasDuplicateItem({
+          sourceId: doc?.uuid ?? null,
+          name: doc?.name ?? e.name,
+        });
+
+        const label = dup ? `${e.name} (já na ficha)` : e.name;
+        const dis = dup ? "disabled" : "";
+        const sel = e.id === firstAvailableId ? "selected" : "";
+
+        return `<option value="${e.id}" ${sel} ${dis}>${label}</option>`;
+      })
+      .join("");
+
+    const dlg = new Dialog({
+      title: "🎒 Adicionar Item do Compêndio",
+      content: `
+      <form class="gambiarra-pick-item">
+        <p>Escolha um item do compêndio:</p>
+
+        <div class="form-group">
+          <label>Item</label>
+          <select name="itemId">${optionsHtml}</select>
+        </div>
+
+        <div class="form-group">
+          <label>Descrição</label>
+          <div class="hint item-preview"
+               style="border:1px solid #0002; border-radius:10px; padding:10px; min-height:100px;">
+            Carregando...
+          </div>
+        </div>
+      </form>
+    `,
+      buttons: {
+        ok: {
+          label: "Adicionar à ficha",
+          callback: async (html) => {
+            const id = html.find('[name="itemId"]').val();
+            if (!id) return;
+
+            const doc = docsById.get(id);
+            const sourceId = doc?.uuid ?? null;
+            const name = doc?.name ?? "";
+
+            if (this._hasDuplicateItem({ sourceId, name })) {
+              ui.notifications.warn(`Este item já está na ficha: ${name}`);
+              return;
+            }
+
+            await this._importItemToActor(pack, id);
+          },
+        },
+      },
+      default: "ok",
+      render: (html) => {
+        const $select = html.find('[name="itemId"]');
+        const $preview = html.find(".item-preview");
+
+        const refresh = async () => {
+          const id = $select.val();
+          const doc = docsById.get(id);
+          const desc = String(doc?.system?.descricao ?? "").trim();
+          $preview.text(desc || "(Sem descrição)");
+        };
+
+        $select.on("change", refresh);
+        refresh();
+      },
+    });
+
+    dlg.render(true);
+  }
+
+  /* =========================================================
    * ✅ Criar Item em mesa (salvar no world e/ou adicionar na ficha)
    * ========================================================= */
 
