@@ -1,7 +1,7 @@
 {{!-- templates/actor-character.html v0.6.1 --}}
+
 <form class="gambiarra-sheet" autocomplete="off">
   <header class="sheet-header">
-    {{!-- ✅ Nome editável e sincronizado com o Actor --}}
     <h1 class="charname">
       <input
         name="name"
@@ -14,42 +14,19 @@
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
 
-  {{!-- ATRIBUTOS (EDITÁVEIS) --}}
   <section class="attributes">
     <div class="attribute corpo">
       <h2>🟢 Corpo</h2>
-      <input
-        type="number"
-        name="system.attributes.corpo.value"
-        value="{{system.attributes.corpo.value}}"
-        min="1"
-        max="4"
-        step="1"
-      />
+      <input type="number" name="system.attributes.corpo.value" value="{{system.attributes.corpo.value}}" min="1" max="4" step="1" />
     </div>
     <div class="attribute mente">
       <h2>🔵 Mente</h2>
-      <input
-        type="number"
-        name="system.attributes.mente.value"
-        value="{{system.attributes.mente.value}}"
-        min="1"
-        max="4"
-        step="1"
-      />
+      <input type="number" name="system.attributes.mente.value" value="{{system.attributes.mente.value}}" min="1" max="4" step="1" />
     </div>
     <div class="attribute coracao">
       <h2>🔴 Coração</h2>
-      <input
-        type="number"
-        name="system.attributes.coracao.value"
-        value="{{system.attributes.coracao.value}}"
-        min="1"
-        max="4"
-        step="1"
-      />
+      <input type="number" name="system.attributes.coracao.value" value="{{system.attributes.coracao.value}}" min="1" max="4" step="1" />
     </div>
-
     <div class="gambiarra-sumbar ok">
       <div class="sum-left">
         <span>📐 Soma</span> <span class="sum-pill">6</span>
@@ -62,86 +39,74 @@
     <button type="button" class="roll-desafio">🎲 Rolar Desafio</button>
   </section>
 
-  {{!-- PODERES --}}
   <section class="powers">
     <h2>⚡ Poderes Gambiarra</h2>
-
     {{#if (eq poderes.length 0)}}
-    <p class="hint">Nenhum poder ainda.</p>
+      <p class="hint">Nenhum poder ainda.</p>
     {{/if}}
-
     <ul class="power-list">
       {{#each poderes as |poder|}}
       <li class="power power-{{poder.system.estado}}">
         <header class="power-header">
           <strong>{{poder.name}}</strong>
           <span class="state">{{poder.system.estado}}</span>
-
           {{#if @root.isGM}}
           <div class="power-actions">
-            <button
-              type="button"
-              class="power-remove"
-              data-item-id="{{poder.id}}"
-            >
-              🗑️ Remover
-            </button>
-            <button
-              type="button"
-              class="power-replace"
-              data-item-id="{{poder.id}}"
-            >
-              🔁 Trocar
-            </button>
+            <button type="button" class="power-remove" data-item-id="{{poder.id}}">🗑️ Remover</button>
+            <button type="button" class="power-replace" data-item-id="{{poder.id}}">🔁 Trocar</button>
           </div>
           {{/if}}
         </header>
-
         <p class="description">{{poder.system.descricao}}</p>
       </li>
       {{/each}}
     </ul>
 
-    {{#if @root.isGM}} {{#if (lt poderes.length 2)}}
-    <button type="button" class="add-power">➕ Escolher Poder</button>
-    <button type="button" class="roll-power">🎲 Sortear Poder</button>
-    <button type="button" class="create-power">🧩 Criar Poder (em mesa)</button>
-    {{/if}} {{/if}}
+    {{#if @root.isGM}}
+      {{#if (lt poderes.length 2)}}
+        <button type="button" class="add-power">➕ Escolher Poder</button>
+        <button type="button" class="roll-power">🎲 Sortear Poder</button>
+        <button type="button" class="create-power">🧩 Criar Poder (em mesa)</button>
+      {{/if}}
+    {{/if}}
   </section>
 
-  {{!-- EFEITOS --}}
   <section class="effects">
     <h2>🧠 Efeitos do Nó</h2>
+    {{#if (or system.meta.marcas.length system.meta.custos.length system.meta.corrupcoes.length)}}
+      {{#if system.meta.marcas.length}}
+        <h3>🧬 Marcas do Nó</h3>
+        <ul>
+          {{#each system.meta.marcas}}
+            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
 
-    {{#if (or system.meta.marcas.length system.meta.custos.length
-    system.meta.corrupcoes.length)}} {{#if system.meta.marcas.length}}
-    <h3>🧬 Marcas do Nó</h3>
-    <ul>
-      {{#each system.meta.marcas}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{#if system.meta.custos.length}}
-    <h3>💔 Custos Emocionais</h3>
-    <ul>
-      {{#each system.meta.custos}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{#if system.meta.corrupcoes.length}}
-    <h3>🧩 Corrupções</h3>
-    <ul>
-      {{#each system.meta.corrupcoes}}
-      <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-      {{/each}}
-    </ul>
-    {{/if}} {{else}}
-    <p class="hint">Nenhum efeito permanente… ainda.</p>
-    {{/if}} {{#if @root.isGM}}
-    <button type="button" class="add-effect">
-      ➕ Registrar Efeito Permanente
-    </button>
-    <button type="button" class="bug-effect">🐞 BUG → Efeito Permanente</button>
+      {{#if system.meta.custos.length}}
+        <h3>💔 Custos Emocionais</h3>
+        <ul>
+          {{#each system.meta.custos}}
+            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
+
+      {{#if system.meta.corrupcoes.length}}
+        <h3>🧩 Corrupções</h3>
+        <ul>
+          {{#each system.meta.corrupcoes}}
+            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
+    {{else}}
+      <p class="hint">Nenhum efeito permanente… ainda.</p>
+    {{/if}}
+
+    {{#if @root.isGM}}
+      <button type="button" class="add-effect">➕ Registrar Efeito Permanente</button>
+      <button type="button" class="bug-effect">🐞 BUG → Efeito Permanente</button>
     {{/if}}
   </section>
 
@@ -150,32 +115,47 @@
     <h2>🎒 Itens do Nó</h2>
 
     {{#if (eq items.length 0)}}
-    <p class="hint">Nenhum item ainda.</p>
+      <p class="hint">Nenhum item ainda.</p>
     {{/if}}
 
-    <ul>
+    <ul class="gambi-items">
       {{#each items as |item|}}
       <li class="gambi-item {{#if item.system.usado}}is-used{{/if}}">
-        <span class="item-name">{{item.name}}</span>
+        <div class="gambi-item-left">
+          <span class="item-name"><strong>{{item.name}}</strong></span>
 
-        {{#if item.system.usado}}
-        <span class="hint">(usado/sem carga)</span>
-        {{/if}} {{#if @root.isGM}}
-        <button type="button" class="use-item-scene" data-item-id="{{item.id}}">
-          🎒 Usar
-        </button>
+          <span class="gambi-item-badge">
+            {{#if (eq item.system.tipoItem "consumivel")}}🔸 Consumível{{else}}🔹 Relíquia{{/if}}
+          </span>
 
-        {{#if item.system.reageABug}}
-        <button type="button" class="use-item-bug" data-item-id="{{item.id}}">
-          🐞 Usar no BUG
-        </button>
-        {{/if}} {{/if}}
+          {{#if (eq item.system.tipoItem "consumivel")}}
+            <span class="gambi-item-meta">🔋 {{item.system.cargas}}/{{item.system.cargasMax}}</span>
+          {{/if}}
+
+          {{#if item.system.usado}}
+            <span class="hint">(usado/sem carga)</span>
+          {{/if}}
+        </div>
+
+        {{#if @root.isGM}}
+        <div class="gambi-item-actions">
+          <button type="button" class="use-item-scene" data-item-id="{{item.id}}" {{#if item.system.usado}}disabled{{/if}}>
+            🎒 Usar
+          </button>
+
+          {{#if item.system.reageABug}}
+          <button type="button" class="use-item-bug" data-item-id="{{item.id}}" {{#if item.system.usado}}disabled{{/if}}>
+            🐞 Usar no BUG
+          </button>
+          {{/if}}
+        </div>
+        {{/if}}
       </li>
       {{/each}}
     </ul>
 
     {{#if @root.isGM}}
-    <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
+      <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
     {{/if}}
   </section>
 </form>

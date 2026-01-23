@@ -3,12 +3,11 @@
 // - Consumiveis: gastam carga e marcam usado quando chega a 0
 // - Pode criar item "em mesa" e opcionalmente salvar no compendio do mundo
 
-import { rollDesafio } from "./rolls.js";
+// scripts/itens.js (v0.6.4)
+// - Consumíveis: gastam 1 carga e, ao zerar, marcam usado + "🪢 Nó recebeu..."
+// - Fallback: se consumível vier com cargas 0 mas usado=false, ao usar ele vira usado e anuncia
 
 export class GambiarraItem extends Item {
-  // -------------------------
-  // Corrupcao (mantido)
-  // -------------------------
   async corromper(descricao) {
     const corrupcoes = foundry.utils.duplicate(this.system.corrupcoes || []);
     corrupcoes.push({ descricao, origem: "BUG" });
@@ -19,23 +18,20 @@ export class GambiarraItem extends Item {
     });
   }
 
-  // -------------------------
-  // Usar na cena
-  // -------------------------
   async usarNaCena(actor) {
     const content = `
-    <p><strong>${this.name}</strong> entrou em cena.</p>
-    <p class="hint">Escolha um efeito narrativo (só registra; não automatiza).</p>
-    <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
-      <button type="button" data-efeito="reduzir">➖ Reduzir a dificuldade (1 passo)</button>
-      <button type="button" data-efeito="dado">🎲 +1 dado (vira 🟣)</button>
-      <button type="button" data-efeito="permitir">🧩 Permitir tentar algo que antes não dava</button>
-      <button type="button" data-efeito="trocar">🔁 Trocar o atributo do desafio</button>
-      <button type="button" data-efeito="complicar">🌀 Criar uma complicação interessante</button>
-    </div>
-  `;
+      <p><strong>${this.name}</strong> entrou em cena.</p>
+      <p class="hint">Escolha um efeito narrativo (só registra; não automatiza).</p>
+      <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
+        <button type="button" data-efeito="reduzir">➖ Reduzir a dificuldade (1 passo)</button>
+        <button type="button" data-efeito="dado">🎲 +1 dado (vira 🟣)</button>
+        <button type="button" data-efeito="permitir">🧩 Permitir tentar algo que antes não dava</button>
+        <button type="button" data-efeito="trocar">🔁 Trocar o atributo do desafio</button>
+        <button type="button" data-efeito="complicar">🌀 Criar uma complicação interessante</button>
+      </div>
+    `;
 
-    new Dialog({
+    const dlg = new Dialog({
       title: "🎒 Usar Item",
       content,
       buttons: {},
@@ -47,22 +43,18 @@ export class GambiarraItem extends Item {
           const efeito = ev.currentTarget.dataset.efeito;
           this._postChatUso(actor, efeito, { context: "scene" });
 
-          // ✅ se consumível: gasta
           if (this.system.tipoItem === "consumivel") {
-            await this.gastarUmaCarga();
+            await this.gastarUmaCarga({ announceNo: true });
           }
 
-          // fecha o diálogo
-          html.closest(".app").find(".window-header a.close").trigger("click");
+          dlg.close();
         });
       },
-    }).render(true);
+    });
+
+    dlg.render(true);
   }
 
-  // -------------------------
-  // Usar no BUG
-  // -------------------------
-  // ✅ uso “no BUG” (não precisa haver meta.bug; pergunta na hora)
   async usarContraBug(actor) {
     const confirmar = await Dialog.confirm({
       title: "🐞 BUG Narrativo",
@@ -75,17 +67,17 @@ export class GambiarraItem extends Item {
     }
 
     const content = `
-    <p><strong>${this.name}</strong> reage ao BUG.</p>
-    <p class="hint">Escolha como ele muda a situação (só registra; não automatiza).</p>
-    <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
-      <button type="button" data-efeito="suavizar">🧯 Suavizar o BUG</button>
-      <button type="button" data-efeito="anular">🛡️ Anular o BUG (nesta cena)</button>
-      <button type="button" data-efeito="transformar">🔀 Transformar o BUG (vira outro tipo de custo)</button>
-      <button type="button" data-efeito="dado">🎲 Converter em +1 🟣 no próximo teste</button>
-    </div>
-  `;
+      <p><strong>${this.name}</strong> reage ao BUG.</p>
+      <p class="hint">Escolha como ele muda a situação (só registra; não automatiza).</p>
+      <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
+        <button type="button" data-efeito="suavizar">🧯 Suavizar o BUG</button>
+        <button type="button" data-efeito="anular">🛡️ Anular o BUG (nesta cena)</button>
+        <button type="button" data-efeito="transformar">🔀 Transformar o BUG (vira outro tipo de custo)</button>
+        <button type="button" data-efeito="dado">🎲 Converter em +1 🟣 no próximo teste</button>
+      </div>
+    `;
 
-    new Dialog({
+    const dlg = new Dialog({
       title: "🐞 Item no BUG",
       content,
       buttons: {},
@@ -98,30 +90,42 @@ export class GambiarraItem extends Item {
           this._postChatUso(actor, efeito, { context: "bug" });
 
           if (this.system.tipoItem === "consumivel") {
-            await this.gastarUmaCarga();
+            await this.gastarUmaCarga({ announceNo: true });
           }
 
-          html.closest(".app").find(".window-header a.close").trigger("click");
+          dlg.close();
         });
       },
-    }).render(true);
+    });
+
+    dlg.render(true);
   }
 
-  // -------------------------
-  // Consumo / cargas
-  // -------------------------
-  async gastarUmaCarga() {
+  async gastarUmaCarga({ announceNo = false } = {}) {
+    const tipo = String(this.system.tipoItem ?? "reliquia");
+    if (tipo !== "consumivel") return;
+
     const usado = Boolean(this.system.usado);
-    const cargas = Number(this.system.cargas ?? 0);
+    const cargasRaw = Number(this.system.cargas ?? 0);
 
-    if (usado || cargas <= 0) return;
+    // já usado? não faz nada
+    if (usado) return;
 
-    const novasCargas = Math.max(0, cargas - 1);
+    // fallback: se veio com 0, assume 1 para consumir e “encerrar” corretamente
+    const cargasSafe =
+      Math.max(0, Math.trunc(Number.isFinite(cargasRaw) ? cargasRaw : 0)) || 1;
+
+    const novasCargas = Math.max(0, cargasSafe - 1);
+    const virouUsado = novasCargas === 0;
 
     await this.update({
       "system.cargas": novasCargas,
-      "system.usado": novasCargas === 0,
+      "system.usado": virouUsado,
     });
+
+    if (announceNo && virouUsado) {
+      await this._postChatRecebidoPeloNo();
+    }
   }
 
   async _postChatRecebidoPeloNo() {
@@ -130,23 +134,18 @@ export class GambiarraItem extends Item {
     });
   }
 
-  // -------------------------
-  // Chat helper
-  // -------------------------
   _postChatUso(actor, efeito, { context }) {
     const tipo =
       this.system.tipoItem === "consumivel" ? "🔸 Consumível" : "🔹 Relíquia";
 
     const texto =
       {
-        // cena
         reduzir: "➖ Reduzir dificuldade (1 passo)",
         dado: "🎲 +1 dado (vira 🟣 no diálogo)",
         permitir: "🧩 Permitir a tentativa",
         trocar: "🔁 Trocar atributo do desafio",
         complicar: "🌀 Criar complicação narrativa",
 
-        // bug
         suavizar: "🧯 Suavizar BUG",
         anular: "🛡️ Anular BUG (nesta cena)",
         transformar: "🔀 Transformar BUG",

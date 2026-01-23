@@ -4,8 +4,8 @@ export class GambiarraItemSheet extends ItemSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["gambiarra", "sheet", "item"],
-      width: 440,
-      height: 420,
+      width: 460,
+      height: 520,
     });
   }
 

@@ -1,8 +1,9 @@
 {{!-- templates/item/item-item.html v0.6.1 --}}
- <form class="item-sheet" autocomplete="off">
+ <!-- templates/item/item-item.html (v0.6.4) -->
+<form class="item-sheet" autocomplete="off">
   <header class="sheet-header">
     <h1>
-      <input name="name" type="text" value="{{item.name}}" placeholder="Nome do Item" />
+      <input name="name" type="text" value="{{item.name}}" />
     </h1>
   </header>
 
@@ -10,7 +11,7 @@
     <div class="form-group">
       <label>Categoria</label>
       <select name="system.categoria">
-        <option value="direcao" {{#if (eq system.categoria "direcao")}}selected{{/if}}>🧭 Direção</option>
+        <option value="direcao"  {{#if (eq system.categoria "direcao")}}selected{{/if}}>🧭 Direção</option>
         <option value="gambiarra" {{#if (eq system.categoria "gambiarra")}}selected{{/if}}>🔧 Gambiarra</option>
         <option value="protecao" {{#if (eq system.categoria "protecao")}}selected{{/if}}>🛡️ Proteção</option>
         <option value="estranho" {{#if (eq system.categoria "estranho")}}selected{{/if}}>🎁 Estranho</option>
@@ -18,25 +19,17 @@
     </div>
 
     <div class="form-group">
-      <label>Tipo do Item</label>
+      <label>Tipo</label>
       <select name="system.tipoItem">
         <option value="reliquia" {{#if (eq system.tipoItem "reliquia")}}selected{{/if}}>🔹 Relíquia</option>
         <option value="consumivel" {{#if (eq system.tipoItem "consumivel")}}selected{{/if}}>🔸 Consumível</option>
       </select>
-      <p class="hint">Consumível = tem cargas e pode ser “recebido pelo Nó” (usado/sem carga).</p>
+      <p class="hint">Consumíveis gastam cargas. Relíquias não gastam.</p>
     </div>
-
-    <hr/>
 
     <div class="form-group">
       <label>Descrição</label>
-      <textarea name="system.descricao" rows="4" placeholder="O que este item faz na história?">{{system.descricao}}</textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Reage a BUG?</label>
-      <input type="checkbox" name="system.reageABug" {{checked system.reageABug}} />
-      <p class="hint">Se marcado, a ficha mostra “🐞 Usar no BUG”.</p>
+      <textarea name="system.descricao" rows="4">{{system.descricao}}</textarea>
     </div>
 
     <hr/>
@@ -45,62 +38,96 @@
       <label>Efeitos possíveis (referência)</label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="add-dado"
-          {{checked (includes system.efeitosPossiveis "add-dado")}} />
-        🎲 +1 dado (vira 🟣)
-      </label>
-
-      <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="reduzir-dificuldade"
-          {{checked (includes system.efeitosPossiveis "reduzir-dificuldade")}} />
+        <input type="checkbox" name="system.efeitosPossiveis" value="shift-dificuldade"
+          {{checked (includes system.efeitosPossiveis "shift-dificuldade")}} />
         ➖ Reduzir dificuldade (1 passo)
       </label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="permitir"
-          {{checked (includes system.efeitosPossiveis "permitir")}} />
-        🧩 Permitir tentar algo que antes não dava
+        <input type="checkbox" name="system.efeitosPossiveis" value="add-dado"
+          {{checked (includes system.efeitosPossiveis "add-dado")}} />
+        🎲 +1 dado na rolagem (recomendado: roxo)
       </label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="trocar-atributo"
-          {{checked (includes system.efeitosPossiveis "trocar-atributo")}} />
+        <input type="checkbox" name="system.efeitosPossiveis" value="suavizar-bug"
+          {{checked (includes system.efeitosPossiveis "suavizar-bug")}} />
+        🐞 Suavizar / anular BUG (narrativo)
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="permitir-impossivel"
+          {{checked (includes system.efeitosPossiveis "permitir-impossivel")}} />
+        🧩 Permitir tentar algo “impossível”
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" name="system.efeitosPossiveis" value="swap-atributo"
+          {{checked (includes system.efeitosPossiveis "swap-atributo")}} />
         🔁 Trocar atributo do desafio
       </label>
 
-      <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="bug-suavizar"
-          {{checked (includes system.efeitosPossiveis "bug-suavizar")}} />
-        🧯 (BUG) Suavizar
-      </label>
-
-      <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="bug-anular"
-          {{checked (includes system.efeitosPossiveis "bug-anular")}} />
-        🛡️ (BUG) Anular (nesta cena)
-      </label>
-
-      <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="bug-transformar"
-          {{checked (includes system.efeitosPossiveis "bug-transformar")}} />
-        🔀 (BUG) Transformar (vira outro custo)
-      </label>
-
-      <p class="hint">Isso não automatiza nada “sozinho” — serve pra ajudar a Programadora.</p>
+      <p class="hint">São “tags” para sugerir automações leves na rolagem.</p>
     </div>
 
     <hr/>
 
-    <div class="form-group">
-      <label>Cargas</label>
-      <input type="number" name="system.cargas" value="{{system.cargas}}" min="0" step="1" />
-      <p class="hint">Usado principalmente para Consumíveis. Se chegar a 0, o item vira “usado/sem carga”.</p>
-    </div>
+    {{!-- ✅ Cargas: só aparece se for consumível --}}
+    {{#if (eq system.tipoItem "consumivel")}}
+      <div class="form-group">
+        <label>Cargas (máx 3)</label>
+
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <div>
+            <label class="hint" style="display:block; margin-bottom:4px;">Máximo</label>
+            <select name="system.cargasMax">
+              <option value="1" {{#if (eq system.cargasMax 1)}}selected{{/if}}>1</option>
+              <option value="2" {{#if (eq system.cargasMax 2)}}selected{{/if}}>2</option>
+              <option value="3" {{#if (eq system.cargasMax 3)}}selected{{/if}}>3</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="hint" style="display:block; margin-bottom:4px;">Atuais</label>
+            <select name="system.cargas">
+              <option value="0" {{#if (eq system.cargas 0)}}selected{{/if}}>0</option>
+              <option value="1" {{#if (eq system.cargas 1)}}selected{{/if}}>1</option>
+              <option value="2" {{#if (eq system.cargas 2)}}selected{{/if}}>2</option>
+              <option value="3" {{#if (eq system.cargas 3)}}selected{{/if}}>3</option>
+            </select>
+          </div>
+
+          <div class="hint" style="font-weight:800;">
+            🔋 {{system.cargas}} / {{system.cargasMax}}
+          </div>
+        </div>
+
+        <p class="hint">Ao chegar em 0: o item vira “usado/sem carga” e o Nó absorve.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <label class="checkbox">
+          <input type="checkbox" name="system.usado" {{checked system.usado}} />
+          ✅ Usado / sem carga
+        </label>
+        <p class="hint">Normalmente é automático quando as cargas chegam em 0.</p>
+      </div>
+    {{else}}
+      <div class="form-group">
+        <label>Status</label>
+        <p class="hint">🔹 Relíquias não usam cargas.</p>
+      </div>
+    {{/if}}
+
+    <hr/>
 
     <div class="form-group">
-      <label>Usado / Sem carga (recebido pelo Nó)</label>
-      <input type="checkbox" name="system.usado" {{checked system.usado}} />
-      <p class="hint">Marca manualmente se quiser. Consumíveis chegam aqui automaticamente quando gastam a última carga.</p>
+      <label>Reage a BUG</label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.reageABug" {{checked system.reageABug}} />
+        🐞 Mostra “Usar no BUG” na ficha
+      </label>
     </div>
   </section>
 </form>

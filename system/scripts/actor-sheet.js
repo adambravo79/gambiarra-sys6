@@ -5,67 +5,9 @@
 // Solução:
 // - Remover comentário HTML no topo do template (feito no actor-character.html)
 // - E blindar aqui: sempre passar para o core um jQuery cujo [0] seja ELEMENT_NODE (nodeType === 1).
+// scripts/actor-sheet.js (v0.6.4)
 
 import { rollDesafio } from "./rolls.js";
-
-function toJQ(html) {
-  if (html?.jquery) return html;
-  if (html?.[0]) return $(html[0]);
-  return $(html);
-}
-
-function isElementNode(n) {
-  return !!n && n.nodeType === 1; // Node.ELEMENT_NODE
-}
-
-function hasQSA(x) {
-  return !!x && typeof x.querySelectorAll === "function";
-}
-
-function toHTMLElement(x) {
-  if (!x) return null;
-
-  if (hasQSA(x)) return x;
-
-  if (x?.[0] && hasQSA(x[0])) return x[0];
-
-  if (x?.element && hasQSA(x.element)) return x.element;
-  if (x?.element?.[0] && hasQSA(x.element[0])) return x.element[0];
-
-  if (typeof x?.get === "function") {
-    const el = x.get(0);
-    if (hasQSA(el)) return el;
-  }
-
-  // ✅ NOVO: se vier um Comment/Text Node, tenta o parentElement
-  if (x?.parentElement && hasQSA(x.parentElement)) return x.parentElement;
-
-  return null;
-}
-
-function patchHTMLSecretBindOnce(secretInstanceOrClass) {
-  const C =
-    typeof secretInstanceOrClass === "function"
-      ? secretInstanceOrClass
-      : secretInstanceOrClass?.constructor;
-
-  if (!C?.prototype) return;
-  if (C.prototype.__gambiPatchedBind) return;
-  if (typeof C.prototype.bind !== "function") return;
-
-  const orig = C.prototype.bind;
-
-  C.prototype.bind = function (html) {
-    const el = toHTMLElement(html);
-    // console.log("[gambi] HTMLSecret.bind arg:", html, "-> el:", el);
-    return orig.call(this, el ?? html);
-  };
-
-  C.prototype.__gambiPatchedBind = true;
-  console.log(
-    "🩹 GAMBIARRA.SYS6 | Patch HTMLSecret.bind aplicado (duck-typing qSA)",
-  );
-}
 
 export class GambiarraActorSheet extends ActorSheet {
   static get defaultOptions() {
@@ -122,53 +64,35 @@ export class GambiarraActorSheet extends ActorSheet {
     };
   }
 
-  _activateCoreListeners(html) {
-    // sempre vira jQuery
-    let $html = toJQ(html);
-
-    // ✅ CRÍTICO: remove comment/text nodes pra garantir que $html[0] é um elemento
-    // Isso evita o caso do template começar com <!-- ... -->
-    const elementsOnly = $html.toArray().filter(isElementNode);
-    if (elementsOnly.length) $html = $(elementsOnly);
-
-    // patch do HTMLSecret.bind baseado nos secrets desta sheet
-    if (Array.isArray(this._secrets) && this._secrets.length) {
-      patchHTMLSecretBindOnce(this._secrets[0]);
-    }
-
-    // passa jQuery pro core (Foundry v12 usa html.find)
-    return super._activateCoreListeners($html);
-  }
-
   activateListeners(html) {
     super.activateListeners(html);
-    const $html = html?.jquery ? html : toJQ(html);
 
-    $html
+    // rolagem
+    html
       .find(".roll-desafio")
       .off("click")
       .on("click", () => rollDesafio(this.actor));
 
-    $html
+    // poderes
+    html
       .find(".roll-power")
       .off("click")
       .on("click", () => this.actor._despertarPoder({ sortear: true }));
-    $html
+    html
       .find(".add-power")
       .off("click")
       .on("click", () => this.actor._despertarPoder({ sortear: false }));
-    $html
+    html
       .find(".create-power")
       .off("click")
       .on("click", () => this.actor._criarPoderNoCompendioOuFicha());
 
-    $html
+    // remover poder
+    html
       .find(".power-remove")
       .off("click")
       .on("click", async (ev) => {
         ev.preventDefault();
-        ev.stopPropagation();
-
         const itemId = ev.currentTarget.dataset.itemId;
         const poder = this.actor.items.get(itemId);
         if (!poder) return;
@@ -182,13 +106,12 @@ export class GambiarraActorSheet extends ActorSheet {
         await poder.delete();
       });
 
-    $html
+    // trocar poder
+    html
       .find(".power-replace")
       .off("click")
       .on("click", async (ev) => {
         ev.preventDefault();
-        ev.stopPropagation();
-
         const itemId = ev.currentTarget.dataset.itemId;
         const poder = this.actor.items.get(itemId);
         if (!poder) return;
@@ -204,7 +127,8 @@ export class GambiarraActorSheet extends ActorSheet {
         await this.actor._despertarPoder({ sortear: false });
       });
 
-    $html
+    // ✅ ITENS — (SEM DUPLICAR LISTENER)
+    html
       .find(".use-item-scene")
       .off("click")
       .on("click", (ev) => {
@@ -215,7 +139,7 @@ export class GambiarraActorSheet extends ActorSheet {
         if (item?.usarNaCena) item.usarNaCena(this.actor);
       });
 
-    $html
+    html
       .find(".use-item-bug")
       .off("click")
       .on("click", (ev) => {
@@ -226,31 +150,33 @@ export class GambiarraActorSheet extends ActorSheet {
         if (item?.usarContraBug) item.usarContraBug(this.actor);
       });
 
-    $html
+    html
       .find(".create-item")
       .off("click")
       .on("click", () => this.actor._criarItemNoCompendioOuFicha?.());
 
-    $html
+    // efeitos permanentes
+    html
       .find(".add-effect")
       .off("click")
       .on("click", () => this.actor._adicionarEfeitoPermanente?.());
-    $html
+    html
       .find(".bug-effect")
       .off("click")
       .on("click", () => this.actor._converterBugEmEfeito?.());
 
+    // sumbar
     const updateSumbar = () => {
       const c =
-        Number($html.find('[name="system.attributes.corpo.value"]').val()) || 0;
+        Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
       const m =
-        Number($html.find('[name="system.attributes.mente.value"]').val()) || 0;
+        Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
       const co =
-        Number($html.find('[name="system.attributes.coracao.value"]').val()) ||
+        Number(html.find('[name="system.attributes.coracao.value"]').val()) ||
         0;
 
       const sum = c + m + co;
-      const $bar = $html.find(".gambiarra-sumbar");
+      const $bar = html.find(".gambiarra-sumbar");
       $bar.find(".sum-pill").text(String(sum));
 
       if (sum === 6 && c >= 1 && m >= 1 && co >= 1) {
@@ -262,15 +188,15 @@ export class GambiarraActorSheet extends ActorSheet {
       }
     };
 
-    $html
+    html
       .find('[name="system.attributes.corpo.value"]')
       .off("input")
       .on("input", updateSumbar);
-    $html
+    html
       .find('[name="system.attributes.mente.value"]')
       .off("input")
       .on("input", updateSumbar);
-    $html
+    html
       .find('[name="system.attributes.coracao.value"]')
       .off("input")
       .on("input", updateSumbar);
