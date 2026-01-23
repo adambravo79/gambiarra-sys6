@@ -1,5 +1,4 @@
 // scripts/data/item-item-model.js (v0.6.2)
-// scripts/data/item-item-model.js (v0.6.4)
 // - adiciona cargasMax (default 3)
 // - clampa cargas 0..cargasMax
 // - se tipoItem = reliquia: força cargas=1, usado=false

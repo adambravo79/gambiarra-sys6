@@ -1,5 +1,5 @@
 // scripts/actor.js
-// 0.6.2
+// 0.6.1a
 
 /* =========================================================
  * PODERES — packs
@@ -200,54 +200,6 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * Helpers — packs (ITENS)
-   * ========================================================= */
-
-  async _getItemsPack({ preferWorld = true } = {}) {
-    if (preferWorld) {
-      const world = game.packs.get("world.gambiarra-itens");
-      if (world) return world;
-    }
-    for (const id of ITEMS_PACK_IDS) {
-      const pack = game.packs.get(id);
-      if (pack) return pack;
-    }
-    return null;
-  }
-
-  async _createItemInWorldPack(data) {
-    const pack = await this._getItemsPack({ preferWorld: true });
-
-    if (!pack) {
-      ui.notifications.warn(
-        "Nenhum compêndio encontrado (world.gambiarra-itens).",
-      );
-      return null;
-    }
-    const isWorld = String(pack.collection ?? "").startsWith("world.");
-    if (!isWorld || !game.user.isGM) {
-      ui.notifications.warn(
-        "Para salvar no compêndio: precisa ser GM e o pack precisa ser world.gambiarra-itens.",
-      );
-      return null;
-    }
-
-    const created = await Item.createDocuments([data], {
-      pack: pack.collection,
-    });
-    const createdDoc = created?.[0];
-    if (!createdDoc) return null;
-
-    await pack.getIndex();
-    return {
-      pack,
-      id: createdDoc.id,
-      uuid: createdDoc.uuid,
-      name: createdDoc.name,
-    };
-  }
-
-  /* =========================================================
    * Despertar Poder — dropdown + preview + anti-duplicado
    * ========================================================= */
 
@@ -421,197 +373,7 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * Criar Poder em mesa (salvar no world e/ou adicionar na ficha)
-   * ========================================================= */
-
-  async _criarPoderNoCompendioOuFicha() {
-    const worldPack = game.packs.get("world.gambiarra-poderes") ?? null;
-    const canWritePack = !!worldPack && game.user.isGM;
-
-    const content = `
-      <form class="gambiarra-create-power">
-        <p class="hint">
-          Crie um poder junto com as crianças. Você pode salvar no compêndio do mundo e/ou adicionar à ficha.
-        </p>
-
-        <div class="form-group">
-          <label>Nome do Poder</label>
-          <input type="text" name="nome" placeholder="Ex: Gravidade Zero" />
-        </div>
-
-        <div class="form-group">
-          <label>Descrição (o que faz)</label>
-          <textarea name="descricao" rows="4" placeholder="Explique em 1–3 frases, bem narrativo."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Categoria (opcional)</label>
-          <select name="categoria">
-            <option value="">—</option>
-            <option value="movimento">Movimento & Espaço</option>
-            <option value="combate">Combate & Defesa</option>
-            <option value="mente">Percepção & Mente</option>
-            <option value="suporte">Utilidade & Suporte</option>
-            <option value="avancado">Avançado</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Observação de Segurança (opcional)</label>
-          <input type="text" name="obsSeguranca" placeholder="Ex: manter leve, sem violência gráfica." />
-        </div>
-
-        ${
-          canWritePack
-            ? `<p class="hint">✅ Vai salvar em <strong>world.gambiarra-poderes</strong>.</p>`
-            : `<p class="hint">⚠️ Para salvar no compêndio: precisa existir <strong>world.gambiarra-poderes</strong> e você ser GM.</p>`
-        }
-      </form>
-    `;
-
-    const read = (html) => {
-      const nome = String(html.find('[name="nome"]').val() ?? "").trim();
-      const descricao = String(
-        html.find('[name="descricao"]').val() ?? "",
-      ).trim();
-      const categoria = String(
-        html.find('[name="categoria"]').val() ?? "",
-      ).trim();
-      const obsSeguranca = String(
-        html.find('[name="obsSeguranca"]').val() ?? "",
-      ).trim();
-
-      if (!nome) {
-        ui.notifications.warn("Dê um nome para o Poder.");
-        return null;
-      }
-      if (!descricao) {
-        ui.notifications.warn(
-          "Escreva uma descrição curta do que o poder faz.",
-        );
-        return null;
-      }
-
-      return {
-        name: nome,
-        type: "poder",
-        system: {
-          descricao,
-          categoria,
-          estado: "ativo",
-          usos: 0,
-          efeitosPossiveis: [],
-          obsSeguranca,
-          origem: "criado-em-mesa",
-        },
-      };
-    };
-
-    new Dialog({
-      title: "⚡ Criar Poder Gambiarra",
-      content,
-      buttons: {
-        savePack: {
-          label: "➕ Criar no Compêndio",
-          callback: async (html) => {
-            const data = read(html);
-            if (!data) return;
-
-            if (!canWritePack) {
-              ui.notifications.warn(
-                "Não consigo salvar no compêndio (precisa ser GM e pack world).",
-              );
-              return;
-            }
-
-            const created = await this._createPowerInWorldPack(data);
-            if (!created) return;
-
-            ui.notifications.info("✅ Poder criado no compêndio do mundo.");
-            await this._despertarPoder({
-              sortear: false,
-              selectedId: created.id,
-            });
-          },
-        },
-
-        addActor: {
-          label: "➕ Adicionar à ficha",
-          callback: async (html) => {
-            const data = read(html);
-            if (!data) return;
-            if (!this._canAddPower()) return;
-
-            if (this._hasDuplicatePower({ name: data.name })) {
-              ui.notifications.warn(
-                `Este poder já está na ficha: ${data.name}`,
-              );
-              return;
-            }
-
-            await this._criarPoderEmbedado({
-              nome: data.name,
-              descricao: data.system.descricao,
-              categoria: data.system.categoria,
-              obsSeguranca: data.system.obsSeguranca,
-              meta: { origem: "criado-em-mesa" },
-            });
-
-            ui.notifications.info("✅ Poder adicionado à ficha.");
-          },
-        },
-
-        saveAndAdd: {
-          label: "✅ Criar + Adicionar",
-          callback: async (html) => {
-            const data = read(html);
-            if (!data) return;
-            if (!this._canAddPower()) return;
-
-            if (this._hasDuplicatePower({ name: data.name })) {
-              ui.notifications.warn(
-                `Este poder já está na ficha: ${data.name}`,
-              );
-              return;
-            }
-
-            let created = null;
-
-            if (canWritePack) {
-              created = await this._createPowerInWorldPack(data);
-              if (created)
-                ui.notifications.info("✅ Poder salvo no compêndio do mundo.");
-            } else {
-              ui.notifications.warn(
-                "⚠️ Não deu para salvar no compêndio — vou apenas adicionar à ficha.",
-              );
-            }
-
-            if (created?.pack && created?.id) {
-              await this._importPowerToActor(created.pack, created.id);
-              ui.notifications.info(
-                "✅ Poder adicionado à ficha (vindo do compêndio).",
-              );
-              return;
-            }
-
-            await this._criarPoderEmbedado({
-              nome: data.name,
-              descricao: data.system.descricao,
-              categoria: data.system.categoria,
-              obsSeguranca: data.system.obsSeguranca,
-              meta: { origem: "criado-em-mesa" },
-            });
-            ui.notifications.info("✅ Poder adicionado à ficha.");
-          },
-        },
-      },
-      default: "saveAndAdd",
-    }).render(true);
-  }
-
-  /* =========================================================
-   * ITENS — packs
+   * Helpers — packs (ITENS)
    * ========================================================= */
 
   async _getItemsPack({ preferWorld = true } = {}) {
@@ -619,9 +381,43 @@ export class GambiarraActor extends Actor {
       const world = game.packs.get("world.gambiarra-itens");
       if (world) return world;
     }
-    const sys = game.packs.get("gambiarra-sys6.gambiarra-itens");
-    if (sys) return sys;
+    for (const id of ITEMS_PACK_IDS) {
+      const pack = game.packs.get(id);
+      if (pack) return pack;
+    }
     return null;
+  }
+
+  async _createItemInWorldPack(data) {
+    const pack = await this._getItemsPack({ preferWorld: true });
+
+    if (!pack) {
+      ui.notifications.warn(
+        "Nenhum compêndio encontrado (world.gambiarra-itens).",
+      );
+      return null;
+    }
+    const isWorld = String(pack.collection ?? "").startsWith("world.");
+    if (!isWorld || !game.user.isGM) {
+      ui.notifications.warn(
+        "Para salvar no compêndio: precisa ser GM e o pack precisa ser world.gambiarra-itens.",
+      );
+      return null;
+    }
+
+    const created = await Item.createDocuments([data], {
+      pack: pack.collection,
+    });
+    const createdDoc = created?.[0];
+    if (!createdDoc) return null;
+
+    await pack.getIndex();
+    return {
+      pack,
+      id: createdDoc.id,
+      uuid: createdDoc.uuid,
+      name: createdDoc.name,
+    };
   }
 
   async _listItemsFromPack(pack) {
@@ -653,11 +449,17 @@ export class GambiarraActor extends Actor {
       if (wantedSource && existingSource && existingSource === wantedSource)
         return true;
 
-      return wantedName && i.name.toLowerCase() === wantedName;
+      return wantedName && String(i.name ?? "").toLowerCase() === wantedName;
     });
   }
 
-  async _importItemToActor(pack, id) {
+  _clamp13(n) {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return 1;
+    return Math.max(1, Math.min(3, Math.trunc(v)));
+  }
+
+  async _importItemToActor(pack, id, { overrideCargasMax = null } = {}) {
     const doc = await this._loadItemDoc(pack, id);
     if (!doc) return null;
 
@@ -669,6 +471,10 @@ export class GambiarraActor extends Actor {
       return null;
     }
 
+    const tipoItem = String(doc.system?.tipoItem ?? "reliquia").trim();
+    const cargasPadrao = this._clamp13(doc.system?.cargasMax ?? doc.system?.cargas ?? 1);
+    const chosen = overrideCargasMax ? this._clamp13(overrideCargasMax) : cargasPadrao;
+
     const data = doc.toObject();
     delete data._id;
 
@@ -676,6 +482,13 @@ export class GambiarraActor extends Actor {
     data.system = {
       ...(data.system ?? {}),
       sourceId,
+
+      // garante coerência ao importar
+      tipoItem,
+      usado: false,
+
+      cargasMax: tipoItem === "consumivel" ? chosen : 1,
+      cargas: tipoItem === "consumivel" ? chosen : 1,
     };
 
     await this.createEmbeddedDocuments("Item", [data]);
@@ -683,7 +496,7 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * Escolher Item do Compêndio
+   * Escolher Item do Compêndio (✅ tipo + cargas no diálogo)
    * ========================================================= */
 
   async _escolherItemDoCompendio() {
@@ -707,6 +520,22 @@ export class GambiarraActor extends Actor {
       if (doc) docsById.set(e.id, doc);
     }
 
+    const mkTipoBadge = (doc) => {
+      const tipo = String(doc?.system?.tipoItem ?? "reliquia");
+      return tipo === "consumivel" ? "🔸 Consumível" : "🔹 Relíquia";
+    };
+
+    const mkOptionLabel = (e) => {
+      const doc = docsById.get(e.id);
+      const tipo = String(doc?.system?.tipoItem ?? "reliquia");
+      const padrao = this._clamp13(doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1);
+
+      if (tipo === "consumivel") {
+        return `${e.name} — 🔸 Consumível (${padrao} carga${padrao > 1 ? "s" : ""})`;
+      }
+      return `${e.name} — 🔹 Relíquia`;
+    };
+
     const firstAvailableId = (() => {
       for (const e of entries) {
         const doc = docsById.get(e.id);
@@ -727,7 +556,7 @@ export class GambiarraActor extends Actor {
           name: doc?.name ?? e.name,
         });
 
-        const label = dup ? `${e.name} (já na ficha)` : e.name;
+        const label = dup ? `${mkOptionLabel(e)} (já na ficha)` : mkOptionLabel(e);
         const dis = dup ? "disabled" : "";
         const sel = e.id === firstAvailableId ? "selected" : "";
 
@@ -744,6 +573,21 @@ export class GambiarraActor extends Actor {
         <div class="form-group">
           <label>Item</label>
           <select name="itemId">${optionsHtml}</select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo</label>
+          <div class="hint item-type">—</div>
+        </div>
+
+        <div class="form-group">
+          <label>Cargas (1–3)</label>
+          <select name="cargasMax">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <p class="hint">Só vale para Consumíveis.</p>
         </div>
 
         <div class="form-group">
@@ -771,7 +615,13 @@ export class GambiarraActor extends Actor {
               return;
             }
 
-            await this._importItemToActor(pack, id);
+            const tipo = String(doc?.system?.tipoItem ?? "reliquia");
+            const cargasMax =
+              tipo === "consumivel"
+                ? this._clamp13(html.find('[name="cargasMax"]').val())
+                : 1;
+
+            await this._importItemToActor(pack, id, { overrideCargasMax: cargasMax });
           },
         },
       },
@@ -779,15 +629,30 @@ export class GambiarraActor extends Actor {
       render: (html) => {
         const $select = html.find('[name="itemId"]');
         const $preview = html.find(".item-preview");
+        const $type = html.find(".item-type");
+        const $cargas = html.find('[name="cargasMax"]');
 
         const refresh = async () => {
           const id = $select.val();
           const doc = docsById.get(id);
+
           const desc = String(doc?.system?.descricao ?? "").trim();
+          const tipo = String(doc?.system?.tipoItem ?? "reliquia");
+          const padrao = this._clamp13(doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1);
+
           $preview.text(desc || "(Sem descrição)");
+          $type.text(mkTipoBadge(doc));
+
+          if (tipo === "consumivel") {
+            $cargas.prop("disabled", false);
+            $cargas.val(String(padrao));
+          } else {
+            $cargas.prop("disabled", true);
+            $cargas.val("1");
+          }
         };
 
-        $select.on("change", refresh);
+        $select.off("change.gambiItemPick").on("change.gambiItemPick", refresh);
         refresh();
       },
     });
@@ -796,7 +661,7 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * ✅ Criar Item em mesa (salvar no world e/ou adicionar na ficha)
+   * ✅ Criar Item em mesa (seu código original — mantido)
    * ========================================================= */
 
   async _criarItemNoCompendioOuFicha() {
@@ -843,7 +708,7 @@ export class GambiarraActor extends Actor {
             <option value="consumivel">🔸 Consumível (some quando usado)</option>
           </select>
         </div>
-        <!-- ✅ Só aparece quando Tipo = consumível -->
+
         <div class="form-group gambi-consumivel-only" style="display:none;">
           <label>Cargas (consumível)</label>
           <select name="cargasMax">
@@ -922,16 +787,9 @@ export class GambiarraActor extends Actor {
         html.find('[name="reageABug"]').prop("checked"),
       );
 
-      // ✅ cargasMax só faz sentido para consumível
       const cargasMax =
         tipoItem === "consumivel"
-          ? Math.max(
-              1,
-              Math.min(
-                3,
-                Number(html.find('[name="cargasMax"]').val() ?? 1) || 1,
-              ),
-            )
+          ? this._clamp13(html.find('[name="cargasMax"]').val() ?? 1)
           : 1;
 
       const efeitos = html
@@ -955,20 +813,12 @@ export class GambiarraActor extends Actor {
         system: {
           categoria,
           tipoItem,
-
-          // ✅ coerência:
-          // - relíquia: 1
-          // - consumível: nasce cheio (cargas = cargasMax)
           cargasMax,
           cargas: tipoItem === "consumivel" ? cargasMax : 1,
-
           usado: false,
           descricao,
           efeitosPossiveis: efeitos,
-
           reageABug,
-          efeitosBug: reageABug ? ["suavizar"] : [],
-
           corrompido: false,
           corrupcoes: [],
         },
@@ -1015,10 +865,8 @@ export class GambiarraActor extends Actor {
             const data = read(html);
             if (!data) return;
 
-            // 1) adiciona na ficha
             await this.createEmbeddedDocuments("Item", [data]);
 
-            // 2) tenta salvar no compendio
             if (canWritePack) {
               await this._createItemInWorldPack(data);
               ui.notifications.info(
@@ -1033,8 +881,6 @@ export class GambiarraActor extends Actor {
         },
       },
       default: "saveAndAdd",
-
-      // ✅ MOSTRA/OCULTA o bloco de cargas
       render: (html) => {
         const $tipo = html.find('select[name="tipoItem"]');
         const $cons = html.find(".gambi-consumivel-only");

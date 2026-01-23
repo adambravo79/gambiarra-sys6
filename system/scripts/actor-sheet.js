@@ -1,11 +1,4 @@
-// scripts/actor-sheet.js v(0.6.2e)
-// FIX Foundry v12.331:
-// - Às vezes o root do template vira um Comment node (<!-- ... -->) se o template começa com comentário HTML.
-// - O core pode repassar isso para HTMLSecret.bind, que precisa de querySelectorAll.
-// Solução:
-// - Remover comentário HTML no topo do template (feito no actor-character.html)
-// - E blindar aqui: sempre passar para o core um jQuery cujo [0] seja ELEMENT_NODE (nodeType === 1).
-// scripts/actor-sheet.js (v0.6.4)
+// scripts/actor-sheet.js v(0.6.1a)
 
 import { rollDesafio } from "./rolls.js";
 
@@ -127,7 +120,7 @@ export class GambiarraActorSheet extends ActorSheet {
         await this.actor._despertarPoder({ sortear: false });
       });
 
-    // ✅ ITENS — (SEM DUPLICAR LISTENER)
+    // ITENS
     html
       .find(".use-item-scene")
       .off("click")
@@ -148,6 +141,27 @@ export class GambiarraActorSheet extends ActorSheet {
         const itemId = ev.currentTarget.dataset.itemId;
         const item = this.actor.items.get(itemId);
         if (item?.usarContraBug) item.usarContraBug(this.actor);
+      });
+
+    // ✅ NOVO: remover item
+    html
+      .find(".remove-item")
+      .off("click")
+      .on("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        const itemId = ev.currentTarget.dataset.itemId;
+        const item = this.actor.items.get(itemId);
+        if (!item) return;
+
+        const ok = await Dialog.confirm({
+          title: "Remover Item",
+          content: `<p>Remover <strong>${item.name}</strong> da ficha?</p>`,
+        });
+
+        if (!ok) return;
+        await item.delete();
       });
 
     html
