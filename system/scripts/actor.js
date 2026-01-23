@@ -611,7 +611,7 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * ✅ NOVO: Criar Item em mesa (salvar no world e/ou adicionar na ficha)
+   * ✅ Criar Item em mesa (salvar no world e/ou adicionar na ficha)
    * ========================================================= */
 
   async _criarItemNoCompendioOuFicha() {
@@ -658,7 +658,18 @@ export class GambiarraActor extends Actor {
             <option value="consumivel">🔸 Consumível (some quando usado)</option>
           </select>
         </div>
-
+        <!-- ✅ Só aparece quando Tipo = consumível -->
+        <div class="form-group gambi-consumivel-only" style="display:none;">
+          <label>Cargas (consumível)</label>
+          <select name="cargasMax">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <p class="hint" style="margin-top:6px;">
+            Quando chegar a 0: o item vira “usado/sem carga”.
+          </p>
+        </div>
         <hr/>
 
         <div class="form-group">
@@ -702,12 +713,6 @@ export class GambiarraActor extends Actor {
           <p class="hint">Se marcar, o item aparece com “Usar no BUG”.</p>
         </div>
 
-        <div class="form-group">
-          <label>Cargas (consumível)</label>
-          <input type="number" name="cargas" min="1" max="9" value="1" />
-          <p class="hint">Quando chegar a 0: item vira “usado/sem carga”.</p>
-        </div>
-
         ${
           canWritePack
             ? `<p class="hint">✅ Pode salvar em <strong>world.gambiarra-itens</strong>.</p>`
@@ -727,13 +732,22 @@ export class GambiarraActor extends Actor {
       const tipoItem = String(
         html.find('[name="tipoItem"]').val() ?? "reliquia",
       ).trim();
+
       const reageABug = Boolean(
         html.find('[name="reageABug"]').prop("checked"),
       );
-      const cargas = Math.max(
-        1,
-        Number(html.find('[name="cargas"]').val() ?? 1),
-      );
+
+      // ✅ cargasMax só faz sentido para consumível
+      const cargasMax =
+        tipoItem === "consumivel"
+          ? Math.max(
+              1,
+              Math.min(
+                3,
+                Number(html.find('[name="cargasMax"]').val() ?? 1) || 1,
+              ),
+            )
+          : 1;
 
       const efeitos = html
         .find('input[name="efeitos"]:checked')
@@ -756,12 +770,20 @@ export class GambiarraActor extends Actor {
         system: {
           categoria,
           tipoItem,
-          cargas: tipoItem === "consumivel" ? cargas : 1,
+
+          // ✅ coerência:
+          // - relíquia: 1
+          // - consumível: nasce cheio (cargas = cargasMax)
+          cargasMax,
+          cargas: tipoItem === "consumivel" ? cargasMax : 1,
+
           usado: false,
           descricao,
           efeitosPossiveis: efeitos,
+
           reageABug,
           efeitosBug: reageABug ? ["suavizar"] : [],
+
           corrompido: false,
           corrupcoes: [],
         },
@@ -826,6 +848,21 @@ export class GambiarraActor extends Actor {
         },
       },
       default: "saveAndAdd",
+
+      // ✅ MOSTRA/OCULTA o bloco de cargas
+      render: (html) => {
+        const $tipo = html.find('select[name="tipoItem"]');
+        const $cons = html.find(".gambi-consumivel-only");
+
+        const sync = () => {
+          const tipo = String($tipo.val() ?? "reliquia");
+          if (tipo === "consumivel") $cons.show();
+          else $cons.hide();
+        };
+
+        $tipo.off("change.gambiConsumivel").on("change.gambiConsumivel", sync);
+        sync();
+      },
     }).render(true);
   }
 }

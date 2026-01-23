@@ -1,4 +1,5 @@
-// scripts/init.js v(0.6.2)
+// scripts/init.js (v0.6.2-clean)
+
 import { GambiarraActor } from "./actor.js";
 import { GambiarraActorSheet } from "./actor-sheet.js";
 
@@ -16,9 +17,8 @@ import {
 } from "./seed-compendiums.js";
 
 Hooks.once("init", () => {
-  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.5)");
+  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.6.2)");
 
-  // ✅ V12: registrar DataModels por tipo
   CONFIG.Actor.dataModels = {
     character: GambiarraCharacterModel,
     npc: GambiarraNpcModel,
@@ -29,7 +29,6 @@ Hooks.once("init", () => {
     poder: GambiarraPoderModel,
   };
 
-  // Tipos + labels no diálogo de criação
   CONFIG.Actor.defaultType = "character";
   CONFIG.Actor.typeLabels = {
     character: "Personagem",
@@ -42,11 +41,9 @@ Hooks.once("init", () => {
     poder: "Poder Gambiarra",
   };
 
-  // Document classes
   CONFIG.Actor.documentClass = GambiarraActor;
   CONFIG.Item.documentClass = GambiarraItem;
 
-  // Sheets
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("gambiarra-sys6", GambiarraActorSheet, {
     types: ["character", "npc"],
@@ -58,12 +55,10 @@ Hooks.once("init", () => {
     makeDefault: true,
   });
 
-  // Fallback: se algum fluxo tentar criar sem type
   Hooks.on("preCreateActor", (doc, createData) => {
     if (!createData.type) doc.updateSource({ type: "character" });
   });
 
-  // Config do sistema (v0.5): dificuldade = sucessos necessários + alvo
   game.gambiarra = {
     config: {
       difficulties: {
@@ -73,17 +68,16 @@ Hooks.once("init", () => {
         epico: { label: "Épico", required: 2, target: 5 },
         impossivel: { label: "Impossível", required: 3, target: 6 },
       },
+      enforceSum6: false,
     },
   };
 
-  // ✅ Dice So Nice: registrar colorsets com IDs estáveis (name = id)
   Hooks.once("diceSoNiceReady", (dice3d) => {
     try {
       const category = "GAMBIARRA.SYS6";
 
-      // Corpo = verde
       dice3d.addColorset?.({
-        name: "gambi-corpo", // ✅ ID que vamos usar no rolls.js
+        name: "gambi-corpo",
         description: "Corpo (Verde)",
         category,
         foreground: "#ffffff",
@@ -92,7 +86,6 @@ Hooks.once("init", () => {
         edge: "#1fb35b",
       });
 
-      // Mente = azul
       dice3d.addColorset?.({
         name: "gambi-mente",
         description: "Mente (Azul)",
@@ -103,7 +96,6 @@ Hooks.once("init", () => {
         edge: "#2f7de1",
       });
 
-      // Coração = vermelho
       dice3d.addColorset?.({
         name: "gambi-coracao",
         description: "Coração (Vermelho)",
@@ -114,7 +106,6 @@ Hooks.once("init", () => {
         edge: "#e24a4a",
       });
 
-      // Roxo = bônus
       dice3d.addColorset?.({
         name: "gambi-roxo",
         description: "Dado Roxo (Bônus)",
@@ -125,9 +116,7 @@ Hooks.once("init", () => {
         edge: "#8a4de8",
       });
 
-      console.log(
-        "🎲 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados (IDs estáveis)",
-      );
+      console.log("🎲 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados");
     } catch (e) {
       console.warn(
         "GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice",

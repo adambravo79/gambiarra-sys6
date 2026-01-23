@@ -1,4 +1,4 @@
-<!-- templates/actor-character.html v0.6.2 -->
+{{!-- templates/actor-character.html v0.6.1 --}}
 <form class="gambiarra-sheet" autocomplete="off">
   <header class="sheet-header">
     {{!-- ✅ Nome editável e sincronizado com o Actor --}}
@@ -49,6 +49,7 @@
         step="1"
       />
     </div>
+
     <div class="gambiarra-sumbar ok">
       <div class="sum-left">
         <span>📐 Soma</span> <span class="sum-pill">6</span>
@@ -56,21 +57,27 @@
       <div class="sum-right">Regra opcional ativa</div>
     </div>
   </section>
+
   <section class="roll-section">
     <button type="button" class="roll-desafio">🎲 Rolar Desafio</button>
   </section>
+
   {{!-- PODERES --}}
   <section class="powers">
     <h2>⚡ Poderes Gambiarra</h2>
+
     {{#if (eq poderes.length 0)}}
     <p class="hint">Nenhum poder ainda.</p>
     {{/if}}
+
     <ul class="power-list">
       {{#each poderes as |poder|}}
       <li class="power power-{{poder.system.estado}}">
         <header class="power-header">
           <strong>{{poder.name}}</strong>
-          <span class="state">{{poder.system.estado}}</span> {{#if @root.isGM}}
+          <span class="state">{{poder.system.estado}}</span>
+
+          {{#if @root.isGM}}
           <div class="power-actions">
             <button
               type="button"
@@ -89,19 +96,23 @@
           </div>
           {{/if}}
         </header>
+
         <p class="description">{{poder.system.descricao}}</p>
       </li>
       {{/each}}
     </ul>
+
     {{#if @root.isGM}} {{#if (lt poderes.length 2)}}
     <button type="button" class="add-power">➕ Escolher Poder</button>
     <button type="button" class="roll-power">🎲 Sortear Poder</button>
     <button type="button" class="create-power">🧩 Criar Poder (em mesa)</button>
     {{/if}} {{/if}}
   </section>
+
   {{!-- EFEITOS --}}
   <section class="effects">
     <h2>🧠 Efeitos do Nó</h2>
+
     {{#if (or system.meta.marcas.length system.meta.custos.length
     system.meta.corrupcoes.length)}} {{#if system.meta.marcas.length}}
     <h3>🧬 Marcas do Nó</h3>
@@ -133,6 +144,7 @@
     <button type="button" class="bug-effect">🐞 BUG → Efeito Permanente</button>
     {{/if}}
   </section>
+
   {{!-- ITENS --}}
   <section class="items">
     <h2>🎒 Itens do Nó</h2>
