@@ -2,21 +2,29 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.5.1",
+  "version": "0.6.1",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
   },
-  "packs": [
-    {
-      "name": "gambiarra-poderes",
-      "label": "⚡ Poderes Gambiarra",
-      "type": "Item",
-      "path": "packs/gambiarra-poderes",
-      "system": "gambiarra-sys6",
-      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
-    }
-  ],
+"packs": [
+  {
+    "name": "gambiarra-poderes",
+    "label": "⚡ Poderes Gambiarra",
+    "type": "Item",
+    "path": "packs/gambiarra-poderes",
+    "system": "gambiarra-sys6",
+    "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+  },
+  {
+    "name": "gambiarra-itens",
+    "label": "🎒 Itens do Nó",
+    "type": "Item",
+    "path": "packs/gambiarra-itens",
+    "system": "gambiarra-sys6",
+    "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+  }
+],
   "relationships": {
     "recommends": [
       {
@@ -50,5 +58,5 @@
     }
   },
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
-  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.5.1/gambiarra-sys6-system-0.5.1.zip"
+  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.6.1/gambiarra-sys6-system-0.6.1.zip"
 }

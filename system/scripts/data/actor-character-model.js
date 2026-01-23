@@ -1,4 +1,4 @@
-// scripts/data/actor-character-model.js
+// scripts/data/actor-character-model.js v(0.6.2)
 export class GambiarraCharacterModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const f = foundry.data.fields;
@@ -59,7 +59,9 @@ export class GambiarraCharacterModel extends foundry.abstract.TypeDataModel {
         // efeitos permanentes (cada um com instância própria)
         marcas: new f.ArrayField(makeEfeitoPermanenteSchema(), { initial: [] }),
         custos: new f.ArrayField(makeEfeitoPermanenteSchema(), { initial: [] }),
-        corrupcoes: new f.ArrayField(makeEfeitoPermanenteSchema(), { initial: [] }),
+        corrupcoes: new f.ArrayField(makeEfeitoPermanenteSchema(), {
+          initial: [],
+        }),
       }),
     };
   }

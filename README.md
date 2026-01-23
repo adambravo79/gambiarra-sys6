@@ -13,31 +13,40 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ## 📦 Versão atual
 
-## **v0.5.1 — Núcleo Jogável Estável**
+## **v0.6.1 - Sistema Jogável Completo (Seed Automático)**
+
+Primeira versão realmente *plug and play* do GAMBIARRA.SYS6.  
+Instalou → criou mundo → já tem tudo pronto para jogar.
 
 ### O que já existe
 
 - 🎲 Sistema de rolagem d6 visual (Dice So Nice)
 - 🟢🔵🔴 Atributos: Corpo, Mente, Coração
-- ⚡ Poderes Gambiarra (máx. 2)
+- ⚡ Poderes Gambiarra (máx. 2 por personagem)
+- 🎒 Itens do Nó:
+  - Relíquias (persistentes)
+  - Consumíveis com cargas (1–3)
+  - Uso na cena e contra BUG
+  - Consumo automático com “O Nó recebeu…”
+- 📦 Compêndios automáticos:
+  - `world.gambiarra-poderes`
+  - `world.gambiarra-itens`
+- 🧩 Criação em mesa:
+  - Poderes e Itens podem ser criados durante a sessão
+  - Salvamento direto no compêndio do mundo
 - Interface clara para crianças e Programadora
-
-### O que ainda NÃO existe
-
-- ❌ items do nó
-- ❌ efeitos permanentes mecânicos
-- ❌ progressão tradicional
-- ❌ combate tático
+- Sistema funciona sem macros ou setup manual
 
 ---
 
 ## 🧠 Filosofia do Sistema
 
-- Criatividade > regras
-- Falha nunca bloqueia a história
-- Poder surge da tensão emocional
-- BUG cria novos problemas, não punições
-- Jogar é cooperar
+- Criatividade > regras  
+- Falha nunca bloqueia a história  
+- Poder surge da tensão emocional  
+- BUG cria novos problemas, não punições  
+- Jogar é cooperar  
+- Sistema ensina a pensar narrativamente
 
 ---
 

@@ -1,0 +1,185 @@
+[
+  {
+    "name": "Bússola Estranha",
+    "type": "item",
+    "img": "icons/tools/navigation/compass-worn-brass.webp",
+    "system": {
+      "categoria": "direcao",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Aponta para algo importante, não para o norte.",
+      "efeitosPossiveis": ["reduzir", "permitir"],
+      "reageABug": true,
+      "efeitosBug": ["suavizar", "transformar"]
+    }
+  },
+  {
+    "name": "Mapa que Muda",
+    "type": "item",
+    "img": "icons/sundries/books/book-embossed-gold.webp",
+    "system": {
+      "categoria": "direcao",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Se reorganiza conforme as escolhas do grupo.",
+      "efeitosPossiveis": ["reduzir", "trocar", "permitir"],
+      "reageABug": true,
+      "efeitosBug": ["transformar", "dado"]
+    }
+  },
+  {
+    "name": "Olho de Drone",
+    "type": "item",
+    "img": "icons/commodities/tech/eye-lens.webp",
+    "system": {
+      "categoria": "direcao",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Enxerga lugares inacessíveis e detalhes que ninguém alcança.",
+      "efeitosPossiveis": ["reduzir", "permitir"],
+      "reageABug": false,
+      "efeitosBug": []
+    }
+  },
+
+  {
+    "name": "Chave Universal (Quase)",
+    "type": "item",
+    "img": "icons/tools/hand/wrench.webp",
+    "system": {
+      "categoria": "gambiarra",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Abre quase tudo… mas nunca do jeito esperado.",
+      "efeitosPossiveis": ["permitir", "complicar"],
+      "reageABug": true,
+      "efeitosBug": ["transformar"]
+    }
+  },
+  {
+    "name": "Fita de Pixel",
+    "type": "item",
+    "img": "icons/tools/smithing/tongs.webp",
+    "system": {
+      "categoria": "gambiarra",
+      "tipoItem": "consumivel",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Gruda qualquer coisa por alguns minutos.",
+      "efeitosPossiveis": ["dado", "reduzir"],
+      "reageABug": false,
+      "efeitosBug": []
+    }
+  },
+  {
+    "name": "Kit de Conserto Improvisado",
+    "type": "item",
+    "img": "icons/tools/hand/hammer.webp",
+    "system": {
+      "categoria": "gambiarra",
+      "tipoItem": "consumivel",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Faz algo quebrado funcionar só dessa vez.",
+      "efeitosPossiveis": ["permitir", "dado"],
+      "reageABug": true,
+      "efeitosBug": ["suavizar", "anular"]
+    }
+  },
+
+  {
+    "name": "Capa de Dados",
+    "type": "item",
+    "img": "icons/equipment/back/cloak-collared-red.webp",
+    "system": {
+      "categoria": "protecao",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Reage a ameaças inesperadas.",
+      "efeitosPossiveis": ["reduzir", "permitir"],
+      "reageABug": true,
+      "efeitosBug": ["suavizar"]
+    }
+  },
+  {
+    "name": "Escudo de Luz",
+    "type": "item",
+    "img": "icons/equipment/shield/heater-steel.webp",
+    "system": {
+      "categoria": "protecao",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Surge quando alguém protege outra pessoa.",
+      "efeitosPossiveis": ["reduzir", "permitir"],
+      "reageABug": true,
+      "efeitosBug": ["anular"]
+    }
+  },
+  {
+    "name": "Botas Magnéticas",
+    "type": "item",
+    "img": "icons/equipment/feet/boots-leather-brown.webp",
+    "system": {
+      "categoria": "protecao",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Impedem quedas em superfícies estranhas.",
+      "efeitosPossiveis": ["reduzir", "permitir"],
+      "reageABug": false,
+      "efeitosBug": []
+    }
+  },
+
+  {
+    "name": "Frasco Vazio",
+    "type": "item",
+    "img": "icons/containers/kitchenware/jar-glass-brown.webp",
+    "system": {
+      "categoria": "estranho",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Pode guardar qualquer coisa… inclusive ideias.",
+      "efeitosPossiveis": ["permitir", "complicar"],
+      "reageABug": true,
+      "efeitosBug": ["transformar"]
+    }
+  },
+  {
+    "name": "Relógio Parado",
+    "type": "item",
+    "img": "icons/sundries/clock/clockwork-pocket.webp",
+    "system": {
+      "categoria": "estranho",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Reage quando o tempo se comporta mal.",
+      "efeitosPossiveis": ["reduzir", "permitir", "trocar"],
+      "reageABug": true,
+      "efeitosBug": ["suavizar", "transformar"]
+    }
+  },
+  {
+    "name": "Caixa que Sussurra",
+    "type": "item",
+    "img": "icons/containers/chest/chest-wooden-brown.webp",
+    "system": {
+      "categoria": "estranho",
+      "tipoItem": "reliquia",
+      "cargas": 1,
+      "usado": false,
+      "descricao": "Dá dicas confusas, mas nunca mente.",
+      "efeitosPossiveis": ["reduzir", "trocar"],
+      "reageABug": false,
+      "efeitosBug": []
+    }
+  }
+]

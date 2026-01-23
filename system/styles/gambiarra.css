@@ -1,493 +1,807 @@
+/* ============================================================
+ * GAMBIARRA.SYS6 — CSS v0.6.0
+ * Objetivo: melhorar visual sem quebrar classes existentes.
+ * Mantém compatibilidade com:
+ * - templates/actor-character.html
+ * - templates/item/item-poder.html
+ * - scripts/rolls.js chat card + dialog
+ * ============================================================ */
+
+:root {
+  --gambi-bg: rgba(20, 20, 26, 0.03);
+  --gambi-panel: rgba(255, 255, 255, 0.85);
+  --gambi-panel-2: rgba(255, 255, 255, 0.65);
+  --gambi-border: rgba(0, 0, 0, 0.12);
+  --gambi-border-strong: rgba(0, 0, 0, 0.2);
+  --gambi-text: rgba(0, 0, 0, 0.88);
+  --gambi-muted: rgba(0, 0, 0, 0.6);
+
+  --gambi-radius: 14px;
+  --gambi-radius-sm: 10px;
+  --gambi-gap: 12px;
+
+  --gambi-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --gambi-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  /* sem mudar suas cores “semânticas” */
+  --gambi-ok: rgba(46, 204, 113, 0.18);
+  --gambi-strong: rgba(52, 152, 219, 0.18);
+  --gambi-bug: rgba(231, 76, 60, 0.16);
+  --gambi-purple: rgba(138, 77, 232, 0.18);
+
+  --gambi-focus: rgba(138, 77, 232, 0.35);
+}
+
+/* ------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------ */
+
+.gambiarra-sheet,
+.item-sheet {
+  color: var(--gambi-text);
+}
+
 .gambiarra-sheet {
   padding: 12px;
+  background: var(--gambi-bg);
+  border-radius: var(--gambi-radius);
 }
 
-.gambiarra-sheet input[type="text"],
-.gambiarra-sheet input[type="number"],
-.gambiarra-sheet textarea,
-.gambiarra-sheet select {
+.gambiarra-sheet .sheet-header,
+.item-sheet .sheet-header {
+  display: grid;
+  gap: 6px;
+  padding: 12px 12px 10px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+}
+
+.gambiarra-sheet .sheet-header .charname input,
+.item-sheet .sheet-header input[name="name"] {
   width: 100%;
-  margin-top: 4px;
-}
-
-/* ===== Soma dos atributos (feedback visual) ===== */
-.sum-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 800;
   padding: 8px 10px;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.sum-bar .sum-label {
-  font-weight: 700;
+.gambiarra-sheet .sheet-header .charname input:focus,
+.item-sheet .sheet-header input[name="name"]:focus {
+  outline: none;
+  border-color: var(--gambi-focus);
+  box-shadow: 0 0 0 4px var(--gambi-focus);
 }
 
-.sum-bar .sum-value {
+.gambiarra-sheet .arquetipo {
+  margin: 0;
+  color: var(--gambi-muted);
+  font-weight: 600;
+}
+
+.gambiarra-sheet section,
+.item-sheet section {
+  margin-top: 12px;
+}
+
+/* Títulos */
+.gambiarra-sheet h2,
+.gambiarra-sheet h3,
+.item-sheet h2,
+.item-sheet h3 {
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.gambiarra-sheet h2 {
+  font-size: 16px;
   font-weight: 800;
 }
 
-.sum-bar .sum-msg {
-  margin-left: auto;
-  opacity: 0.95;
+.gambiarra-sheet h3 {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gambi-muted);
 }
 
-.sum-bar.ok {
-  border: 1px solid rgba(0, 128, 0, 0.35);
-  background: rgba(0, 128, 0, 0.08);
-}
-
-.sum-bar.bad {
-  border: 1px solid rgba(200, 0, 0, 0.35);
-  background: rgba(200, 0, 0, 0.08);
-}
-
-.attributes {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.attribute {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  padding: 10px;
-}
-
-.hint {
-  opacity: 0.8;
+/* Texto auxiliar */
+.hint,
+.gambi-sub.is-muted {
+  color: var(--gambi-muted);
   font-size: 12px;
 }
 
-.roll-section {
-  margin: 10px 0 16px;
+/* Inputs padrões */
+.gambiarra-sheet input[type="text"],
+.gambiarra-sheet input[type="number"],
+.gambiarra-sheet select,
+.gambiarra-sheet textarea,
+.item-sheet input[type="text"],
+.item-sheet input[type="number"],
+.item-sheet select,
+.item-sheet textarea {
+  border: 1px solid var(--gambi-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 8px 10px;
+  color: var(--gambi-text);
 }
 
-.bug-state {
-  border: 1px solid rgba(255, 100, 100, 0.5);
-  border-radius: 8px;
-  padding: 10px;
-  margin: 10px 0;
+.gambiarra-sheet textarea,
+.item-sheet textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+}
+
+.gambiarra-sheet input:focus,
+.gambiarra-sheet select:focus,
+.gambiarra-sheet textarea:focus,
+.item-sheet input:focus,
+.item-sheet select:focus,
+.item-sheet textarea:focus {
+  outline: none;
+  border-color: var(--gambi-focus);
+  box-shadow: 0 0 0 4px var(--gambi-focus);
+}
+
+/* Botões */
+.gambiarra-sheet button,
+.gambiarra-roll button,
+.item-sheet button {
+  border: 1px solid var(--gambi-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 8px 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.gambiarra-sheet button:hover,
+.gambiarra-roll button:hover,
+.item-sheet button:hover {
+  border-color: var(--gambi-border-strong);
+  box-shadow: var(--gambi-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.gambiarra-sheet button:active,
+.gambiarra-roll button:active,
+.item-sheet button:active {
+  transform: translateY(0px);
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------
+ * Actor: Atributos
+ * ------------------------------------------------------------ */
+
+.attributes {
+  display: grid;
+  gap: var(--gambi-gap);
+}
+
+/* grid responsivo: 3 atributos + sumbar */
+.attributes {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.attribute {
+  grid-column: span 4;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.attribute h2 {
+  font-size: 14px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attribute input[type="number"] {
+  width: 100%;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  padding: 10px 12px;
+}
+
+/* leve identidade por atributo */
+.attribute.corpo {
+  background: linear-gradient(180deg, rgba(31, 179, 91, 0.1), rgba(255, 255, 255, 0.88));
+}
+.attribute.mente {
+  background: linear-gradient(180deg, rgba(47, 125, 225, 0.1), rgba(255, 255, 255, 0.88));
+}
+.attribute.coracao {
+  background: linear-gradient(180deg, rgba(226, 74, 74, 0.1), rgba(255, 255, 255, 0.88));
+}
+
+@media (max-width: 820px) {
+  .attribute {
+    grid-column: span 12;
+  }
+}
+
+/* Sumbar (mantém a classe existente) */
+.gambiarra-sumbar {
+  grid-column: span 12;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel-2);
+  box-shadow: var(--gambi-shadow-sm);
+}
+
+.gambiarra-sumbar .sum-left,
+.gambiarra-sumbar .sum-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sum-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
+}
+
+.gambiarra-sumbar.ok {
+  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.88));
+}
+.gambiarra-sumbar.bug {
+  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.88));
+}
+.gambiarra-sumbar.strong {
+  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.88));
+}
+
+/* ------------------------------------------------------------
+ * Actor: Rolagem
+ * ------------------------------------------------------------ */
+
+.roll-section {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 12px;
+}
+
+.roll-section .roll-desafio {
+  padding: 10px 14px;
+  border-radius: 14px;
+}
+
+/* ------------------------------------------------------------
+ * Actor: Poderes
+ * ------------------------------------------------------------ */
+
+.powers,
+.effects,
+.items {
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
 }
 
 .power-list {
   list-style: none;
   padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 10px;
 }
 
 .power {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  padding: 10px;
-  margin: 8px 0;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 12px;
 }
 
-.power header {
-  display: flex;
-  justify-content: space-between;
+.power-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
   align-items: center;
 }
 
-.power-controls button {
-  margin-right: 6px;
+.power-header strong {
+  font-size: 14px;
+  font-weight: 900;
 }
 
-/* =========================
- * v0.4 — DIALOGO ROLAR DESAFIO
- * ========================= */
+.power .state {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--gambi-muted);
+}
+
+/* estado do poder via classe power-ativo / power-esgotado / power-fora */
+.power-ativo {
+  background: linear-gradient(180deg, rgba(31, 179, 91, 0.1), rgba(255, 255, 255, 0.92));
+}
+.power-esgotado {
+  background: linear-gradient(180deg, rgba(241, 196, 15, 0.14), rgba(255, 255, 255, 0.92));
+}
+.power-fora {
+  background: linear-gradient(180deg, rgba(231, 76, 60, 0.12), rgba(255, 255, 255, 0.92));
+}
+
+.power-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  grid-column: 1 / -1;
+}
+
+.power-actions button {
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.power .description {
+  margin: 10px 0 0;
+  white-space: pre-line; /* mantém \n da descricao */
+  color: var(--gambi-text);
+}
+
+/* botões do bloco de poderes */
+.powers .add-power,
+.powers .roll-power,
+.powers .create-power {
+  margin-top: 10px;
+  margin-right: 8px;
+}
+
+/* ------------------------------------------------------------
+ * Actor: Efeitos / Itens
+ * ------------------------------------------------------------ */
+
+.effects ul,
+.items ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.effects li,
+.items li {
+  margin: 6px 0;
+}
+
+.effects button,
+.items button {
+  margin-top: 10px;
+  margin-right: 8px;
+}
+
+/* ------------------------------------------------------------
+ * Item sheet: Poder
+ * ------------------------------------------------------------ */
+
+.item-sheet .sheet-body {
+  margin-top: 12px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
+}
+
+.item-sheet .form-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.item-sheet .form-group > label {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.item-sheet hr {
+  border: none;
+  height: 1px;
+  background: var(--gambi-border);
+  margin: 12px 0;
+}
+
+.item-sheet label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.item-sheet label.checkbox:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ------------------------------------------------------------
+ * Dialog: Rolagem (gambiarra-roll + roxos)
+ * ------------------------------------------------------------ */
 
 .gambiarra-roll .form-group {
-  margin: 10px 0;
-}
-
-.gambiarra-roll label {
-  font-weight: 700;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.gambiarra-roll select {
-  width: 100%;
-}
-
-.gambiarra-roll .hint {
-  margin-top: 6px;
-  font-size: 12px;
-  opacity: 0.85;
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .gambiarra-roll hr {
+  border: none;
+  height: 1px;
+  background: var(--gambi-border);
   margin: 12px 0;
-  opacity: 0.35;
 }
 
-/* Linha dos roxos */
-.gambiarra-roll .purple-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.gambiarra-roll .purple-count {
-  width: 56px;
-  text-align: center;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
-
-/* Botões + / - */
-.gambiarra-roll .purple-minus,
-.gambiarra-roll .purple-plus {
-  width: 36px;
-  height: 32px;
-  border-radius: 10px;
+.purple-label {
   font-weight: 900;
-  line-height: 1;
-  padding: 0;
-  border: 1px solid rgba(0, 0, 0, 0.35);
 }
 
-.gambiarra-roll .purple-minus:hover,
-.gambiarra-roll .purple-plus:hover {
-  filter: brightness(1.08);
-}
-
-.gambiarra-roll .purple-minus:active,
-.gambiarra-roll .purple-plus:active {
-  transform: translateY(1px);
-}
-
-/* =========================
- * v0.4 — FEEDBACK VISUAL SOMA=6 NA FICHA
- * (aparece quando você adiciona a barrinha via JS)
- * ========================= */
-
-.gambiarra-sumbar {
-  margin-top: 10px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.gambiarra-sumbar .sum-left {
-  display: flex;
+.purple-row {
+  display: grid;
+  grid-template-columns: auto 64px auto 1fr;
   gap: 10px;
   align-items: center;
-  font-weight: 700;
-}
-
-.gambiarra-sumbar .sum-pill {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-weight: 900;
-  letter-spacing: 0.4px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-/* Estado OK */
-.gambiarra-sumbar.ok {
-  background: rgba(31, 179, 91, 0.12);
-  border-color: rgba(31, 179, 91, 0.35);
-}
-
-.gambiarra-sumbar.ok .sum-pill {
-  background: rgba(31, 179, 91, 0.18);
-}
-
-/* Estado ERRO */
-.gambiarra-sumbar.bad {
-  background: rgba(226, 74, 74, 0.12);
-  border-color: rgba(226, 74, 74, 0.35);
-}
-
-.gambiarra-sumbar.bad .sum-pill {
-  background: rgba(226, 74, 74, 0.18);
-}
-
-/* Dica curta à direita */
-.gambiarra-sumbar .sum-right {
-  opacity: 0.85;
-}
-
-/* =========================
- * v0.4 — EMOJIS DOS ATRIBUTOS NA FICHA
- * ========================= */
-
-/* só pra ficar consistente com o que você pediu */
-.attribute.corpo h2::before {
-  content: "💪 ";
-}
-.attribute.mente h2::before {
-  content: "🧠 ";
-}
-.attribute.coracao h2::before {
-  content: "❤️ ";
-}
-
-/* se você quiser remover os emojis antigos do template sem mexer nele agora,
-   este truque "tapa buraco" mantém o texto depois do emoji. */
-.attribute.corpo h2,
-.attribute.mente h2,
-.attribute.coracao h2 {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-/* =========================
- * v0.4 — CHAT CARD (ROLAGENS)
- * ========================= */
-
-.gambi-chat-card {
-  padding: 10px 12px;
+  padding: 10px 10px;
   border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(138, 77, 232, 0.25);
+  background: linear-gradient(180deg, var(--gambi-purple), rgba(255, 255, 255, 0.86));
 }
 
-.gambi-chat-card .gambi-title {
+.purple-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   font-weight: 900;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 6px;
-}
-
-.gambi-chat-card .gambi-line {
-  margin: 6px 0;
-  line-height: 1.35;
-}
-
-.gambi-chat-card .gambi-sub {
-  margin-top: 6px;
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.gambi-badge {
+  font-size: 18px;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  justify-content: center;
 }
 
-.gambi-badge.ok {
-  background: rgba(31, 179, 91, 0.18);
-}
-
-.gambi-badge.strong {
-  background: rgba(47, 125, 225, 0.18);
-}
-
-.gambi-badge.bug {
-  background: rgba(226, 74, 74, 0.18);
-}
-
-/* =========================
- * v0.4 — BADGE COM COR DO ATRIBUTO
- * ========================= */
-
-.gambi-badge.attr-corpo {
-  background: rgba(31, 179, 91, 0.16);
-  border-color: rgba(31, 179, 91, 0.35);
-}
-
-.gambi-badge.attr-mente {
-  background: rgba(47, 125, 225, 0.16);
-  border-color: rgba(47, 125, 225, 0.35);
-}
-
-.gambi-badge.attr-coracao {
-  background: rgba(226, 74, 74, 0.16);
-  border-color: rgba(226, 74, 74, 0.35);
-}
-
-/* opcional: reforço visual do tipo de resultado (sem mudar o atributo) */
-.gambi-badge.ok {
-  filter: saturate(1.05);
-}
-.gambi-badge.strong {
-  filter: saturate(1.25);
-}
-.gambi-badge.bug {
-  filter: saturate(1.2) contrast(1.05);
-}
-
-/* =========================
- * v0.4 — Destaque de dados no chat
- * ========================= */
-
-.gambi-chat-card .gambi-die {
-  display: inline-block;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.06);
-  font-weight: 600;
-}
-
-.gambi-chat-card .gambi-die.success {
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-}
-/* ============================
-   ROLAGEM (DIALOG)
-   ============================ */
-.gambiarra-roll .purple-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-top: 6px;
-}
-
-.gambiarra-roll .purple-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  font-size: 20px;
-  line-height: 34px;
-  padding: 0;
-}
-
-.gambiarra-roll .purple-value {
-  width: 54px !important;
-  height: 36px;
+.purple-value {
   text-align: center;
-  font-weight: 700;
-  border-radius: 10px;
+  font-weight: 900;
+  font-size: 16px;
+  padding: 8px 10px;
 }
 
-.gambiarra-roll .hint {
-  opacity: 0.8;
-  font-size: 12px;
+@media (max-width: 520px) {
+  .purple-row {
+    grid-template-columns: auto 64px auto;
+  }
+  .purple-row .hint {
+    grid-column: 1 / -1;
+  }
 }
 
-/* ============================
-   CHAT CARD (rolagens)
-   ============================ */
+/* ------------------------------------------------------------
+ * Chat card: gambi-chat
+ * ------------------------------------------------------------ */
+
 .gambi-chat {
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 12px;
 }
 
 .gambi-chat-head {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
-.gambi-chat h2 {
+.gambi-chat-head h2 {
   margin: 0;
-  font-size: 16px;
-}
-
-.gambi-badge {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.gambi-badge.is-ok {
-}
-.gambi-badge.is-strong {
-}
-.gambi-badge.is-bug {
+  font-size: 15px;
+  font-weight: 900;
 }
 
 .gambi-chat-meta {
   display: flex;
-  gap: 14px;
   flex-wrap: wrap;
-  opacity: 0.9;
-  font-size: 12px;
+  gap: 10px 14px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
   margin-bottom: 10px;
 }
 
 .gambi-line {
-  padding: 8px 0;
-  border-top: 1px dashed rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: rgba(0, 0, 0, 0.01);
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .gambi-line-title {
-  font-weight: 700;
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
   margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .gambi-dice {
   display: flex;
-  gap: 6px;
   flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
 }
+
+.gambi-die {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--gambi-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.gambi-die.is-success {
+  border-color: rgba(46, 204, 113, 0.45);
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
+}
+
+.gambi-chat-summary {
+  border-top: 1px solid var(--gambi-border);
+  padding-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.gambi-result {
+  margin-top: 4px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* badges do chat */
+.gambi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.gambi-badge.is-ok {
+  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.92));
+}
+.gambi-badge.is-strong {
+  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.92));
+}
+.gambi-badge.is-bug {
+  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.92));
+}
+
+/* ============================================================
+ * 0.6.0 — Chat dice: cor de sucesso por atributo/origem
+ * ============================================================ */
+
+/* sucessos por atributo */
+.gambi-die.is-success.suc-corpo {
+  border-color: rgba(31, 179, 91, 0.65);
+  background: rgba(31, 179, 91, 0.18);
+  box-shadow: 0 0 0 4px rgba(31, 179, 91, 0.14);
+}
+
+.gambi-die.is-success.suc-mente {
+  border-color: rgba(47, 125, 225, 0.65);
+  background: rgba(47, 125, 225, 0.18);
+  box-shadow: 0 0 0 4px rgba(47, 125, 225, 0.14);
+}
+
+.gambi-die.is-success.suc-coracao {
+  border-color: rgba(226, 74, 74, 0.65);
+  background: rgba(226, 74, 74, 0.18);
+  box-shadow: 0 0 0 4px rgba(226, 74, 74, 0.14);
+}
+
+/* sucesso vindo do dado roxo */
+.gambi-die.is-success.suc-roxo {
+  border-color: rgba(138, 77, 232, 0.7);
+  background: rgba(138, 77, 232, 0.2);
+  box-shadow: 0 0 0 4px rgba(138, 77, 232, 0.14);
+}
+
+/* ---------------------------------------
+ * Rolagem — cores dos dados em sucesso
+ * ------------------------------------- */
 
 .gambi-die {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  font-weight: 800;
-  font-size: 13px;
-  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.18);
+
+  font-weight: 700;
+  line-height: 1;
+  margin-right: 6px;
 }
 
+/* Sucesso: deixa “aceso” */
 .gambi-die.is-success {
-  border-width: 2px;
-  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) inset;
 }
 
-.gambi-sub {
-  margin-top: 6px;
-  font-size: 12px;
+/* Sucesso por atributo */
+.gambi-die.is-success.suc-corpo {
+  background: rgba(31, 179, 91, 0.9);
+  color: #fff;
+} /* verde */
+.gambi-die.is-success.suc-mente {
+  background: rgba(47, 125, 225, 0.9);
+  color: #fff;
+} /* azul */
+.gambi-die.is-success.suc-coracao {
+  background: rgba(226, 74, 74, 0.9);
+  color: #fff;
+} /* vermelho */
+
+/* Sucesso dos roxos */
+.gambi-die.is-success.suc-roxo {
+  background: rgba(138, 77, 232, 0.9);
+  color: #fff;
+} /* roxo */
+
+/* Não-sucesso (mantém neutro) */
+.gambi-die:not(.is-success) {
+  opacity: 0.85;
 }
 
-.gambi-sub.is-muted {
+.gambi-die.is-roxo {
+  border-style: dashed;
+}
+.gambi-die.is-base {
+  border-style: solid;
+}
+/* Itens usados (consumíveis sem carga) */
+.gambi-item.is-used .item-name {
+  text-decoration: line-through;
   opacity: 0.7;
 }
 
-.gambi-chat-summary {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
+.gambi-item.is-used {
+  opacity: 0.75;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.06) 6px,
+    rgba(0, 0, 0, 0.06) 6px,
+    rgba(0, 0, 0, 0.06) 12px
+  );
+  border-radius: 8px;
+  padding: 2px 6px;
 }
 
-.gambi-result {
-  margin-top: 6px;
-}
-.power-header {
+/* lista de itens */
+.gambi-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gambi-item {
+  display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
 }
 
-.power-actions {
+.gambi-item-left {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gambi-item-actions {
+  display: flex;
+  gap: 8px;
 }
 
-.power-actions button {
-  padding: 4px 8px;
+.gambi-item-badge {
   font-size: 12px;
-  line-height: 1;
+  opacity: 0.85;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gambi-item-meta {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* ✅ usados: strikeout + hachurado */
+.gambi-item.is-used .item-name {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.gambi-item.is-used {
+  opacity: 0.75;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.06) 6px,
+    rgba(0, 0, 0, 0.06) 6px,
+    rgba(0, 0, 0, 0.06) 12px
+  );
+}
+
+/* botão desabilitado (mais óbvio) */
+.gambi-item button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
