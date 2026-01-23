@@ -1,4 +1,7 @@
-// scripts/actor-sheet.js v(0.6.1a)
+// scripts/actor-sheet.js (v0.6.1d)
+// - Dono da ficha (actor.isOwner) pode adicionar item do compêndio
+// - Botão Remover só aparece para dono
+// - Se tentar remover sem permissão: toast
 
 import { rollDesafio } from "./rolls.js";
 
@@ -52,6 +55,7 @@ export class GambiarraActorSheet extends ActorSheet {
       items: itemsSorted,
       poderes,
       isGM: game.user.isGM,
+      isOwner: this.actor.isOwner, // ✅ novo
       attrSum,
       attrOk,
     };
@@ -120,7 +124,7 @@ export class GambiarraActorSheet extends ActorSheet {
         await this.actor._despertarPoder({ sortear: false });
       });
 
-    // ITENS
+    // ✅ ITENS — usar na cena
     html
       .find(".use-item-scene")
       .off("click")
@@ -132,6 +136,7 @@ export class GambiarraActorSheet extends ActorSheet {
         if (item?.usarNaCena) item.usarNaCena(this.actor);
       });
 
+    // ✅ ITENS — usar no BUG
     html
       .find(".use-item-bug")
       .off("click")
@@ -143,13 +148,40 @@ export class GambiarraActorSheet extends ActorSheet {
         if (item?.usarContraBug) item.usarContraBug(this.actor);
       });
 
-    // ✅ NOVO: remover item
+    // ✅ ITENS — criar em mesa (GM)
+    html
+      .find(".create-item")
+      .off("click")
+      .on("click", () => this.actor._criarItemNoCompendioOuFicha?.());
+
+    // ✅ ITENS — adicionar do compêndio (DONO da ficha)
+    html
+      .find(".add-item")
+      .off("click")
+      .on("click", () => {
+        if (!this.actor.isOwner) {
+          ui.notifications.warn(
+            "Você precisa de permissão de dono para adicionar itens.",
+          );
+          return;
+        }
+        this.actor._escolherItemDoCompendio?.();
+      });
+
+    // ✅ ITENS — remover (DONO da ficha)
     html
       .find(".remove-item")
       .off("click")
       .on("click", async (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
+
+        if (!this.actor.isOwner) {
+          ui.notifications.warn(
+            "Você precisa de permissão de dono para remover.",
+          );
+          return;
+        }
 
         const itemId = ev.currentTarget.dataset.itemId;
         const item = this.actor.items.get(itemId);
@@ -162,18 +194,6 @@ export class GambiarraActorSheet extends ActorSheet {
 
         if (!ok) return;
         await item.delete();
-      });
-
-    html
-      .find(".create-item")
-      .off("click")
-      .on("click", () => this.actor._criarItemNoCompendioOuFicha?.());
-
-    html
-      .find(".add-item")
-      .off("click")
-      .on("click", () => {
-        this.actor._escolherItemDoCompendio();
       });
 
     // efeitos permanentes

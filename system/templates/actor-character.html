@@ -1,4 +1,4 @@
-{{!-- templates/actor-character.html v0.6.1a --}}
+{{!-- templates/actor-character.html v0.6.1d --}}
 
 <form class="gambiarra-sheet" autocomplete="off">
   <header class="sheet-header">
@@ -137,7 +137,6 @@
           {{/if}}
         </div>
 
-        {{#if @root.isGM}}
         <div class="gambi-item-actions">
           <button type="button" class="use-item-scene" data-item-id="{{item.id}}" {{#if item.system.usado}}disabled{{/if}}>
             🎒 Usar
@@ -149,18 +148,26 @@
           </button>
           {{/if}}
 
+          {{!-- ✅ Remover só para DONO --}}
+          {{#if @root.isOwner}}
           <button type="button" class="remove-item" data-item-id="{{item.id}}">
             🗑️ Remover
           </button>
+          {{/if}}
         </div>
-        {{/if}}
       </li>
       {{/each}}
     </ul>
 
-    {{#if @root.isGM}}
+    {{!-- ✅ Adicionar do compêndio: DONO --}}
+    {{#if @root.isOwner}}
       <button type="button" class="add-item">➕ Adicionar Item</button>
+    {{/if}}
+
+    {{!-- 🧩 Criar em mesa: GM --}}
+    {{#if @root.isGM}}
       <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
     {{/if}}
+
   </section>
 </form>

@@ -1,4 +1,4 @@
-// scripts/init.js (v0.6.2-clean)
+// scripts/init.js (v0.6.1d)
 
 import { GambiarraActor } from "./actor.js";
 import { GambiarraActorSheet } from "./actor-sheet.js";
