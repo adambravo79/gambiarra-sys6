@@ -1,13 +1,11 @@
 // scripts/actor.js
-// 0.6.2d
+// 0.6.2e
 //
-// Mudanças v0.6.2d (itens):
-// - Item tem 1 único efeito (system.efeito): reduzir | roxo | hackear | trocar
-// - Remove "reage a BUG" e toda UI/fluxo antigo de efeitos múltiplos/tags
-// - "Criar Item (em mesa)" agora usa radio buttons e só 4 efeitos definidos
-// - Diálogo de criar item: maior e redimensionável
-// scripts/actor.js
-// 0.6.2d
+// Mudanças v0.6.2e (itens - estética do diálogo Criar Item):
+// - Efeito (radio) vira grid de 4 cards (2x2) sem sobreposição
+// - Remove estilos inline da grade de radios (CSS centralizado em styles/gambiarra.css)
+// - Dialog recebe classes próprias para CSS mirar só nele
+// - Rodapé (botões) com tamanho fixo; resize aumenta conteúdo, não botões
 //
 // v0.6.2d (Itens):
 // - Item tem 1 efeito travado (radio): reduzir | roxo | hackear | trocar
@@ -515,7 +513,7 @@ export class GambiarraActor extends Actor {
       cargasMax: tipoItem === "consumivel" ? chosen : 1,
       cargas: tipoItem === "consumivel" ? chosen : 1,
 
-      // ✅ v0.6.2d: efeito único
+      // ✅ v0.6.2d+: efeito único
       efeito: String(data.system?.efeito ?? "reduzir"),
     };
 
@@ -710,10 +708,9 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * ✅ Criar Item em mesa (v0.6.2d)
-   * - Efeito único (radio)
-   * - Remove tags/BUG/complicação/permitir
-   * - Dialog maior + resizable
+   * ✅ Criar Item em mesa (v0.6.2e)
+   * - Efeito único (radio) como 4 "cards" (2x2)
+   * - Dialog recebe classes para CSS do layout e rodapé fixo
    * ========================================================= */
 
   async _criarItemNoCompendioOuFicha() {
@@ -757,8 +754,8 @@ export class GambiarraActor extends Actor {
         <div class="form-group">
           <label>Tipo</label>
           <select name="tipoItem">
-            <option value="reliquia">🔹 Relíquia (acompanha)</option>
-            <option value="consumivel">🔸 Consumível (some quando usado)</option>
+          <option value="consumivel">🔸 Consumível (some quando usado)</option>
+          <option value="reliquia">🔹 Relíquia (acompanha)</option>           
           </select>
         </div>
 
@@ -778,41 +775,52 @@ export class GambiarraActor extends Actor {
 
         <div class="form-group">
           <label>Efeito</label>
-
-          <div class="gambi-radios" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+        
+          <div class="gambi-radios">
+            <label class="gambi-radio">
               <input type="radio" name="efeito" value="reduzir" checked />
-              ➖ Reduzir dificuldade (mecânico)
+              <span class="gambi-radio-text">
+                <span class="gambi-radio-title">➖ Reduzir dificuldade</span>
+                <span class="gambi-radio-sub">(mecânico)</span>
+              </span>
             </label>
-
-            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+        
+            <label class="gambi-radio">
               <input type="radio" name="efeito" value="roxo" />
-              🟣 +1 dado roxo (mecânico)
+              <span class="gambi-radio-text">
+                <span class="gambi-radio-title">🟣 +1 dado roxo</span>
+                <span class="gambi-radio-sub">(mecânico)</span>
+              </span>
             </label>
-
-            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+        
+            <label class="gambi-radio">
               <input type="radio" name="efeito" value="hackear" />
-              🪢 Hackear o Nó (registro)
+              <span class="gambi-radio-text">
+                <span class="gambi-radio-title">🪢 Hackear o Nó</span>
+                <span class="gambi-radio-sub">(registro)</span>
+              </span>
             </label>
-
-            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+        
+            <label class="gambi-radio">
               <input type="radio" name="efeito" value="trocar" />
-              🔁 Trocar atributo (registro)
+              <span class="gambi-radio-text">
+                <span class="gambi-radio-title">🔁 Trocar atributo</span>
+                <span class="gambi-radio-sub">(registro)</span>
+              </span>
             </label>
           </div>
-
-          <p class="hint" style="margin-top:8px;">
-            “Hackear o Nó” e “Trocar atributo” ficam em destaque no diálogo e viram <strong>Notas</strong> no chat (sem efeito mecânico por enquanto).
+          <p class="hint gambi-effect-hint">
+            “Hackear o Nó” e “Trocar atributo” ficam em destaque no diálogo e viram <strong>Notas</strong> no chat (sem efeito
+            mecânico por enquanto).
           </p>
         </div>
 
         <hr/>
 
-        ${
-          canWritePack
-            ? `<p class="hint">✅ Pode salvar em <strong>world.gambiarra-itens</strong>.</p>`
-            : `<p class="hint">⚠️ Para salvar no compêndio: precisa existir <strong>world.gambiarra-itens</strong> e você ser GM.</p>`
-        }
+        ${canWritePack
+        ? `<p class="hint">✅ Pode salvar em <strong>world.gambiarra-itens</strong>.</p>`
+        : `<p class="hint">⚠️ Para salvar no compêndio: precisa existir <strong>world.gambiarra-itens</strong> e você ser GM.</p>`
+      }
       </form>
     `;
 
@@ -828,7 +836,9 @@ export class GambiarraActor extends Actor {
         html.find('[name="tipoItem"]').val() ?? "reliquia",
       ).trim();
 
-      const efeito = String(html.find('input[name="efeito"]:checked').val() ?? "reduzir").trim();
+      const efeito = String(
+        html.find('input[name="efeito"]:checked').val() ?? "reduzir",
+      ).trim();
 
       const cargasMax =
         tipoItem === "consumivel"
@@ -941,8 +951,13 @@ export class GambiarraActor extends Actor {
           sync();
         },
       },
-      // ✅ maior + resize com mouse
-      { width: 520, height: 720, resizable: true },
+      // ✅ maior + resize com mouse + classes para CSS
+      {
+        width: 620,
+        height: 625,
+        resizable: true,
+        classes: ["gambi-create-item-dialog"],
+      },
     );
 
     dlg.render(true);

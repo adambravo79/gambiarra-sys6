@@ -151,9 +151,9 @@ function itemOptionLabel(it) {
 function renderEffectCard(effectKey) {
   const e = ITEM_EFFECT[effectKey] ?? ITEM_EFFECT.reduzir;
   return `
-    <div class="gambi-effect-card" style="border:1px solid #0002; border-radius:14px; padding:10px 12px; background: rgba(0,0,0,0.02);">
-      <div><strong>Efeito do item:</strong> <span style="margin-left:6px;">${e.icon} ${e.title}</span></div>
-      <div class="hint" style="margin-top:4px;">
+    <div class="gambi-effect-card">
+      <div><strong>Efeito do item:</strong> <span class="gambi-effect-title">${e.icon} ${e.title}</span></div>
+      <div class="hint gambi-effect-note">
         ${
           effectKey === "reduzir"
             ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
@@ -365,8 +365,14 @@ export async function rollDesafio(actor, opts = {}) {
         const cur = Number($val.val()) || 0;
         $val.val(String(clampInt(cur + 1, 0, 10)));
       });
-    },
-  });
+    }, 
+  },
+  {
+    width: 620,
+    height: 635,
+    resizable: true,
+    classes: ["gambi-roll-desafio-dialog"]
+});
 
   dlg.render(true);
 }
