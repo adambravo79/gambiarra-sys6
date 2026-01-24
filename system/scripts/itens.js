@@ -1,6 +1,7 @@
 // scripts/itens.js (v0.6.2a)
-// - Consumiveis: gastam carga e marcam usado quando chega a 0
-// - Integração com rolagem: "marca" o próximo teste do Actor via system.meta.pendingItemEffect
+// - Itens: chat + pendência para próxima rolagem (system.meta.pendingItemEffect)
+// - Consumíveis: gastam 1 carga e, ao zerar, marcam usado + "🪢 Nó recebeu..."
+
 export class GambiarraItem extends Item {
   async corromper(descricao) {
     const corrupcoes = foundry.utils.duplicate(this.system.corrupcoes || []);
@@ -12,28 +13,10 @@ export class GambiarraItem extends Item {
     });
   }
 
-  // ✅ marca o próximo teste do actor com um efeito vindo do item
-  async _queueNextRollEffect(
-    actor,
-    { mode = "scene", effect = "", note = "" } = {},
-  ) {
-    if (!actor) return;
-
-    await actor.update({
-      "system.meta.pendingItemEffect": {
-        itemId: this.id,
-        itemName: this.name,
-        mode,
-        effect,
-        note,
-      },
-    });
-  }
-
   async usarNaCena(actor) {
     const content = `
       <p><strong>${this.name}</strong> entrou em cena.</p>
-      <p class="hint">Escolha um efeito narrativo (vai marcar o próximo teste).</p>
+      <p class="hint">Escolha um efeito narrativo (registra + prepara a próxima rolagem quando fizer sentido).</p>
       <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
         <button type="button" data-efeito="reduzir">➖ Reduzir a dificuldade (1 passo)</button>
         <button type="button" data-efeito="dado">🎲 +1 dado (vira 🟣)</button>
@@ -41,9 +24,6 @@ export class GambiarraItem extends Item {
         <button type="button" data-efeito="trocar">🔁 Trocar o atributo do desafio</button>
         <button type="button" data-efeito="complicar">🌀 Criar uma complicação interessante</button>
       </div>
-      <p class="hint" style="margin-top:10px;">
-        Dica: a próxima vez que clicar em “🎲 Rolar Desafio”, o diálogo já vem pré-ajustado.
-      </p>
     `;
 
     const dlg = new Dialog({
@@ -55,19 +35,11 @@ export class GambiarraItem extends Item {
           ev.preventDefault();
           ev.stopPropagation();
 
-          const efeito = String(ev.currentTarget.dataset.efeito || "");
+          const efeito = ev.currentTarget.dataset.efeito;
 
-          // chat
+          await this._applyPendingToActor(actor, efeito, { mode: "scene" });
           this._postChatUso(actor, efeito, { context: "scene" });
 
-          // ✅ marca o próximo teste
-          await this._queueNextRollEffect(actor, {
-            mode: "scene",
-            effect: efeito,
-            note: "Item usado na cena",
-          });
-
-          // consome carga se necessário
           if (this.system.tipoItem === "consumivel") {
             await this.gastarUmaCarga({ announceNo: true });
           }
@@ -93,16 +65,13 @@ export class GambiarraItem extends Item {
 
     const content = `
       <p><strong>${this.name}</strong> reage ao BUG.</p>
-      <p class="hint">Escolha como ele muda a situação (vai marcar o próximo teste).</p>
+      <p class="hint">Escolha como ele muda a situação (registra + pode preparar a próxima rolagem).</p>
       <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
         <button type="button" data-efeito="suavizar">🧯 Suavizar o BUG</button>
         <button type="button" data-efeito="anular">🛡️ Anular o BUG (nesta cena)</button>
         <button type="button" data-efeito="transformar">🔀 Transformar o BUG (vira outro tipo de custo)</button>
         <button type="button" data-efeito="dado">🎲 Converter em +1 🟣 no próximo teste</button>
       </div>
-      <p class="hint" style="margin-top:10px;">
-        Dica: a próxima vez que clicar em “🎲 Rolar Desafio”, o diálogo já vem pré-ajustado.
-      </p>
     `;
 
     const dlg = new Dialog({
@@ -114,16 +83,10 @@ export class GambiarraItem extends Item {
           ev.preventDefault();
           ev.stopPropagation();
 
-          const efeito = String(ev.currentTarget.dataset.efeito || "");
+          const efeito = ev.currentTarget.dataset.efeito;
 
+          await this._applyPendingToActor(actor, efeito, { mode: "bug" });
           this._postChatUso(actor, efeito, { context: "bug" });
-
-          // ✅ marca o próximo teste
-          await this._queueNextRollEffect(actor, {
-            mode: "bug",
-            effect: efeito,
-            note: "Item usado contra BUG",
-          });
 
           if (this.system.tipoItem === "consumivel") {
             await this.gastarUmaCarga({ announceNo: true });
@@ -137,6 +100,39 @@ export class GambiarraItem extends Item {
     dlg.render(true);
   }
 
+  async _applyPendingToActor(actor, efeito, { mode = "scene" } = {}) {
+    if (!actor) return;
+
+    // só alguns efeitos fazem sentido pra "próximo teste"
+    const wantsPending =
+      efeito === "reduzir" || efeito === "dado" || efeito === "trocar";
+
+    if (!wantsPending) return;
+
+    const pending = {
+      itemId: this.id,
+      itemName: this.name,
+      mode,
+      effect: efeito,
+      note:
+        efeito === "trocar"
+          ? "🔁 Trocar atributo do desafio (narrativo)"
+          : "",
+    };
+
+    await actor.update({ "system.meta.pendingItemEffect": pending });
+
+    // feedback curto
+    const label =
+      {
+        reduzir: "➖ Reduzir dificuldade (1 passo) no próximo teste",
+        dado: "🟣 +1 dado roxo no próximo teste",
+        trocar: "🔁 Trocar atributo (apenas narrativo) no próximo teste",
+      }[efeito] ?? "Efeito preparado";
+
+    ui.notifications.info(`🎒 ${this.name}: ${label}`);
+  }
+
   async gastarUmaCarga({ announceNo = false } = {}) {
     const tipo = String(this.system.tipoItem ?? "reliquia");
     if (tipo !== "consumivel") return;
@@ -144,10 +140,8 @@ export class GambiarraItem extends Item {
     const usado = Boolean(this.system.usado);
     const cargasRaw = Number(this.system.cargas ?? 0);
 
-    // já usado? não faz nada
     if (usado) return;
 
-    // fallback: se veio com 0, assume 1 para consumir e “encerrar” corretamente
     const cargasSafe =
       Math.max(0, Math.trunc(Number.isFinite(cargasRaw) ? cargasRaw : 0)) || 1;
 
@@ -165,7 +159,7 @@ export class GambiarraItem extends Item {
   }
 
   async _postChatRecebidoPeloNo() {
-    await ChatMessage.create({
+    ChatMessage.create({
       content: `🪢 O Nó recebeu o item <strong>${this.name}</strong> e o absorveu na história.`,
     });
   }
@@ -177,9 +171,9 @@ export class GambiarraItem extends Item {
     const texto =
       {
         reduzir: "➖ Reduzir dificuldade (1 passo)",
-        dado: "🎲 +1 dado (vira 🟣 no diálogo)",
+        dado: "🎲 +1 dado (vira 🟣 no próximo teste)",
         permitir: "🧩 Permitir a tentativa",
-        trocar: "🔁 Trocar atributo do desafio",
+        trocar: "🔁 Trocar atributo do desafio (narrativo)",
         complicar: "🌀 Criar complicação narrativa",
 
         suavizar: "🧯 Suavizar BUG",
@@ -192,7 +186,6 @@ export class GambiarraItem extends Item {
         <div><strong>🎒 Item:</strong> ${this.name} <span class="hint">(${tipo})</span></div>
         <div><strong>👤 Personagem:</strong> ${actor?.name ?? "—"}</div>
         <div><strong>${context === "bug" ? "🐞 No BUG" : "🎬 Na cena"}:</strong> ${texto}</div>
-        <div class="hint" style="margin-top:6px;">✅ Próxima rolagem será influenciada por este item.</div>
       </div>
     `;
 

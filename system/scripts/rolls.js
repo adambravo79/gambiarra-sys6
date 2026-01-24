@@ -2,11 +2,11 @@
  * GAMBIARRA.SYS6 — Rolagens (v0.6.2a)
  * - Pool = valor do atributo
  * - Dificuldade = required + target
- * - Dados Roxos = bônus (diálogo / item)
+ * - Dados Roxos = bônus (item pendente / diálogo)
  * - Integração Dice So Nice (se instalado)
  *
- * Presets (B):
- * rollDesafio(actor, { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName, itemEffect, itemContext })
+ * Presets:
+ * rollDesafio(actor, { presetAttr, presetDiffKey })
  */
 
 const COLORSET = {
@@ -22,8 +22,8 @@ const ATTR_LABEL = {
   coracao: { icon: "❤️", label: "Coração" },
 };
 
-// Ordem para "reduzir 1 passo"
-const DIFF_ORDER = ["impossivel", "epico", "bug", "complexo", "normal"]; // do mais pesado -> mais leve
+// ✅ ordem pedida (leve -> pesado)
+const DIFF_ORDER = ["normal", "complexo", "bug", "epico", "impossivel"];
 
 function clampInt(n, min, max) {
   const v = Number.isFinite(n) ? Math.trunc(n) : 0;
@@ -37,7 +37,7 @@ function clampPurple(val) {
 function applyDiceSoNiceAppearance(roll, colorsetId) {
   for (const die of roll.dice ?? []) {
     die.options = die.options ?? {};
-    die.options.colorset = colorsetId; // compat
+    die.options.colorset = colorsetId;
     die.options.appearance = die.options.appearance ?? {};
     die.options.appearance.colorset = colorsetId;
   }
@@ -48,59 +48,33 @@ async function show3dIfAvailable(roll) {
   await game.dice3d.showForRoll(roll, game.user, true);
 }
 
-function renderDiceLine(
-  results,
-  target,
-  { baseAttr = null, source = "base", tintPurpleByAttr = false } = {},
-) {
-  // source: "base" | "roxo"
-  // baseAttr: "corpo" | "mente" | "coracao"
-  // tintPurpleByAttr: se true, dado roxo em sucesso usa a cor do atributo em vez do roxo
-
+function renderDiceLine(results, target, { baseAttr = null, source = "base" } = {}) {
   return results
     .map((r) => {
       const ok = r.result >= target;
-
-      // classes base
       const cls = ["gambi-die"];
-
       if (ok) cls.push("is-success");
 
-      // cor do sucesso
       if (ok) {
-        if (source === "roxo") {
-          cls.push(tintPurpleByAttr ? `suc-${baseAttr}` : "suc-roxo");
-        } else {
-          cls.push(`suc-${baseAttr}`);
-        }
+        if (source === "roxo") cls.push("suc-roxo");
+        else cls.push(`suc-${baseAttr}`);
       }
 
-      // marca a origem (opcional, útil p/ debug/estilo)
       cls.push(source === "roxo" ? "is-roxo" : "is-base");
-
       return `<span class="${cls.join(" ")}">${r.result}</span>`;
     })
     .join(" ");
 }
 
-function itemLabel(item) {
-  const tipoItem = item?.system?.tipoItem ?? "reliquia";
-  const badge = tipoItem === "consumivel" ? "🔸" : "🔹";
-  const usado = item?.system?.usado ? " (usado)" : "";
-  return `${badge} ${item.name}${usado}`;
-}
+function shiftDifficultyKey(currentKey, steps) {
+  // steps: -1 = reduzir 1 passo (ex: bug -> complexo)
+  // steps: +1 = aumentar 1 passo (ex: complexo -> bug)
+  if (!steps) return currentKey;
 
-function actorItemsForRoll(actor) {
-  return (actor.items ?? []).filter((i) => i.type === "item");
-}
-
-function shiftDifficultyKey(currentKey, delta) {
-  if (!delta) return currentKey;
   const idx = DIFF_ORDER.indexOf(currentKey);
   if (idx === -1) return currentKey;
 
-  // delta negativo = reduzir (vai "pra direita" na lista: impossivel -> epico -> ... -> normal)
-  const next = clampInt(idx - delta, 0, DIFF_ORDER.length - 1);
+  const next = clampInt(idx + steps, 0, DIFF_ORDER.length - 1);
   return DIFF_ORDER[next];
 }
 
@@ -109,61 +83,64 @@ function listSuccesses(results, target) {
   return suc.join(", ");
 }
 
-function pendingToPresets(pending) {
-  // pending: { itemId, itemName, mode, effect }
-  if (!pending?.itemId || !pending?.effect) return null;
-
-  const effect = String(pending.effect);
-  const mode = String(pending.mode ?? "scene");
-
-  // Mapeia seu modelo de efeito para os presets do diálogo
-  const presets = {
-    itemId: String(pending.itemId),
-    itemName: String(pending.itemName ?? ""),
-    itemEffect: effect,
-    itemContext: mode,
-  };
-
-  if (effect === "dado") {
-    presets.addPurple = 1;
-  } else if (effect === "reduzir") {
-    presets.shiftDiff = -1; // reduzir 1 passo
-  } else if (effect === "trocar") {
-    presets.forceSwapAttr = true;
-  } else if (effect === "complicar") {
-    // opcional: pode forçar diff bug como sugestão narrativa
-    presets.presetDiffKey = "bug";
-  }
-
-  return presets;
+function getPending(actor) {
+  return actor?.system?.meta?.pendingItemEffect ?? null;
 }
 
-// opts: { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName, itemEffect, itemContext }
-export async function rollDesafio(actor, opts = {}) {
-  const difficulties = game.gambiarra?.config?.difficulties ?? {};
+function clearPending(actor) {
+  return actor?.update?.({ "system.meta.pendingItemEffect": null });
+}
 
-  // ✅ Se existe item pendente no actor, vira preset automático do diálogo
-  const pending = actor.system?.meta?.pendingItemEffect ?? null;
-  const pendingPresets = pendingToPresets(pending);
-  if (pendingPresets) {
-    // não sobrescreve algo que já veio explicitamente no opts
-    opts = { ...pendingPresets, ...opts };
+function attrOk(actor) {
+  const a = actor?.system?.attributes ?? {};
+  const c = Number(a.corpo?.value ?? 0);
+  const m = Number(a.mente?.value ?? 0);
+  const co = Number(a.coracao?.value ?? 0);
+  return c >= 1 && m >= 1 && co >= 1 && c + m + co === 6;
+}
+
+// opts: { presetAttr, presetDiffKey }
+export async function rollDesafio(actor, opts = {}) {
+  if (!attrOk(actor)) {
+    ui.notifications.warn("Ajuste Corpo+Mente+Coração para somar 6 (mínimo 1 em cada).");
+    return;
   }
+
+  const difficulties = game.gambiarra?.config?.difficulties ?? {};
 
   const attrs = actor.system?.attributes ?? {};
   const corpo = attrs.corpo?.value ?? 2;
   const mente = attrs.mente?.value ?? 2;
   const coracao = attrs.coracao?.value ?? 2;
 
-  const itens = actorItemsForRoll(actor);
-
   const presetAttr = opts.presetAttr || "corpo";
   const presetDiffKey = opts.presetDiffKey || "normal";
-  const presetPurple = clampPurple(Number(opts.addPurple ?? 0));
 
-  const pendingHint = opts.itemName
-    ? `<p class="hint">🎒 Próxima rolagem marcada por item: <strong>${opts.itemName}</strong>${opts.itemEffect ? ` — efeito: <strong>${opts.itemEffect}</strong>` : ""}</p>`
-    : "";
+  const pending = getPending(actor);
+
+  // interpreta pending (sem UI editável de item)
+  const pendingShift = pending?.effect === "reduzir" ? -1 : 0;
+  const pendingPurple = pending?.effect === "dado" ? 1 : 0;
+  const pendingSwapNarrative = pending?.effect === "trocar";
+
+  const pendingHtml = pending
+    ? `
+      <div style="border:1px solid #0002; border-radius:14px; padding:10px 12px; background: rgba(0,0,0,0.02);">
+        <div><strong>🎒 Item preparado:</strong> ${pending.itemName ?? "—"}</div>
+        <div class="hint" style="margin-top:4px;">
+          ${
+            pending.effect === "reduzir"
+              ? "➖ Vai tentar reduzir a dificuldade em 1 passo (ex: Bug Leve → Complexo)."
+              : pending.effect === "dado"
+                ? "🟣 Vai adicionar +1 dado roxo neste teste."
+                : pending.effect === "trocar"
+                  ? "🔁 Trocar atributo do desafio (apenas narrativo; sem efeito mecânico)."
+                  : "Efeito preparado."
+          }
+        </div>
+      </div>
+    `
+    : `<p class="hint">Nenhum item preparado para este teste.</p>`;
 
   const content = `
   <form class="gambiarra-roll">
@@ -178,7 +155,7 @@ export async function rollDesafio(actor, opts = {}) {
           })
           .join("")}
       </select>
-      ${opts.shiftDiff ? `<p class="hint">Item sugeriu: reduzir dificuldade (${Math.abs(Number(opts.shiftDiff))} passo).</p>` : ""}
+      ${pending?.effect === "reduzir" ? `<p class="hint">➖ Reduzir dificuldade: 1 passo.</p>` : ""}
     </div>
 
     <div class="form-group">
@@ -194,47 +171,21 @@ export async function rollDesafio(actor, opts = {}) {
     <hr/>
 
     <div class="form-group">
-      <label>🎒 Item do Nó (opcional)</label>
-      <select name="sceneItem">
-        <option value="">— nenhum —</option>
-        ${itens.map((it) => `<option value="${it.id}">${itemLabel(it)}</option>`).join("")}
-      </select>
-
-      ${pendingHint}
-
-      <div class="hint" style="margin-top:6px;">
-        “🎲 +1 dado” do item vira +1 🟣 automaticamente.
-      </div>
-
-      <div class="gambi-item-effects" style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">
-        <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-          <input type="checkbox" name="itemAddDie" />
-          🎲 +1 dado (vira 🟣)
-        </label>
-
-        <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-          <input type="checkbox" name="itemShiftDiff" />
-          ➖ Reduzir dificuldade (1 passo)
-        </label>
-
-        <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-          <input type="checkbox" name="itemSwapAttr" />
-          🔁 Trocar atributo do desafio
-        </label>
-      </div>
+      ${pendingHtml}
     </div>
 
     <hr/>
 
     <div class="form-group">
       <label class="purple-label">🟣 Dados Roxos</label>
-
       <div class="purple-row">
         <button type="button" class="purple-btn purple-minus" aria-label="Diminuir">−</button>
         <input class="purple-value" type="text" name="purpleDice" value="0" readonly />
         <button type="button" class="purple-btn purple-plus" aria-label="Aumentar">+</button>
-        <span class="hint">A Programadora decide (ideia, item, ajuda, poder etc.)</span>
+        <span class="hint">A Programadora decide (ideia, ajuda, poder etc.)</span>
       </div>
+      ${pendingPurple ? `<p class="hint">🟣 Item adicionou +1 roxo automaticamente.</p>` : ""}
+      ${pendingSwapNarrative ? `<p class="hint">🔁 “Trocar atributo” ficará registrado no chat (sem impacto mecânico).</p>` : ""}
     </div>
   </form>
   `;
@@ -246,41 +197,55 @@ export async function rollDesafio(actor, opts = {}) {
       roll: {
         label: "Rolar",
         callback: async (html) => {
-          const diffKey = String(
-            html.find('[name="difficulty"]').val() || "normal",
-          );
-          const atributo = String(
-            html.find('[name="attribute"]').val() || "corpo",
-          );
-          const purple = Number(html.find('[name="purpleDice"]').val()) || 0;
+          let diffKey = String(html.find('[name="difficulty"]').val() || "normal");
+          const atributo = String(html.find('[name="attribute"]').val() || "corpo");
+          const purpleManual = Number(html.find('[name="purpleDice"]').val()) || 0;
 
-          const itemId = String(html.find('[name="sceneItem"]').val() || "");
-          const it = itemId ? actor.items.get(itemId) : null;
+          // ✅ aplica +1 roxo do pending
+          const roxos = clampPurple(purpleManual + pendingPurple);
 
-          const itemAddDie = Boolean(html.find('[name="itemAddDie"]').prop("checked"));
-          const itemShift = Boolean(html.find('[name="itemShiftDiff"]').prop("checked"));
-          const itemSwap = Boolean(html.find('[name="itemSwapAttr"]').prop("checked"));
-
-          // só para aparecer no chat card de forma clara
-          const itemEffect =
-            itemAddDie ? "dado" :
-            itemShift ? "reduzir" :
-            itemSwap ? "trocar" :
-            "";
+          // ✅ aplicar reduzir dificuldade de verdade (ex: bug -> complexo)
+          if (pending?.effect === "reduzir") {
+            if (diffKey === "normal") {
+              // regra pedida: não reduz abaixo de normal -> confirmar uso “sem efeito”
+              const ok = await Dialog.confirm({
+                title: "Reduzir em Normal?",
+                content: `
+                  <p>Você está tentando usar <strong>➖ reduzir dificuldade</strong> em uma rolagem <strong>Normal</strong>.</p>
+                  <p class="hint">Normal já é o mínimo. Deseja confirmar mesmo assim?</p>
+                `,
+              });
+              if (!ok) return;
+              // mantém normal (não muda)
+            } else {
+              diffKey = shiftDifficultyKey(diffKey, -1);
+            }
+          }
 
           const dificuldade = difficulties[diffKey];
+
+          // narrativa “trocar atributo” aparece no chat como nota
+          const narrativeNotes = [];
+          if (pendingSwapNarrative) {
+            narrativeNotes.push("🔁 Trocar atributo do desafio (narrativo; sem efeito mecânico).");
+          }
+          if (pending?.effect === "reduzir") {
+            narrativeNotes.push("➖ Item tentou reduzir a dificuldade (aplicado no teste).");
+          }
+          if (pending?.effect === "dado") {
+            narrativeNotes.push("🟣 Item adicionou +1 dado roxo neste teste.");
+          }
 
           await executarRolagem({
             actor,
             atributo,
             dificuldade,
-            roxos: clampInt(purple, 0, 10),
-
-            // meta p/ chat e p/ limpar pending
-            usedItem: it
-              ? { id: it.id, name: it.name, effect: itemEffect, context: "scene" }
-              : (opts.itemId ? { id: String(opts.itemId), name: String(opts.itemName ?? ""), effect: String(opts.itemEffect ?? ""), context: String(opts.itemContext ?? "scene") } : null),
+            roxos,
+            notes: narrativeNotes,
           });
+
+          // ✅ consome a pendência após rolar
+          if (pending) await clearPending(actor);
         },
       },
     },
@@ -290,65 +255,10 @@ export async function rollDesafio(actor, opts = {}) {
       const $attribute = html.find('[name="attribute"]');
       const $val = html.find('[name="purpleDice"]');
 
-      const $item = html.find('[name="sceneItem"]');
-      const $addDie = html.find('[name="itemAddDie"]');
-      const $shiftDiff = html.find('[name="itemShiftDiff"]');
-      const $swapAttr = html.find('[name="itemSwapAttr"]');
-
-      function bumpPurple(delta) {
-        const cur = Number($val.val()) || 0;
-        $val.val(String(clampPurple(cur + delta)));
-      }
-
       // presets iniciais
       $attribute.val(presetAttr);
-      $difficulty.val(
-        shiftDifficultyKey(presetDiffKey, Number(opts.shiftDiff ?? 0)),
-      );
-      $val.val(String(presetPurple));
-
-      // ✅ se veio marcado por pendingItemEffect, preseleciona o item na combo também
-      if (opts.itemId) $item.val(String(opts.itemId));
-
-      if (opts.addPurple) $addDie.prop("checked", true);
-      if (opts.shiftDiff) $shiftDiff.prop("checked", true);
-      if (opts.forceSwapAttr) $swapAttr.prop("checked", true);
-
-      // checkbox +1 dado -> +1 roxo
-      $addDie.on("change", () => {
-        const checked = $addDie.prop("checked");
-        bumpPurple(checked ? +1 : -1);
-      });
-
-      // reduzir dificuldade 1 passo (aplica na combo)
-      $shiftDiff.on("change", () => {
-        const checked = $shiftDiff.prop("checked");
-        const cur = String($difficulty.val() || "normal");
-        const next = shiftDifficultyKey(cur, checked ? -1 : +1);
-        $difficulty.val(next);
-      });
-
-      // auto-sugerir checkboxes ao trocar item
-      $item.on("change", async () => {
-        const itemId = String($item.val() || "");
-        if (!itemId) return;
-
-        const it = actor.items.get(itemId);
-        const efeitos = Array.isArray(it?.system?.efeitosPossiveis)
-          ? it.system.efeitosPossiveis
-          : [];
-
-        const shouldAdd = efeitos.includes("dado");
-        const shouldShift = efeitos.includes("reduzir");
-        const shouldSwap = efeitos.includes("trocar");
-
-        if (shouldAdd !== $addDie.prop("checked"))
-          $addDie.prop("checked", shouldAdd).trigger("change");
-        if (shouldShift !== $shiftDiff.prop("checked"))
-          $shiftDiff.prop("checked", shouldShift).trigger("change");
-        if (shouldSwap !== $swapAttr.prop("checked"))
-          $swapAttr.prop("checked", shouldSwap);
-      });
+      $difficulty.val(presetDiffKey);
+      $val.val(String(clampPurple(pendingPurple)));
 
       html.find(".purple-minus").on("click", () => {
         const cur = Number($val.val()) || 0;
@@ -365,7 +275,7 @@ export async function rollDesafio(actor, opts = {}) {
   dlg.render(true);
 }
 
-async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedItem = null }) {
+async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes = [] }) {
   const required = Number(dificuldade?.required ?? 1);
   const target = Number(dificuldade?.target ?? 4);
 
@@ -378,18 +288,15 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedIt
     return;
   }
 
-  // 1) Rolagem base (cor do atributo)
   const rollBase = await new Roll(`${pool}d6`).evaluate();
   applyDiceSoNiceAppearance(rollBase, COLORSET[atributo] ?? COLORSET.corpo);
 
-  // 2) Rolagem roxa (se existir)
   let rollRoxo = null;
   if (roxos > 0) {
     rollRoxo = await new Roll(`${roxos}d6`).evaluate();
     applyDiceSoNiceAppearance(rollRoxo, COLORSET.roxo);
   }
 
-  // 3D
   await show3dIfAvailable(rollBase);
   if (rollRoxo) await show3dIfAvailable(rollRoxo);
 
@@ -420,10 +327,6 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedIt
       ? `<span class="gambi-badge is-strong">🌟 Sucesso Forte</span>`
       : `<span class="gambi-badge is-ok">✨ Sucesso</span>`;
 
-  const itemLine = usedItem?.name
-    ? `<div class="gambi-sub"><strong>🎒 Item:</strong> ${usedItem.name}${usedItem.effect ? ` — <span class="hint">efeito: ${usedItem.effect}</span>` : ""}</div>`
-    : "";
-
   const baseLine = `
     <div class="gambi-line">
       <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
@@ -440,8 +343,7 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedIt
     ? `
     <div class="gambi-line">
       <div class="gambi-line-title">🟣 Roxos (${roxos}d6)</div>
-      <div class="gambi-dice">${renderDiceLine(roxoResults, target, { baseAttr: atributo, source: "roxo", tintPurpleByAttr: false })}</div>
-
+      <div class="gambi-dice">${renderDiceLine(roxoResults, target, { baseAttr: atributo, source: "roxo" })}</div>
       ${
         roxoSuccessList
           ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
@@ -450,6 +352,14 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedIt
     </div>
   `
     : "";
+
+  const notesHtml =
+    notes?.length
+      ? `<div class="gambi-line" style="margin-top:10px;">
+           <div class="gambi-line-title">📝 Notas</div>
+           <div class="gambi-sub">${notes.map((n) => `• ${n}`).join("<br/>")}</div>
+         </div>`
+      : "";
 
   const chatHtml = `
     <div class="gambi-chat">
@@ -463,10 +373,9 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedIt
         <div><strong>Alvo:</strong> ${target}+</div>
       </div>
 
-      ${itemLine}
-
       ${baseLine}
       ${roxoLine}
+      ${notesHtml}
 
       <div class="gambi-chat-summary">
         <div><strong>Sucessos totais:</strong> ${successes}</div>
@@ -480,11 +389,5 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedIt
     </div>
   `;
 
-  await ChatMessage.create({ content: chatHtml });
-
-  // ✅ Consumiu o "pending item effect" (se existir)
-  const pending = actor.system?.meta?.pendingItemEffect ?? null;
-  if (pending?.itemId) {
-    await actor.update({ "system.meta.pendingItemEffect": null });
-  }
+  ChatMessage.create({ content: chatHtml });
 }

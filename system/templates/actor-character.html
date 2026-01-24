@@ -1,4 +1,4 @@
-{{!-- templates/actor-character.html v0.6.1d --}}
+{{!-- templates/actor-character.html v0.6.2b --}}
 
 <form class="gambiarra-sheet" autocomplete="off">
   <header class="sheet-header">
@@ -13,6 +13,19 @@
     </h1>
     <p class="arquetipo">{{system.meta.arquetipo}}</p>
   </header>
+
+  {{!-- ✅ trava visual quando soma != 6 --}}
+  {{#unless attrOk}}
+    <section class="gambi-attr-lock" style="margin-top:12px;">
+      <div style="border:1px solid rgba(231,76,60,.35); background: rgba(231,76,60,.10); border-radius:14px; padding:10px 12px;">
+        <strong>⚠️ Ajuste os Atributos</strong>
+        <div class="hint" style="margin-top:4px;">
+          Corpo + Mente + Coração precisam somar <strong>6</strong> (mínimo <strong>1</strong> em cada).<br/>
+          Enquanto isso, rolagens e ações ficam desativadas.
+        </div>
+      </div>
+    </section>
+  {{/unless}}
 
   <section class="attributes">
     <div class="attribute corpo">
@@ -148,25 +161,19 @@
           </button>
           {{/if}}
 
-          {{!-- ✅ Remover só para DONO --}}
-          {{#if @root.isOwner}}
           <button type="button" class="remove-item" data-item-id="{{item.id}}">
             🗑️ Remover
           </button>
-          {{/if}}
         </div>
       </li>
       {{/each}}
     </ul>
 
-    {{!-- ✅ Adicionar do compêndio: DONO --}}
-    {{#if @root.isOwner}}
-      <button type="button" class="add-item">➕ Adicionar Item</button>
-    {{/if}}
-
-    {{!-- 🧩 Criar em mesa: GM --}}
     {{#if @root.isGM}}
+      <button type="button" class="add-item">➕ Adicionar Item</button>
       <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
+    {{else}}
+      <button type="button" class="add-item">➕ Adicionar Item</button>
     {{/if}}
 
   </section>

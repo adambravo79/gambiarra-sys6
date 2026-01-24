@@ -1,7 +1,4 @@
-// scripts/actor-sheet.js (v0.6.1d)
-// - Dono da ficha (actor.isOwner) pode adicionar item do compêndio
-// - Botão Remover só aparece para dono
-// - Se tentar remover sem permissão: toast
+// scripts/actor-sheet.js v0.6.2b
 
 import { rollDesafio } from "./rolls.js";
 
@@ -55,7 +52,6 @@ export class GambiarraActorSheet extends ActorSheet {
       items: itemsSorted,
       poderes,
       isGM: game.user.isGM,
-      isOwner: this.actor.isOwner, // ✅ novo
       attrSum,
       attrOk,
     };
@@ -64,32 +60,75 @@ export class GambiarraActorSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
+    const isOwner = this.actor.isOwner;
+
+    const isAttrOkNow = () => {
+      const c =
+        Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
+      const m =
+        Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
+      const co =
+        Number(html.find('[name="system.attributes.coracao.value"]').val()) ||
+        0;
+
+      const sum = c + m + co;
+      return sum === 6 && c >= 1 && m >= 1 && co >= 1;
+    };
+
+    const guardAttrOk = () => {
+      if (isAttrOkNow()) return true;
+      ui.notifications.warn("Ajuste Corpo+Mente+Coração para somar 6 (mínimo 1 em cada).");
+      return false;
+    };
+
+    const guardOwner = () => {
+      if (this.actor.isOwner) return true;
+      ui.notifications.warn("Você precisa de permissão de dono para fazer isso.");
+      return false;
+    };
+
     // rolagem
     html
       .find(".roll-desafio")
       .off("click")
-      .on("click", () => rollDesafio(this.actor));
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        rollDesafio(this.actor);
+      });
 
     // poderes
     html
       .find(".roll-power")
       .off("click")
-      .on("click", () => this.actor._despertarPoder({ sortear: true }));
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        this.actor._despertarPoder({ sortear: true });
+      });
+
     html
       .find(".add-power")
       .off("click")
-      .on("click", () => this.actor._despertarPoder({ sortear: false }));
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        this.actor._despertarPoder({ sortear: false });
+      });
+
     html
       .find(".create-power")
       .off("click")
-      .on("click", () => this.actor._criarPoderNoCompendioOuFicha());
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        this.actor._criarPoderNoCompendioOuFicha();
+      });
 
-    // remover poder
+    // remover poder (GM)
     html
       .find(".power-remove")
       .off("click")
       .on("click", async (ev) => {
         ev.preventDefault();
+        if (!guardAttrOk()) return;
+
         const itemId = ev.currentTarget.dataset.itemId;
         const poder = this.actor.items.get(itemId);
         if (!poder) return;
@@ -103,12 +142,14 @@ export class GambiarraActorSheet extends ActorSheet {
         await poder.delete();
       });
 
-    // trocar poder
+    // trocar poder (GM)
     html
       .find(".power-replace")
       .off("click")
       .on("click", async (ev) => {
         ev.preventDefault();
+        if (!guardAttrOk()) return;
+
         const itemId = ev.currentTarget.dataset.itemId;
         const poder = this.actor.items.get(itemId);
         if (!poder) return;
@@ -124,62 +165,73 @@ export class GambiarraActorSheet extends ActorSheet {
         await this.actor._despertarPoder({ sortear: false });
       });
 
-    // ✅ ITENS — usar na cena
+    // ✅ ITENS — usar cena / bug (qualquer jogador pode clicar; o item é embedded e update exige owner)
     html
       .find(".use-item-scene")
       .off("click")
       .on("click", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
+        if (!guardAttrOk()) return;
+
         const itemId = ev.currentTarget.dataset.itemId;
         const item = this.actor.items.get(itemId);
         if (item?.usarNaCena) item.usarNaCena(this.actor);
       });
 
-    // ✅ ITENS — usar no BUG
     html
       .find(".use-item-bug")
       .off("click")
       .on("click", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
+        if (!guardAttrOk()) return;
+
         const itemId = ev.currentTarget.dataset.itemId;
         const item = this.actor.items.get(itemId);
         if (item?.usarContraBug) item.usarContraBug(this.actor);
       });
 
-    // ✅ ITENS — criar em mesa (GM)
-    html
-      .find(".create-item")
-      .off("click")
-      .on("click", () => this.actor._criarItemNoCompendioOuFicha?.());
-
-    // ✅ ITENS — adicionar do compêndio (DONO da ficha)
+    // ✅ Adicionar item: dono da ficha também pode
     html
       .find(".add-item")
       .off("click")
       .on("click", () => {
-        if (!this.actor.isOwner) {
-          ui.notifications.warn(
-            "Você precisa de permissão de dono para adicionar itens.",
-          );
-          return;
-        }
-        this.actor._escolherItemDoCompendio?.();
+        if (!guardAttrOk()) return;
+        if (!guardOwner()) return; // adicionar mexe em embedded docs
+        this.actor._escolherItemDoCompendio();
       });
 
-    // ✅ ITENS — remover (DONO da ficha)
+    // Criar item em mesa (GM)
+    html
+      .find(".create-item")
+      .off("click")
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        this.actor._criarItemNoCompendioOuFicha?.();
+      });
+
+    // ✅ Remover item (somente owner)
+    const syncRemoveButtons = () => {
+      const canRemove = this.actor.isOwner;
+      html.find(".remove-item").each((_, el) => {
+        const $b = $(el);
+        if (!canRemove) $b.hide();
+        else $b.show();
+      });
+    };
+    syncRemoveButtons();
+
     html
       .find(".remove-item")
       .off("click")
       .on("click", async (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
+        if (!guardAttrOk()) return;
 
         if (!this.actor.isOwner) {
-          ui.notifications.warn(
-            "Você precisa de permissão de dono para remover.",
-          );
+          ui.notifications.warn("Você precisa de permissão de dono para remover.");
           return;
         }
 
@@ -191,8 +243,8 @@ export class GambiarraActorSheet extends ActorSheet {
           title: "Remover Item",
           content: `<p>Remover <strong>${item.name}</strong> da ficha?</p>`,
         });
-
         if (!ok) return;
+
         await item.delete();
       });
 
@@ -200,13 +252,20 @@ export class GambiarraActorSheet extends ActorSheet {
     html
       .find(".add-effect")
       .off("click")
-      .on("click", () => this.actor._adicionarEfeitoPermanente?.());
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        this.actor._adicionarEfeitoPermanente?.();
+      });
+
     html
       .find(".bug-effect")
       .off("click")
-      .on("click", () => this.actor._converterBugEmEfeito?.());
+      .on("click", () => {
+        if (!guardAttrOk()) return;
+        this.actor._converterBugEmEfeito?.();
+      });
 
-    // sumbar
+    // sumbar + trava de botões
     const updateSumbar = () => {
       const c =
         Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
@@ -217,16 +276,33 @@ export class GambiarraActorSheet extends ActorSheet {
         0;
 
       const sum = c + m + co;
+      const ok = sum === 6 && c >= 1 && m >= 1 && co >= 1;
+
       const $bar = html.find(".gambiarra-sumbar");
       $bar.find(".sum-pill").text(String(sum));
 
-      if (sum === 6 && c >= 1 && m >= 1 && co >= 1) {
+      if (ok) {
         $bar.removeClass("bad").addClass("ok");
         $bar.find(".sum-right").text("OK ✅ (Soma = 6)");
       } else {
         $bar.removeClass("ok").addClass("bad");
         $bar.find(".sum-right").text("Ajuste para Soma = 6 (mínimo 1 em cada)");
       }
+
+      // ✅ desabilita ações “funcionais” quando inválido
+      const disable = !ok;
+
+      html
+        .find(
+          ".roll-desafio, .add-power, .roll-power, .create-power, .add-item, .create-item, .use-item-scene, .use-item-bug, .remove-item, .add-effect, .bug-effect",
+        )
+        .prop("disabled", disable);
+
+      // (botões GM de remover/trocar poder continuam possíveis, mas desativamos também por consistência)
+      html.find(".power-remove, .power-replace").prop("disabled", disable);
+
+      // remover item: se não for owner, esconde (e não só desabilita)
+      syncRemoveButtons();
     };
 
     html
@@ -246,31 +322,28 @@ export class GambiarraActorSheet extends ActorSheet {
   }
 
   async _updateObject(event, formData) {
-    const enforce = game.gambiarra?.config?.enforceSum6 ?? false;
+    // ✅ agora é regra fixa: não salva se invalidar Soma=6
+    const corpo = Number(
+      formData["system.attributes.corpo.value"] ??
+        this.actor.system.attributes.corpo.value,
+    );
+    const mente = Number(
+      formData["system.attributes.mente.value"] ??
+        this.actor.system.attributes.mente.value,
+    );
+    const coracao = Number(
+      formData["system.attributes.coracao.value"] ??
+        this.actor.system.attributes.coracao.value,
+    );
 
-    if (enforce) {
-      const corpo = Number(
-        formData["system.attributes.corpo.value"] ??
-          this.actor.system.attributes.corpo.value,
-      );
-      const mente = Number(
-        formData["system.attributes.mente.value"] ??
-          this.actor.system.attributes.mente.value,
-      );
-      const coracao = Number(
-        formData["system.attributes.coracao.value"] ??
-          this.actor.system.attributes.coracao.value,
-      );
+    const sum = corpo + mente + coracao;
+    const hasZero = corpo < 1 || mente < 1 || coracao < 1;
 
-      const sum = corpo + mente + coracao;
-      const hasZero = corpo < 1 || mente < 1 || coracao < 1;
-
-      if (hasZero || sum !== 6) {
-        ui.notifications.warn(
-          "Regra opcional: Corpo+Mente+Coração deve somar 6 e nenhum pode ser 0.",
-        );
-        return;
-      }
+    if (hasZero || sum !== 6) {
+      ui.notifications.warn(
+        "Corpo+Mente+Coração deve somar 6 e nenhum pode ser 0.",
+      );
+      return;
     }
 
     return this.actor.update(formData);
