@@ -154,13 +154,12 @@ function renderEffectCard(effectKey) {
     <div class="gambi-effect-card">
       <div><strong>Efeito do item:</strong> <span class="gambi-effect-title">${e.icon} ${e.title}</span></div>
       <div class="hint gambi-effect-note">
-        ${
-          effectKey === "reduzir"
-            ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
-            : effectKey === "roxo"
-              ? "Adiciona +1 dado roxo neste teste."
-              : "Só registra como nota (sem impacto mecânico)."
-        }
+        ${effectKey === "reduzir"
+      ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
+      : effectKey === "roxo"
+        ? "Adiciona +1 dado roxo neste teste."
+        : "Só registra como nota (sem impacto mecânico)."
+    }
       </div>
     </div>
   `;
@@ -191,12 +190,12 @@ export async function rollDesafio(actor, opts = {}) {
       <label>Dificuldade</label>
       <select name="difficulty">
         ${Object.entries(difficulties)
-          .map(([key, d]) => {
-            const req = d.required ?? 1;
-            const tgt = d.target ?? 4;
-            return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
-          })
-          .join("")}
+      .map(([key, d]) => {
+        const req = d.required ?? 1;
+        const tgt = d.target ?? 4;
+        return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
+      })
+      .join("")}
       </select>
     </div>
 
@@ -252,7 +251,7 @@ export async function rollDesafio(actor, opts = {}) {
         callback: async (html) => {
           let diffKey = String(html.find('[name="difficulty"]').val() || "normal");
           const atributo = String(html.find('[name="attribute"]').val() || "corpo");
-          const purpleManual = Number(html.find('[name="purpleDice"]').val()) || 0;
+          const purpleTotal = Number(html.find('[name="purpleDice"]').val()) || 0;
 
           const itemId = String(html.find('[name="sceneItem"]').val() || "");
           const item = itemId ? actor.items.get(itemId) : null;
@@ -261,9 +260,8 @@ export async function rollDesafio(actor, opts = {}) {
           const e = effectKey ? (ITEM_EFFECT[effectKey] ?? ITEM_EFFECT.reduzir) : null;
 
           // aplica mecânicas do item
-          let roxos = clampPurple(purpleManual);
-          if (effectKey === "roxo") roxos = clampPurple(roxos + 1);
-
+          let roxos = clampPurple(purpleTotal);
+          
           if (effectKey === "reduzir") {
             if (diffKey === "normal") {
               const ok = await Dialog.confirm({
@@ -334,12 +332,28 @@ export async function rollDesafio(actor, opts = {}) {
 
       $attribute.val(presetAttr);
       $difficulty.val(presetDiffKey);
-      $val.val("0");
+      // ✅ separa manual do bônus automático do item
+      let manualPurple = 0;
+
+      const getAutoBonus = () => {
+        const itemId = String($item.val() || "");
+        if (!itemId) return 0;
+        const it = actor.items.get(itemId);
+        const effectKey = normalizeEffectKey(it);
+        return effectKey === "roxo" ? 1 : 0;
+      };
+
+      const setDisplayedPurple = () => {
+        const auto = getAutoBonus();
+        const total = clampInt(manualPurple + auto, 0, 10);
+        $val.val(String(total));
+      };
 
       function refreshPreview() {
         const itemId = String($item.val() || "");
         if (!itemId) {
           $preview.hide().empty();
+          setDisplayedPurple();
           return;
         }
         const it = actor.items.get(itemId);
@@ -347,32 +361,33 @@ export async function rollDesafio(actor, opts = {}) {
 
         $preview.show().html(renderEffectCard(effectKey));
 
-        // se for +1 roxo, já mostra no contador (sem travar)
-        if (effectKey === "roxo") {
-          const cur = Number($val.val()) || 0;
-          if (cur < 1) $val.val("1");
-        }
+        // ✅ sempre recalcula total ao trocar item (entra/sai o +1 automático)
+        setDisplayedPurple();
       }
 
       $item.on("change", refreshPreview);
-      refreshPreview();
-
       html.find(".purple-minus").on("click", () => {
-        const cur = Number($val.val()) || 0;
-        $val.val(String(clampInt(cur - 1, 0, 10)));
+        manualPurple = clampInt(manualPurple - 1, 0, 10);
+        setDisplayedPurple();
       });
+
       html.find(".purple-plus").on("click", () => {
-        const cur = Number($val.val()) || 0;
-        $val.val(String(clampInt(cur + 1, 0, 10)));
+        manualPurple = clampInt(manualPurple + 1, 0, 10);
+        setDisplayedPurple();
       });
-    }, 
+
+      // inicializa
+      manualPurple = 0;
+      setDisplayedPurple();
+      refreshPreview();
+    },
   },
-  {
-    width: 620,
-    height: 635,
-    resizable: true,
-    classes: ["gambi-roll-desafio-dialog"]
-});
+    {
+      width: 620,
+      height: 635,
+      resizable: true,
+      classes: ["gambi-roll-desafio-dialog"]
+    });
 
   dlg.render(true);
 }
@@ -430,11 +445,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
     <div class="gambi-line">
       <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
       <div class="gambi-dice">${renderDiceLine(baseResults, target, { baseAttr: atributo, source: "base" })}</div>
-      ${
-        baseSuccessList
-          ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
-          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
-      }
+      ${baseSuccessList
+      ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
+      : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+    }
     </div>
   `;
 
@@ -443,11 +457,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
     <div class="gambi-line">
       <div class="gambi-line-title">🟣 Roxos (${roxos}d6)</div>
       <div class="gambi-dice">${renderDiceLine(roxoResults, target, { baseAttr: atributo, source: "roxo" })}</div>
-      ${
-        roxoSuccessList
-          ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
-          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
-      }
+      ${roxoSuccessList
+      ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
+      : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+    }
     </div>
   `
     : "";
@@ -478,11 +491,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
 
       <div class="gambi-chat-summary">
         <div><strong>Sucessos totais:</strong> ${successes}</div>
-        ${
-          allSuccessList
-            ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
-            : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
-        }
+        ${allSuccessList
+      ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
+      : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
+    }
         <div class="gambi-result"><strong>Resultado:</strong> ${resultadoTexto}</div>
       </div>
     </div>
