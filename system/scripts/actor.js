@@ -6,6 +6,14 @@
 // - Remove "reage a BUG" e toda UI/fluxo antigo de efeitos múltiplos/tags
 // - "Criar Item (em mesa)" agora usa radio buttons e só 4 efeitos definidos
 // - Diálogo de criar item: maior e redimensionável
+// scripts/actor.js
+// 0.6.2d
+//
+// v0.6.2d (Itens):
+// - Item tem 1 efeito travado (radio): reduzir | roxo | hackear | trocar
+// - Remove: efeitosPossiveis (tags), permitir, complicar, reageABug/efeitosBug
+// - Diálogo "Criar Item do Nó" maior + resizable
+// - Sheet do item e criação em mesa ficam consistentes com o Rolar Desafio
 
 /* =========================================================
  * PODERES — packs
@@ -50,6 +58,13 @@ const ITEMS_PACK_IDS = [
   "world.gambiarra-itens", // ✅ editável
   "gambiarra-sys6.gambiarra-itens", // fallback leitura
 ];
+
+const ITEM_EFFECT_LABEL = {
+  reduzir: "➖ Reduzir dificuldade",
+  roxo: "🟣 +1 dado roxo",
+  hackear: "🪢 Hackear o Nó (registro)",
+  trocar: "🔁 Trocar atributo (registro)",
+};
 
 export class GambiarraActor extends Actor {
   /* =========================================================
@@ -499,13 +514,15 @@ export class GambiarraActor extends Actor {
 
       cargasMax: tipoItem === "consumivel" ? chosen : 1,
       cargas: tipoItem === "consumivel" ? chosen : 1,
+
+      // ✅ v0.6.2d: efeito único
+      efeito: String(data.system?.efeito ?? "reduzir"),
     };
 
-    // ✅ fallback simples (se item antigo ainda tiver efeitosPossiveis)
-    // Preferimos o novo campo system.efeito (string única).
-    if (!data.system.efeito) {
-      data.system.efeito = "reduzir";
-    }
+    // remove lixo antigo (se vier de algum pack antigo)
+    delete data.system?.efeitosPossiveis;
+    delete data.system?.reageABug;
+    delete data.system?.efeitosBug;
 
     await this.createEmbeddedDocuments("Item", [data]);
     return data;
@@ -548,12 +565,13 @@ export class GambiarraActor extends Actor {
         doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1,
       );
 
+      const efeito = String(doc?.system?.efeito ?? "reduzir");
+      const effLabel = ITEM_EFFECT_LABEL[efeito] ?? ITEM_EFFECT_LABEL.reduzir;
+
       if (tipo === "consumivel") {
-        return `${e.name} — 🔸 Consumível (${padrao} carga${
-          padrao > 1 ? "s" : ""
-        })`;
+        return `${e.name} — 🔸 Consumível (${padrao} carga${padrao > 1 ? "s" : ""}) — ${effLabel}`;
       }
-      return `${e.name} — 🔹 Relíquia`;
+      return `${e.name} — 🔹 Relíquia — ${effLabel}`;
     };
 
     const firstAvailableId = (() => {
@@ -586,9 +604,10 @@ export class GambiarraActor extends Actor {
       })
       .join("");
 
-    const dlg = new Dialog({
-      title: "🎒 Adicionar Item do Compêndio",
-      content: `
+    const dlg = new Dialog(
+      {
+        title: "🎒 Adicionar Item do Compêndio",
+        content: `
       <form class="gambiarra-pick-item">
         <p>Escolha um item do compêndio:</p>
 
@@ -621,67 +640,71 @@ export class GambiarraActor extends Actor {
         </div>
       </form>
     `,
-      buttons: {
-        ok: {
-          label: "Adicionar à ficha",
-          callback: async (html) => {
-            const id = html.find('[name="itemId"]').val();
-            if (!id) return;
+        buttons: {
+          ok: {
+            label: "Adicionar à ficha",
+            callback: async (html) => {
+              const id = html.find('[name="itemId"]').val();
+              if (!id) return;
 
-            const doc = docsById.get(id);
-            const sourceId = doc?.uuid ?? null;
-            const name = doc?.name ?? "";
+              const doc = docsById.get(id);
+              const sourceId = doc?.uuid ?? null;
+              const name = doc?.name ?? "";
 
-            if (this._hasDuplicateItem({ sourceId, name })) {
-              ui.notifications.warn(`Este item já está na ficha: ${name}`);
-              return;
-            }
+              if (this._hasDuplicateItem({ sourceId, name })) {
+                ui.notifications.warn(`Este item já está na ficha: ${name}`);
+                return;
+              }
 
-            const tipo = String(doc?.system?.tipoItem ?? "reliquia");
-            const cargasMax =
-              tipo === "consumivel"
-                ? this._clamp13(html.find('[name="cargasMax"]').val())
-                : 1;
+              const tipo = String(doc?.system?.tipoItem ?? "reliquia");
+              const cargasMax =
+                tipo === "consumivel"
+                  ? this._clamp13(html.find('[name="cargasMax"]').val())
+                  : 1;
 
-            await this._importItemToActor(pack, id, {
-              overrideCargasMax: cargasMax,
-            });
+              await this._importItemToActor(pack, id, {
+                overrideCargasMax: cargasMax,
+              });
+            },
           },
         },
+        default: "ok",
+        render: (html) => {
+          const $select = html.find('[name="itemId"]');
+          const $preview = html.find(".item-preview");
+          const $type = html.find(".item-type");
+          const $cargas = html.find('[name="cargasMax"]');
+
+          const refresh = async () => {
+            const id = $select.val();
+            const doc = docsById.get(id);
+
+            const desc = String(doc?.system?.descricao ?? "").trim();
+            const tipo = String(doc?.system?.tipoItem ?? "reliquia");
+            const padrao = this._clamp13(
+              doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1,
+            );
+
+            $preview.text(desc || "(Sem descrição)");
+            $type.text(mkTipoBadge(doc));
+
+            if (tipo === "consumivel") {
+              $cargas.prop("disabled", false);
+              $cargas.val(String(padrao));
+            } else {
+              $cargas.prop("disabled", true);
+              $cargas.val("1");
+            }
+          };
+
+          $select
+            .off("change.gambiItemPick")
+            .on("change.gambiItemPick", refresh);
+          refresh();
+        },
       },
-      default: "ok",
-      render: (html) => {
-        const $select = html.find('[name="itemId"]');
-        const $preview = html.find(".item-preview");
-        const $type = html.find(".item-type");
-        const $cargas = html.find('[name="cargasMax"]');
-
-        const refresh = async () => {
-          const id = $select.val();
-          const doc = docsById.get(id);
-
-          const desc = String(doc?.system?.descricao ?? "").trim();
-          const tipo = String(doc?.system?.tipoItem ?? "reliquia");
-          const padrao = this._clamp13(
-            doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1,
-          );
-
-          $preview.text(desc || "(Sem descrição)");
-          $type.text(mkTipoBadge(doc));
-
-          if (tipo === "consumivel") {
-            $cargas.prop("disabled", false);
-            $cargas.val(String(padrao));
-          } else {
-            $cargas.prop("disabled", true);
-            $cargas.val("1");
-          }
-        };
-
-        $select.off("change.gambiItemPick").on("change.gambiItemPick", refresh);
-        refresh();
-      },
-    });
+      { width: 520, height: 640, resizable: true },
+    );
 
     dlg.render(true);
   }
@@ -689,8 +712,8 @@ export class GambiarraActor extends Actor {
   /* =========================================================
    * ✅ Criar Item em mesa (v0.6.2d)
    * - Efeito único (radio)
-   * - Remove Reage a BUG / tags / complicação narrativa
-   * - Diálogo maior + resizable
+   * - Remove tags/BUG/complicação/permitir
+   * - Dialog maior + resizable
    * ========================================================= */
 
   async _criarItemNoCompendioOuFicha() {
@@ -707,8 +730,8 @@ export class GambiarraActor extends Actor {
     const content = `
       <form class="gambiarra-create-item">
         <p class="hint">
-          Crie um item junto com o grupo. O item tem <strong>um efeito travado</strong>.
-          Alguns efeitos são mecânicos (afetam a rolagem) e outros são apenas registro no chat.
+          Crie um item junto com o grupo. O item tem <strong>um efeito travado</strong>
+          e ele será registrado no chat quando for usado no <strong>Rolar Desafio</strong>.
         </p>
 
         <div class="form-group">
@@ -747,7 +770,7 @@ export class GambiarraActor extends Actor {
             <option value="3">3</option>
           </select>
           <p class="hint" style="margin-top:6px;">
-            Quando chegar a 0: o item vira “usado/sem carga” (e o Nó absorve na história).
+            Quando chegar a 0: o item vira “usado/sem carga” e o Nó absorve no chat.
           </p>
         </div>
 
@@ -756,30 +779,34 @@ export class GambiarraActor extends Actor {
         <div class="form-group">
           <label>Efeito</label>
 
-          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
-            <input type="radio" name="efeito" value="reduzir" checked />
-            ➖ Reduzir dificuldade (mecânico)
-          </label>
+          <div class="gambi-radios" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+              <input type="radio" name="efeito" value="reduzir" checked />
+              ➖ Reduzir dificuldade (mecânico)
+            </label>
 
-          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
-            <input type="radio" name="efeito" value="roxo" />
-            🟣 +1 dado roxo (mecânico)
-          </label>
+            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+              <input type="radio" name="efeito" value="roxo" />
+              🟣 +1 dado roxo (mecânico)
+            </label>
 
-          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
-            <input type="radio" name="efeito" value="hackear" />
-            🪢 Hackear o Nó (registro; sem efeito mecânico)
-          </label>
+            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+              <input type="radio" name="efeito" value="hackear" />
+              🪢 Hackear o Nó (registro)
+            </label>
 
-          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
-            <input type="radio" name="efeito" value="trocar" />
-            🔁 Trocar atributo do desafio (registro; sem efeito mecânico)
-          </label>
+            <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
+              <input type="radio" name="efeito" value="trocar" />
+              🔁 Trocar atributo (registro)
+            </label>
+          </div>
 
           <p class="hint" style="margin-top:8px;">
-            Itens têm apenas 1 efeito. “Hackear” e “Trocar” aparecem como aviso na UI e no chat.
+            “Hackear o Nó” e “Trocar atributo” ficam em destaque no diálogo e viram <strong>Notas</strong> no chat (sem efeito mecânico por enquanto).
           </p>
         </div>
+
+        <hr/>
 
         ${
           canWritePack
@@ -801,14 +828,12 @@ export class GambiarraActor extends Actor {
         html.find('[name="tipoItem"]').val() ?? "reliquia",
       ).trim();
 
+      const efeito = String(html.find('input[name="efeito"]:checked').val() ?? "reduzir").trim();
+
       const cargasMax =
         tipoItem === "consumivel"
           ? this._clamp13(html.find('[name="cargasMax"]').val() ?? 1)
           : 1;
-
-      const efeito = String(
-        html.find('input[name="efeito"]:checked').val() ?? "reduzir",
-      ).trim();
 
       if (!nome) {
         ui.notifications.warn("Dê um nome para o Item.");
@@ -819,8 +844,9 @@ export class GambiarraActor extends Actor {
         return null;
       }
 
-      const allowed = new Set(["reduzir", "roxo", "hackear", "trocar"]);
-      const efeitoSafe = allowed.has(efeito) ? efeito : "reduzir";
+      const effSafe = ["reduzir", "roxo", "hackear", "trocar"].includes(efeito)
+        ? efeito
+        : "reduzir";
 
       return {
         name: nome,
@@ -833,13 +859,9 @@ export class GambiarraActor extends Actor {
           cargas: tipoItem === "consumivel" ? cargasMax : 1,
           usado: false,
           descricao,
-          efeito: efeitoSafe,
+          efeito: effSafe,
 
-          // compat: remove campos antigos se existirem
-          efeitosPossiveis: undefined,
-          reageABug: undefined,
-          efeitosBug: undefined,
-
+          // corrupção (mantido)
           corrompido: false,
           corrupcoes: [],
         },
@@ -913,15 +935,14 @@ export class GambiarraActor extends Actor {
             else $cons.hide();
           };
 
-          $tipo.off("change.gambiConsumivel").on("change.gambiConsumivel", sync);
+          $tipo
+            .off("change.gambiConsumivel")
+            .on("change.gambiConsumivel", sync);
           sync();
         },
       },
-      {
-        width: 520,
-        height: 720,
-        resizable: true,
-      },
+      // ✅ maior + resize com mouse
+      { width: 520, height: 720, resizable: true },
     );
 
     dlg.render(true);

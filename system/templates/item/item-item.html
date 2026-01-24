@@ -1,4 +1,4 @@
-{{!-- templates/item/item-item.html v0.6.2c --}}
+{{!-- templates/item/item-item.html v0.6.2d --}}
 <form class="item-sheet" autocomplete="off">
   <header class="sheet-header">
     <h1>
@@ -34,39 +34,29 @@
     <hr/>
 
     <div class="form-group">
-      <label>Efeitos possíveis (referência)</label>
+      <label>Efeito</label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="shift-dificuldade"
-          {{checked (includes system.efeitosPossiveis "shift-dificuldade")}} />
-        ➖ Reduzir dificuldade (1 passo)
+        <input type="radio" name="system.efeito" value="reduzir" {{#if (eq system.efeito "reduzir")}}checked{{/if}} />
+        ➖ Reduzir dificuldade (mecânico)
       </label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="add-dado"
-          {{checked (includes system.efeitosPossiveis "add-dado")}} />
-        🎲 +1 dado na rolagem (recomendado: roxo)
+        <input type="radio" name="system.efeito" value="roxo" {{#if (eq system.efeito "roxo")}}checked{{/if}} />
+        🟣 +1 dado roxo (mecânico)
       </label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="suavizar-bug"
-          {{checked (includes system.efeitosPossiveis "suavizar-bug")}} />
-        🐞 Suavizar / anular BUG (narrativo)
+        <input type="radio" name="system.efeito" value="hackear" {{#if (eq system.efeito "hackear")}}checked{{/if}} />
+        🪢 Hackear o Nó (registro)
       </label>
 
       <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="permitir-impossivel"
-          {{checked (includes system.efeitosPossiveis "permitir-impossivel")}} />
-        🧩 Permitir tentar algo “impossível”
+        <input type="radio" name="system.efeito" value="trocar" {{#if (eq system.efeito "trocar")}}checked{{/if}} />
+        🔁 Trocar atributo (registro)
       </label>
 
-      <label class="checkbox">
-        <input type="checkbox" name="system.efeitosPossiveis" value="swap-atributo"
-          {{checked (includes system.efeitosPossiveis "swap-atributo")}} />
-        🔁 Trocar atributo do desafio
-      </label>
-
-      <p class="hint">São “tags” para sugerir automações leves na rolagem.</p>
+      <p class="hint">“Hackear o Nó” e “Trocar atributo” são informativos (UI + chat) por enquanto.</p>
     </div>
 
     <hr/>
@@ -118,15 +108,5 @@
         <p class="hint">🔹 Relíquias não usam cargas.</p>
       </div>
     {{/if}}
-
-    <hr/>
-
-    <div class="form-group">
-      <label>Reage a BUG</label>
-      <label class="checkbox">
-        <input type="checkbox" name="system.reageABug" {{checked system.reageABug}} />
-        🐞 Mostra “Usar no BUG” na ficha
-      </label>
-    </div>
   </section>
 </form>

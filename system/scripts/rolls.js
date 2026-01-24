@@ -1,8 +1,9 @@
 /**
- * GAMBIARRA.SYS6 — Rolagens (v0.6.2c)
+ * GAMBIARRA.SYS6 — Rolagens (v0.6.2d)
  * - Pool = valor do atributo
  * - Dificuldade = required + target
- * - Dados Roxos = bônus (item pendente / diálogo)
+ * - Dados Roxos = bônus (item + manual)
+ * - Itens: 1 efeito travado (reduzir | roxo | hackear | trocar)
  * - Integração Dice So Nice (se instalado)
  *
  * Presets:
@@ -26,10 +27,26 @@ const ATTR_LABEL = {
 const DIFF_ORDER = ["normal", "complexo", "bug", "epico", "impossivel"];
 
 const ITEM_EFFECT = {
-  reduzir: { icon: "➖", title: "Reduzir a dificuldade", note: "➖ Item reduziu a dificuldade em 1 passo (se possível)." },
-  dado: { icon: "🟣", title: "Aumentar 1 dado roxo", note: "🟣 Item adicionou +1 dado roxo neste teste." },
-  trocar: { icon: "🔁", title: "Trocar atributo do desafio (narrativo)", note: "🔁 Trocar atributo do desafio (narrativo; sem efeito mecânico)." },
-  hackear: { icon: "🧠", title: "Hackear o Nó (registro)", note: "🧠 Hackear o Nó (registro; sem efeito mecânico)." },
+  reduzir: {
+    icon: "➖",
+    title: "Reduzir a dificuldade",
+    note: "➖ Item reduziu a dificuldade em 1 passo (se possível).",
+  },
+  roxo: {
+    icon: "🟣",
+    title: "Aumentar 1 dado roxo",
+    note: "🟣 Item adicionou +1 dado roxo neste teste.",
+  },
+  trocar: {
+    icon: "🔁",
+    title: "Trocar atributo do desafio (registro)",
+    note: "🔁 Trocar atributo do desafio (registro; sem efeito mecânico).",
+  },
+  hackear: {
+    icon: "🪢",
+    title: "Hackear o Nó (registro)",
+    note: "🪢 Hackear o Nó (registro; sem efeito mecânico).",
+  },
 };
 
 function clampInt(n, min, max) {
@@ -106,10 +123,27 @@ function getUsableItems(actor) {
     });
 }
 
+function normalizeEffectKey(it) {
+  // v0.6.2d: usa system.efeito
+  const eff = String(it?.system?.efeito ?? "").trim();
+  if (ITEM_EFFECT[eff]) return eff;
+
+  // fallback leve (para itens antigos que ainda tenham efeitosPossiveis):
+  const tags = it?.system?.efeitosPossiveis;
+  if (Array.isArray(tags)) {
+    if (tags.includes("add-dado") || tags.includes("dado")) return "roxo";
+    if (tags.includes("swap-atributo") || tags.includes("trocar")) return "trocar";
+    if (tags.includes("suavizar-bug") || tags.includes("hackear")) return "hackear";
+    if (tags.includes("shift-dificuldade") || tags.includes("reduzir")) return "reduzir";
+  }
+
+  return "reduzir";
+}
+
 function itemOptionLabel(it) {
   const tipo = it.system?.tipoItem ?? "reliquia";
   const badge = tipo === "consumivel" ? "🔸" : "🔹";
-  const ef = String(it.system?.efeito ?? "reduzir");
+  const ef = normalizeEffectKey(it);
   const e = ITEM_EFFECT[ef] ?? ITEM_EFFECT.reduzir;
   return `${badge} ${it.name} — ${e.icon} ${e.title}`;
 }
@@ -120,11 +154,13 @@ function renderEffectCard(effectKey) {
     <div class="gambi-effect-card" style="border:1px solid #0002; border-radius:14px; padding:10px 12px; background: rgba(0,0,0,0.02);">
       <div><strong>Efeito do item:</strong> <span style="margin-left:6px;">${e.icon} ${e.title}</span></div>
       <div class="hint" style="margin-top:4px;">
-        ${effectKey === "reduzir"
-          ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
-          : effectKey === "dado"
-            ? "Adiciona +1 dado roxo neste teste."
-            : "Só registra como nota (sem impacto mecânico)."}
+        ${
+          effectKey === "reduzir"
+            ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
+            : effectKey === "roxo"
+              ? "Adiciona +1 dado roxo neste teste."
+              : "Só registra como nota (sem impacto mecânico)."
+        }
       </div>
     </div>
   `;
@@ -221,12 +257,12 @@ export async function rollDesafio(actor, opts = {}) {
           const itemId = String(html.find('[name="sceneItem"]').val() || "");
           const item = itemId ? actor.items.get(itemId) : null;
 
-          const effectKey = item ? String(item.system?.efeito ?? "reduzir") : null;
+          const effectKey = item ? normalizeEffectKey(item) : null;
           const e = effectKey ? (ITEM_EFFECT[effectKey] ?? ITEM_EFFECT.reduzir) : null;
 
           // aplica mecânicas do item
           let roxos = clampPurple(purpleManual);
-          if (effectKey === "dado") roxos = clampPurple(roxos + 1);
+          if (effectKey === "roxo") roxos = clampPurple(roxos + 1);
 
           if (effectKey === "reduzir") {
             if (diffKey === "normal") {
@@ -262,7 +298,9 @@ export async function rollDesafio(actor, opts = {}) {
           // consumir carga (se consumível)
           if (item && String(item.system?.tipoItem ?? "reliquia") === "consumivel") {
             if (!actor.isOwner) {
-              ui.notifications.warn("Sem permissão de dono: o consumível não pôde gastar carga (mas ficou registrado no chat).");
+              ui.notifications.warn(
+                "Sem permissão de dono: o consumível não pôde gastar carga (mas ficou registrado no chat).",
+              );
               return;
             }
 
@@ -305,12 +343,12 @@ export async function rollDesafio(actor, opts = {}) {
           return;
         }
         const it = actor.items.get(itemId);
-        const effectKey = String(it?.system?.efeito ?? "reduzir");
+        const effectKey = normalizeEffectKey(it);
 
         $preview.show().html(renderEffectCard(effectKey));
 
-        // se for +1 roxo, já mostra no contador (sem travar — ainda dá pra somar mais manualmente)
-        if (effectKey === "dado") {
+        // se for +1 roxo, já mostra no contador (sem travar)
+        if (effectKey === "roxo") {
           const cur = Number($val.val()) || 0;
           if (cur < 1) $val.val("1");
         }

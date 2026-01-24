@@ -1,12 +1,14 @@
-// scripts/item-sheet.js v(0.6.2d)
-// (sem mudanças funcionais aqui; o template do item foi atualizado)
+// scripts/item-sheet.js
+// v0.6.2d
+//
+// Ajuste leve: height um pouco maior para caber rádios + cargas com folga.
 
 export class GambiarraItemSheet extends ItemSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["gambiarra", "sheet", "item"],
       width: 460,
-      height: 520,
+      height: 600,
     });
   }
 
