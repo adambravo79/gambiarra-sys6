@@ -1,4 +1,4 @@
-// scripts/actor-sheet.js v0.6.2b
+// scripts/actor-sheet.js v0.6.2c
 
 import { rollDesafio } from "./rolls.js";
 
@@ -165,33 +165,6 @@ export class GambiarraActorSheet extends ActorSheet {
         await this.actor._despertarPoder({ sortear: false });
       });
 
-    // ✅ ITENS — usar cena / bug (qualquer jogador pode clicar; o item é embedded e update exige owner)
-    html
-      .find(".use-item-scene")
-      .off("click")
-      .on("click", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (!guardAttrOk()) return;
-
-        const itemId = ev.currentTarget.dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (item?.usarNaCena) item.usarNaCena(this.actor);
-      });
-
-    html
-      .find(".use-item-bug")
-      .off("click")
-      .on("click", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (!guardAttrOk()) return;
-
-        const itemId = ev.currentTarget.dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (item?.usarContraBug) item.usarContraBug(this.actor);
-      });
-
     // ✅ Adicionar item: dono da ficha também pode
     html
       .find(".add-item")
@@ -294,7 +267,7 @@ export class GambiarraActorSheet extends ActorSheet {
 
       html
         .find(
-          ".roll-desafio, .add-power, .roll-power, .create-power, .add-item, .create-item, .use-item-scene, .use-item-bug, .remove-item, .add-effect, .bug-effect",
+          ".roll-desafio, .add-power, .roll-power, .create-power, .add-item, .create-item, .remove-item, .add-effect, .bug-effect",
         )
         .prop("disabled", disable);
 

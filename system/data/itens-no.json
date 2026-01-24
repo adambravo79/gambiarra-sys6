@@ -6,12 +6,11 @@
     "system": {
       "categoria": "direcao",
       "tipoItem": "reliquia",
+      "efeito": "hackear",
       "cargas": 1,
+      "cargasMax": 3,
       "usado": false,
-      "descricao": "Aponta para algo importante, não para o norte.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar", "transformar"]
+      "descricao": "Aponta para algo importante, não para o norte."
     }
   },
   {
@@ -21,12 +20,10 @@
     "system": {
       "categoria": "direcao",
       "tipoItem": "reliquia",
+      "efeito": "trocar",
       "cargas": 1,
       "usado": false,
-      "descricao": "Se reorganiza conforme as escolhas do grupo.",
-      "efeitosPossiveis": ["reduzir", "trocar", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["transformar", "dado"]
+      "descricao": "Se reorganiza conforme as escolhas do grupo."
     }
   },
   {
@@ -36,28 +33,24 @@
     "system": {
       "categoria": "direcao",
       "tipoItem": "reliquia",
+      "efeito": "hackear",
       "cargas": 1,
       "usado": false,
-      "descricao": "Enxerga lugares inacessíveis e detalhes que ninguém alcança.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": false,
-      "efeitosBug": []
+      "descricao": "Enxerga lugares inacessíveis e detalhes que ninguém alcança."
     }
   },
 
   {
-    "name": "Chave Universal (Quase)",
+    "name": "Chave (Quase) Universal",
     "type": "item",
     "img": "icons/tools/hand/wrench.webp",
     "system": {
       "categoria": "gambiarra",
       "tipoItem": "reliquia",
+      "efeito": "hackear",
       "cargas": 1,
       "usado": false,
-      "descricao": "Abre quase tudo… mas nunca do jeito esperado.",
-      "efeitosPossiveis": ["permitir", "complicar"],
-      "reageABug": true,
-      "efeitosBug": ["transformar"]
+      "descricao": "Abre quase tudo… mas nunca do jeito esperado."
     }
   },
   {
@@ -67,12 +60,11 @@
     "system": {
       "categoria": "gambiarra",
       "tipoItem": "consumivel",
-      "cargas": 1,
+      "efeito": "dado",
+      "cargasMax": 3,
+      "cargas": 2,
       "usado": false,
-      "descricao": "Gruda qualquer coisa por alguns minutos.",
-      "efeitosPossiveis": ["dado", "reduzir"],
-      "reageABug": false,
-      "efeitosBug": []
+      "descricao": "Gruda qualquer coisa por alguns minutos."
     }
   },
   {
@@ -82,12 +74,11 @@
     "system": {
       "categoria": "gambiarra",
       "tipoItem": "consumivel",
+      "efeito": "hackear",
+      "cargasMax": 1,
       "cargas": 1,
       "usado": false,
-      "descricao": "Faz algo quebrado funcionar só dessa vez.",
-      "efeitosPossiveis": ["permitir", "dado"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar", "anular"]
+      "descricao": "Faz algo quebrado funcionar só dessa vez."
     }
   },
 
@@ -98,12 +89,11 @@
     "system": {
       "categoria": "protecao",
       "tipoItem": "reliquia",
+      "efeito": "hackear",
       "cargas": 1,
+      "cargasMax": 3,
       "usado": false,
-      "descricao": "Reage a ameaças inesperadas.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar"]
+      "descricao": "Reage a ameaças inesperadas."
     }
   },
   {
@@ -113,12 +103,11 @@
     "system": {
       "categoria": "protecao",
       "tipoItem": "reliquia",
+      "efeito": "dado",
       "cargas": 1,
+      "cargasMax": 3,
       "usado": false,
-      "descricao": "Surge quando alguém protege outra pessoa.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["anular"]
+      "descricao": "Surge quando alguém protege outra pessoa."
     }
   },
   {
@@ -128,12 +117,11 @@
     "system": {
       "categoria": "protecao",
       "tipoItem": "reliquia",
+      "efeito": "reduzir",
       "cargas": 1,
+      "cargasMax": 3,
       "usado": false,
-      "descricao": "Impedem quedas em superfícies estranhas.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": false,
-      "efeitosBug": []
+      "descricao": "Impedem quedas em superfícies estranhas."
     }
   },
 
@@ -144,12 +132,10 @@
     "system": {
       "categoria": "estranho",
       "tipoItem": "reliquia",
+      "efeito": "hackear",
       "cargas": 1,
       "usado": false,
-      "descricao": "Pode guardar qualquer coisa… inclusive ideias.",
-      "efeitosPossiveis": ["permitir", "complicar"],
-      "reageABug": true,
-      "efeitosBug": ["transformar"]
+      "descricao": "Pode guardar qualquer coisa… inclusive ideias."
     }
   },
   {
@@ -159,12 +145,11 @@
     "system": {
       "categoria": "estranho",
       "tipoItem": "reliquia",
+      "efeito": "hackear",
       "cargas": 1,
+      "cargasMax":3,
       "usado": false,
-      "descricao": "Reage quando o tempo se comporta mal.",
-      "efeitosPossiveis": ["reduzir", "permitir", "trocar"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar", "transformar"]
+      "descricao": "Reage quando o tempo se comporta mal."
     }
   },
   {
@@ -174,12 +159,10 @@
     "system": {
       "categoria": "estranho",
       "tipoItem": "reliquia",
+      "efeito": "trocar",
       "cargas": 1,
       "usado": false,
-      "descricao": "Dá dicas confusas, mas nunca mente.",
-      "efeitosPossiveis": ["reduzir", "trocar"],
-      "reageABug": false,
-      "efeitosBug": []
+      "descricao": "Dá dicas confusas, mas nunca mente."
     }
   }
 ]

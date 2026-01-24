@@ -1,4 +1,4 @@
-{{!-- templates/actor-character.html v0.6.2b --}}
+{{!-- templates/actor-character.html v0.6.2c --}}
 
 <form class="gambiarra-sheet" autocomplete="off">
   <header class="sheet-header">
@@ -151,16 +151,6 @@
         </div>
 
         <div class="gambi-item-actions">
-          <button type="button" class="use-item-scene" data-item-id="{{item.id}}" {{#if item.system.usado}}disabled{{/if}}>
-            🎒 Usar
-          </button>
-
-          {{#if item.system.reageABug}}
-          <button type="button" class="use-item-bug" data-item-id="{{item.id}}" {{#if item.system.usado}}disabled{{/if}}>
-            🐞 Usar no BUG
-          </button>
-          {{/if}}
-
           <button type="button" class="remove-item" data-item-id="{{item.id}}">
             🗑️ Remover
           </button>

@@ -1,4 +1,5 @@
-// scripts/item-sheet.js v(0.6.2)
+// scripts/item-sheet.js v(0.6.2d)
+// (sem mudanças funcionais aqui; o template do item foi atualizado)
 
 export class GambiarraItemSheet extends ItemSheet {
   static get defaultOptions() {

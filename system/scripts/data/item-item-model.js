@@ -1,8 +1,7 @@
-// scripts/data/item-item-model.js (v0.6.2)
-// - adiciona cargasMax (default 3)
-// - clampa cargas 0..cargasMax
-// - se tipoItem = reliquia: força cargas=1, usado=false
-// - se tipoItem = consumivel: garante cargasMax 1..3 e cargas >=1 ao criar (quando não usado)
+// scripts/data/item-item-model.js (v0.6.2d)
+// - efeito único (radio) em system.efeito
+// - remove reageABug/efeitosBug/efeitosPossiveis
+// - mantém cargasMax/cargas/usado
 
 export class GambiarraItemModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -14,40 +13,20 @@ export class GambiarraItemModel extends foundry.abstract.TypeDataModel {
     });
 
     return {
-      // direcao | gambiarra | protecao | estranho
-      categoria: new f.StringField({ initial: "gambiarra" }),
+      categoria: new f.StringField({ initial: "gambiarra" }), // direcao|gambiarra|protecao|estranho
+      tipoItem: new f.StringField({ initial: "reliquia" }),   // reliquia|consumivel
 
-      // reliquia | consumivel
-      tipoItem: new f.StringField({ initial: "reliquia" }),
-
-      // ✅ máximo de cargas (só faz sentido em consumível)
-      cargasMax: new f.NumberField({
-        initial: 3,
-        integer: true,
-        min: 1,
-        max: 3,
-      }),
-
-      // cargas atuais
-      cargas: new f.NumberField({
-        initial: 1,
-        integer: true,
-        min: 0,
-        max: 3, // clamp final é no prepareBaseData (cargasMax)
-      }),
-
-      // consumível “recebido pelo Nó”: usado = true
+      cargasMax: new f.NumberField({ initial: 3, integer: true, min: 1, max: 3 }),
+      cargas: new f.NumberField({ initial: 1, integer: true, min: 0, max: 3 }),
       usado: new f.BooleanField({ initial: false }),
 
-      // texto principal do item
       descricao: new f.StringField({ initial: "" }),
 
-      // tags/efeitos (referência)
-      efeitosPossiveis: new f.ArrayField(new f.StringField({ initial: "" }), {
-        initial: [],
+      // ✅ NOVO: efeito único (apenas 1)
+      efeito: new f.StringField({
+        initial: "reduzir",
+        choices: ["reduzir", "roxo", "hackear", "trocar"],
       }),
-
-      reageABug: new f.BooleanField({ initial: false }),
 
       // corrupção (mantido)
       corrompido: new f.BooleanField({ initial: false }),
@@ -55,7 +34,6 @@ export class GambiarraItemModel extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /** Clamps e coerência entre campos */
   prepareBaseData() {
     const tipo = String(this.tipoItem ?? "reliquia");
     const usado = Boolean(this.usado);
@@ -64,24 +42,22 @@ export class GambiarraItemModel extends foundry.abstract.TypeDataModel {
     const max = Math.max(1, Math.min(3, Number(this.cargasMax ?? 3) || 3));
     this.cargasMax = max;
 
+    // normaliza efeito
+    const eff = String(this.efeito ?? "reduzir");
+    this.efeito = ["reduzir", "roxo", "hackear", "trocar"].includes(eff) ? eff : "reduzir";
+
     if (tipo === "reliquia") {
-      // relíquia não “gasta”
       this.cargas = 1;
       this.usado = false;
       return;
     }
 
-    // consumível
     let cargas = Number(this.cargas ?? 1);
     if (!Number.isFinite(cargas)) cargas = 1;
 
-    // clamp 0..max
     cargas = Math.max(0, Math.min(max, Math.trunc(cargas)));
 
-    // se não está usado, não deixa nascer “sem carga” por acidente
     if (!usado && cargas === 0) cargas = 1;
-
-    // coerência: se cargas = 0 => usado = true
     if (cargas === 0) this.usado = true;
 
     this.cargas = cargas;

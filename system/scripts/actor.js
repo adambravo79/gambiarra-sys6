@@ -1,5 +1,11 @@
 // scripts/actor.js
-// 0.6.1b
+// 0.6.2d
+//
+// Mudanças v0.6.2d (itens):
+// - Item tem 1 único efeito (system.efeito): reduzir | roxo | hackear | trocar
+// - Remove "reage a BUG" e toda UI/fluxo antigo de efeitos múltiplos/tags
+// - "Criar Item (em mesa)" agora usa radio buttons e só 4 efeitos definidos
+// - Diálogo de criar item: maior e redimensionável
 
 /* =========================================================
  * PODERES — packs
@@ -472,8 +478,12 @@ export class GambiarraActor extends Actor {
     }
 
     const tipoItem = String(doc.system?.tipoItem ?? "reliquia").trim();
-    const cargasPadrao = this._clamp13(doc.system?.cargasMax ?? doc.system?.cargas ?? 1);
-    const chosen = overrideCargasMax ? this._clamp13(overrideCargasMax) : cargasPadrao;
+    const cargasPadrao = this._clamp13(
+      doc.system?.cargasMax ?? doc.system?.cargas ?? 1,
+    );
+    const chosen = overrideCargasMax
+      ? this._clamp13(overrideCargasMax)
+      : cargasPadrao;
 
     const data = doc.toObject();
     delete data._id;
@@ -490,6 +500,12 @@ export class GambiarraActor extends Actor {
       cargasMax: tipoItem === "consumivel" ? chosen : 1,
       cargas: tipoItem === "consumivel" ? chosen : 1,
     };
+
+    // ✅ fallback simples (se item antigo ainda tiver efeitosPossiveis)
+    // Preferimos o novo campo system.efeito (string única).
+    if (!data.system.efeito) {
+      data.system.efeito = "reduzir";
+    }
 
     await this.createEmbeddedDocuments("Item", [data]);
     return data;
@@ -528,10 +544,14 @@ export class GambiarraActor extends Actor {
     const mkOptionLabel = (e) => {
       const doc = docsById.get(e.id);
       const tipo = String(doc?.system?.tipoItem ?? "reliquia");
-      const padrao = this._clamp13(doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1);
+      const padrao = this._clamp13(
+        doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1,
+      );
 
       if (tipo === "consumivel") {
-        return `${e.name} — 🔸 Consumível (${padrao} carga${padrao > 1 ? "s" : ""})`;
+        return `${e.name} — 🔸 Consumível (${padrao} carga${
+          padrao > 1 ? "s" : ""
+        })`;
       }
       return `${e.name} — 🔹 Relíquia`;
     };
@@ -556,7 +576,9 @@ export class GambiarraActor extends Actor {
           name: doc?.name ?? e.name,
         });
 
-        const label = dup ? `${mkOptionLabel(e)} (já na ficha)` : mkOptionLabel(e);
+        const label = dup
+          ? `${mkOptionLabel(e)} (já na ficha)`
+          : mkOptionLabel(e);
         const dis = dup ? "disabled" : "";
         const sel = e.id === firstAvailableId ? "selected" : "";
 
@@ -621,7 +643,9 @@ export class GambiarraActor extends Actor {
                 ? this._clamp13(html.find('[name="cargasMax"]').val())
                 : 1;
 
-            await this._importItemToActor(pack, id, { overrideCargasMax: cargasMax });
+            await this._importItemToActor(pack, id, {
+              overrideCargasMax: cargasMax,
+            });
           },
         },
       },
@@ -638,7 +662,9 @@ export class GambiarraActor extends Actor {
 
           const desc = String(doc?.system?.descricao ?? "").trim();
           const tipo = String(doc?.system?.tipoItem ?? "reliquia");
-          const padrao = this._clamp13(doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1);
+          const padrao = this._clamp13(
+            doc?.system?.cargasMax ?? doc?.system?.cargas ?? 1,
+          );
 
           $preview.text(desc || "(Sem descrição)");
           $type.text(mkTipoBadge(doc));
@@ -661,7 +687,10 @@ export class GambiarraActor extends Actor {
   }
 
   /* =========================================================
-   * ✅ Criar Item em mesa (seu código original — mantido)
+   * ✅ Criar Item em mesa (v0.6.2d)
+   * - Efeito único (radio)
+   * - Remove Reage a BUG / tags / complicação narrativa
+   * - Diálogo maior + resizable
    * ========================================================= */
 
   async _criarItemNoCompendioOuFicha() {
@@ -678,7 +707,8 @@ export class GambiarraActor extends Actor {
     const content = `
       <form class="gambiarra-create-item">
         <p class="hint">
-          Crie um item junto com o grupo. Itens não dão bônus fixos: eles mudam o contexto da cena.
+          Crie um item junto com o grupo. O item tem <strong>um efeito travado</strong>.
+          Alguns efeitos são mecânicos (afetam a rolagem) e outros são apenas registro no chat.
         </p>
 
         <div class="form-group">
@@ -717,50 +747,38 @@ export class GambiarraActor extends Actor {
             <option value="3">3</option>
           </select>
           <p class="hint" style="margin-top:6px;">
-            Quando chegar a 0: o item vira “usado/sem carga”.
+            Quando chegar a 0: o item vira “usado/sem carga” (e o Nó absorve na história).
           </p>
         </div>
-        <hr/>
-
-        <div class="form-group">
-          <label>Efeitos possíveis (referência)</label>
-
-          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" name="efeitos" value="reduzir" />
-            ➖ Reduzir dificuldade (1 passo)
-          </label>
-
-          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" name="efeitos" value="dado" />
-            🎲 +1 dado (vira 🟣)
-          </label>
-
-          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" name="efeitos" value="permitir" />
-            🧩 Permitir a tentativa
-          </label>
-
-          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" name="efeitos" value="trocar" />
-            🔁 Trocar atributo do desafio
-          </label>
-
-          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" name="efeitos" value="complicar" />
-            🌀 Criar complicação narrativa
-          </label>
-
-          <p class="hint">Esses efeitos são “tags” para sugerir automações leves no diálogo de rolagem.</p>
-        </div>
 
         <hr/>
 
         <div class="form-group">
-          <label class="checkbox" style="display:flex; gap:6px; align-items:center;">
-            <input type="checkbox" name="reageABug" />
-            🐞 Reage a BUG
+          <label>Efeito</label>
+
+          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+            <input type="radio" name="efeito" value="reduzir" checked />
+            ➖ Reduzir dificuldade (mecânico)
           </label>
-          <p class="hint">Se marcar, o item aparece com “Usar no BUG”.</p>
+
+          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+            <input type="radio" name="efeito" value="roxo" />
+            🟣 +1 dado roxo (mecânico)
+          </label>
+
+          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+            <input type="radio" name="efeito" value="hackear" />
+            🪢 Hackear o Nó (registro; sem efeito mecânico)
+          </label>
+
+          <label class="radio" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+            <input type="radio" name="efeito" value="trocar" />
+            🔁 Trocar atributo do desafio (registro; sem efeito mecânico)
+          </label>
+
+          <p class="hint" style="margin-top:8px;">
+            Itens têm apenas 1 efeito. “Hackear” e “Trocar” aparecem como aviso na UI e no chat.
+          </p>
         </div>
 
         ${
@@ -783,19 +801,14 @@ export class GambiarraActor extends Actor {
         html.find('[name="tipoItem"]').val() ?? "reliquia",
       ).trim();
 
-      const reageABug = Boolean(
-        html.find('[name="reageABug"]').prop("checked"),
-      );
-
       const cargasMax =
         tipoItem === "consumivel"
           ? this._clamp13(html.find('[name="cargasMax"]').val() ?? 1)
           : 1;
 
-      const efeitos = html
-        .find('input[name="efeitos"]:checked')
-        .map((_, el) => el.value)
-        .get();
+      const efeito = String(
+        html.find('input[name="efeito"]:checked').val() ?? "reduzir",
+      ).trim();
 
       if (!nome) {
         ui.notifications.warn("Dê um nome para o Item.");
@@ -805,6 +818,9 @@ export class GambiarraActor extends Actor {
         ui.notifications.warn("Escreva uma descrição curta do item.");
         return null;
       }
+
+      const allowed = new Set(["reduzir", "roxo", "hackear", "trocar"]);
+      const efeitoSafe = allowed.has(efeito) ? efeito : "reduzir";
 
       return {
         name: nome,
@@ -817,83 +833,97 @@ export class GambiarraActor extends Actor {
           cargas: tipoItem === "consumivel" ? cargasMax : 1,
           usado: false,
           descricao,
-          efeitosPossiveis: efeitos,
-          reageABug,
+          efeito: efeitoSafe,
+
+          // compat: remove campos antigos se existirem
+          efeitosPossiveis: undefined,
+          reageABug: undefined,
+          efeitosBug: undefined,
+
           corrompido: false,
           corrupcoes: [],
         },
       };
     };
 
-    new Dialog({
-      title: "🎒 Criar Item do Nó (em mesa)",
-      content,
-      buttons: {
-        addActor: {
-          label: "➕ Adicionar à ficha",
-          callback: async (html) => {
-            const data = read(html);
-            if (!data) return;
-            await this.createEmbeddedDocuments("Item", [data]);
-            ui.notifications.info("✅ Item adicionado à ficha.");
+    const dlg = new Dialog(
+      {
+        title: "🎒 Criar Item do Nó (em mesa)",
+        content,
+        buttons: {
+          addActor: {
+            label: "➕ Adicionar à ficha",
+            callback: async (html) => {
+              const data = read(html);
+              if (!data) return;
+              await this.createEmbeddedDocuments("Item", [data]);
+              ui.notifications.info("✅ Item adicionado à ficha.");
+            },
+          },
+
+          savePack: {
+            label: "📦 Salvar no Compêndio",
+            callback: async (html) => {
+              const data = read(html);
+              if (!data) return;
+
+              if (!canWritePack) {
+                ui.notifications.warn(
+                  "Não consigo salvar no compêndio (precisa ser GM e pack world).",
+                );
+                return;
+              }
+
+              const created = await this._createItemInWorldPack(data);
+              if (!created) return;
+
+              ui.notifications.info("✅ Item criado no compêndio do mundo.");
+            },
+          },
+
+          saveAndAdd: {
+            label: "✅ Salvar + Adicionar",
+            callback: async (html) => {
+              const data = read(html);
+              if (!data) return;
+
+              await this.createEmbeddedDocuments("Item", [data]);
+
+              if (canWritePack) {
+                await this._createItemInWorldPack(data);
+                ui.notifications.info(
+                  "✅ Item salvo no compêndio e adicionado à ficha.",
+                );
+              } else {
+                ui.notifications.warn(
+                  "⚠️ Não deu para salvar no compêndio — mas o item foi adicionado à ficha.",
+                );
+              }
+            },
           },
         },
+        default: "saveAndAdd",
+        render: (html) => {
+          const $tipo = html.find('select[name="tipoItem"]');
+          const $cons = html.find(".gambi-consumivel-only");
 
-        savePack: {
-          label: "📦 Salvar no Compêndio",
-          callback: async (html) => {
-            const data = read(html);
-            if (!data) return;
+          const sync = () => {
+            const tipo = String($tipo.val() ?? "reliquia");
+            if (tipo === "consumivel") $cons.show();
+            else $cons.hide();
+          };
 
-            if (!canWritePack) {
-              ui.notifications.warn(
-                "Não consigo salvar no compêndio (precisa ser GM e pack world).",
-              );
-              return;
-            }
-
-            const created = await this._createItemInWorldPack(data);
-            if (!created) return;
-
-            ui.notifications.info("✅ Item criado no compêndio do mundo.");
-          },
-        },
-
-        saveAndAdd: {
-          label: "✅ Salvar + Adicionar",
-          callback: async (html) => {
-            const data = read(html);
-            if (!data) return;
-
-            await this.createEmbeddedDocuments("Item", [data]);
-
-            if (canWritePack) {
-              await this._createItemInWorldPack(data);
-              ui.notifications.info(
-                "✅ Item salvo no compêndio e adicionado à ficha.",
-              );
-            } else {
-              ui.notifications.warn(
-                "⚠️ Não deu para salvar no compêndio — mas o item foi adicionado à ficha.",
-              );
-            }
-          },
+          $tipo.off("change.gambiConsumivel").on("change.gambiConsumivel", sync);
+          sync();
         },
       },
-      default: "saveAndAdd",
-      render: (html) => {
-        const $tipo = html.find('select[name="tipoItem"]');
-        const $cons = html.find(".gambi-consumivel-only");
-
-        const sync = () => {
-          const tipo = String($tipo.val() ?? "reliquia");
-          if (tipo === "consumivel") $cons.show();
-          else $cons.hide();
-        };
-
-        $tipo.off("change.gambiConsumivel").on("change.gambiConsumivel", sync);
-        sync();
+      {
+        width: 520,
+        height: 720,
+        resizable: true,
       },
-    }).render(true);
+    );
+
+    dlg.render(true);
   }
 }

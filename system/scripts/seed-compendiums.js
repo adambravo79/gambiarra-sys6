@@ -1,4 +1,4 @@
-// scripts/seed-compendiums.js (v0.6.2)
+// scripts/seed-compendiums.js (v0.6.2d)
 
 /* =========================================================
  * PODERES
@@ -99,6 +99,7 @@ function validateItemsArray(arr) {
   }
 
   const seen = new Set();
+  const allowed = new Set(["reduzir", "roxo", "hackear", "trocar"]);
 
   for (const it of arr) {
     if (!it?.name || !it?.type) throw new Error("Item sem name/type no JSON.");
@@ -111,36 +112,23 @@ function validateItemsArray(arr) {
     seen.add(key);
 
     it.system = it.system ?? {};
-
     it.system.categoria = String(it.system.categoria ?? "gambiarra");
-    it.system.tipoItem = it.system.tipoItem ?? "reliquia"; // reliquia|consumivel
+    it.system.tipoItem = it.system.tipoItem ?? "reliquia";
+    it.system.cargasMax = Number(it.system.cargasMax ?? 3);
     it.system.cargas = Number(it.system.cargas ?? 1);
     it.system.usado = Boolean(it.system.usado ?? false);
     it.system.descricao = String(it.system.descricao ?? "");
 
-    it.system.efeitosPossiveis = Array.isArray(it.system.efeitosPossiveis)
-      ? it.system.efeitosPossiveis
-      : [];
-
-    it.system.reageABug = Boolean(it.system.reageABug ?? false);
-
-    // garante efeitosBug coerente
-    it.system.efeitosBug = Array.isArray(it.system.efeitosBug)
-      ? it.system.efeitosBug
-      : [];
-
-    if (it.system.reageABug && it.system.efeitosBug.length === 0) {
-      it.system.efeitosBug = ["suavizar"];
+    const eff = String(it.system.efeito ?? "reduzir");
+    if (!allowed.has(eff)) {
+      throw new Error(`Efeito inválido no JSON (${it.name}): "${eff}"`);
     }
-    if (!it.system.reageABug) {
-      it.system.efeitosBug = [];
-    }
+    it.system.efeito = eff;
 
-    // corrupção (mantido)
-    it.system.corrompido = Boolean(it.system.corrompido ?? false);
-    it.system.corrupcoes = Array.isArray(it.system.corrupcoes)
-      ? it.system.corrupcoes
-      : [];
+    // remove lixo antigo se existir
+    delete it.system.efeitosPossiveis;
+    delete it.system.reageABug;
+    delete it.system.efeitosBug;
   }
 
   return arr;
