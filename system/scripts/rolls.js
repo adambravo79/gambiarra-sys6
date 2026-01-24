@@ -1,12 +1,12 @@
 /**
- * GAMBIARRA.SYS6 — Rolagens (v0.6.2)
+ * GAMBIARRA.SYS6 — Rolagens (v0.6.2a)
  * - Pool = valor do atributo
  * - Dificuldade = required + target
  * - Dados Roxos = bônus (diálogo / item)
  * - Integração Dice So Nice (se instalado)
  *
  * Presets (B):
- * rollDesafio(actor, { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName })
+ * rollDesafio(actor, { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName, itemEffect, itemContext })
  */
 
 const COLORSET = {
@@ -104,13 +104,51 @@ function shiftDifficultyKey(currentKey, delta) {
   return DIFF_ORDER[next];
 }
 
-function formatResults(results) {
-  return results.map((r) => r.result).join(", ");
+function listSuccesses(results, target) {
+  const suc = results.filter((r) => r.result >= target).map((r) => r.result);
+  return suc.join(", ");
 }
 
-// opts: { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName }
+function pendingToPresets(pending) {
+  // pending: { itemId, itemName, mode, effect }
+  if (!pending?.itemId || !pending?.effect) return null;
+
+  const effect = String(pending.effect);
+  const mode = String(pending.mode ?? "scene");
+
+  // Mapeia seu modelo de efeito para os presets do diálogo
+  const presets = {
+    itemId: String(pending.itemId),
+    itemName: String(pending.itemName ?? ""),
+    itemEffect: effect,
+    itemContext: mode,
+  };
+
+  if (effect === "dado") {
+    presets.addPurple = 1;
+  } else if (effect === "reduzir") {
+    presets.shiftDiff = -1; // reduzir 1 passo
+  } else if (effect === "trocar") {
+    presets.forceSwapAttr = true;
+  } else if (effect === "complicar") {
+    // opcional: pode forçar diff bug como sugestão narrativa
+    presets.presetDiffKey = "bug";
+  }
+
+  return presets;
+}
+
+// opts: { addPurple, shiftDiff, forceSwapAttr, presetAttr, presetDiffKey, itemId, itemName, itemEffect, itemContext }
 export async function rollDesafio(actor, opts = {}) {
   const difficulties = game.gambiarra?.config?.difficulties ?? {};
+
+  // ✅ Se existe item pendente no actor, vira preset automático do diálogo
+  const pending = actor.system?.meta?.pendingItemEffect ?? null;
+  const pendingPresets = pendingToPresets(pending);
+  if (pendingPresets) {
+    // não sobrescreve algo que já veio explicitamente no opts
+    opts = { ...pendingPresets, ...opts };
+  }
 
   const attrs = actor.system?.attributes ?? {};
   const corpo = attrs.corpo?.value ?? 2;
@@ -122,6 +160,10 @@ export async function rollDesafio(actor, opts = {}) {
   const presetAttr = opts.presetAttr || "corpo";
   const presetDiffKey = opts.presetDiffKey || "normal";
   const presetPurple = clampPurple(Number(opts.addPurple ?? 0));
+
+  const pendingHint = opts.itemName
+    ? `<p class="hint">🎒 Próxima rolagem marcada por item: <strong>${opts.itemName}</strong>${opts.itemEffect ? ` — efeito: <strong>${opts.itemEffect}</strong>` : ""}</p>`
+    : "";
 
   const content = `
   <form class="gambiarra-roll">
@@ -136,7 +178,7 @@ export async function rollDesafio(actor, opts = {}) {
           })
           .join("")}
       </select>
-      ${opts.shiftDiff ? `<p class="hint">Item sugeriu: reduzir dificuldade (${opts.shiftDiff} passo).</p>` : ""}
+      ${opts.shiftDiff ? `<p class="hint">Item sugeriu: reduzir dificuldade (${Math.abs(Number(opts.shiftDiff))} passo).</p>` : ""}
     </div>
 
     <div class="form-group">
@@ -158,6 +200,8 @@ export async function rollDesafio(actor, opts = {}) {
         ${itens.map((it) => `<option value="${it.id}">${itemLabel(it)}</option>`).join("")}
       </select>
 
+      ${pendingHint}
+
       <div class="hint" style="margin-top:6px;">
         “🎲 +1 dado” do item vira +1 🟣 automaticamente.
       </div>
@@ -178,8 +222,6 @@ export async function rollDesafio(actor, opts = {}) {
           🔁 Trocar atributo do desafio
         </label>
       </div>
-
-      ${opts.itemName ? `<p class="hint">Pré-selecionado por item: <strong>${opts.itemName}</strong></p>` : ""}
     </div>
 
     <hr/>
@@ -196,6 +238,7 @@ export async function rollDesafio(actor, opts = {}) {
     </div>
   </form>
   `;
+
   const dlg = new Dialog({
     title: "🎲 Rolar Desafio",
     content,
@@ -211,12 +254,32 @@ export async function rollDesafio(actor, opts = {}) {
           );
           const purple = Number(html.find('[name="purpleDice"]').val()) || 0;
 
+          const itemId = String(html.find('[name="sceneItem"]').val() || "");
+          const it = itemId ? actor.items.get(itemId) : null;
+
+          const itemAddDie = Boolean(html.find('[name="itemAddDie"]').prop("checked"));
+          const itemShift = Boolean(html.find('[name="itemShiftDiff"]').prop("checked"));
+          const itemSwap = Boolean(html.find('[name="itemSwapAttr"]').prop("checked"));
+
+          // só para aparecer no chat card de forma clara
+          const itemEffect =
+            itemAddDie ? "dado" :
+            itemShift ? "reduzir" :
+            itemSwap ? "trocar" :
+            "";
+
           const dificuldade = difficulties[diffKey];
+
           await executarRolagem({
             actor,
             atributo,
             dificuldade,
             roxos: clampInt(purple, 0, 10),
+
+            // meta p/ chat e p/ limpar pending
+            usedItem: it
+              ? { id: it.id, name: it.name, effect: itemEffect, context: "scene" }
+              : (opts.itemId ? { id: String(opts.itemId), name: String(opts.itemName ?? ""), effect: String(opts.itemEffect ?? ""), context: String(opts.itemContext ?? "scene") } : null),
           });
         },
       },
@@ -244,7 +307,9 @@ export async function rollDesafio(actor, opts = {}) {
       );
       $val.val(String(presetPurple));
 
+      // ✅ se veio marcado por pendingItemEffect, preseleciona o item na combo também
       if (opts.itemId) $item.val(String(opts.itemId));
+
       if (opts.addPurple) $addDie.prop("checked", true);
       if (opts.shiftDiff) $shiftDiff.prop("checked", true);
       if (opts.forceSwapAttr) $swapAttr.prop("checked", true);
@@ -263,12 +328,6 @@ export async function rollDesafio(actor, opts = {}) {
         $difficulty.val(next);
       });
 
-      // trocar atributo: só marca intenção (a Programadora escolhe na hora)
-      // (se quiser, depois fazemos abrir um mini-dialog pra escolher qual atributo trocar)
-      if (opts.forceSwapAttr) {
-        // nada automático aqui além do check
-      }
-
       // auto-sugerir checkboxes ao trocar item
       $item.on("change", async () => {
         const itemId = String($item.val() || "");
@@ -283,7 +342,6 @@ export async function rollDesafio(actor, opts = {}) {
         const shouldShift = efeitos.includes("reduzir");
         const shouldSwap = efeitos.includes("trocar");
 
-        // add-dado -> dado (padrao novo)
         if (shouldAdd !== $addDie.prop("checked"))
           $addDie.prop("checked", shouldAdd).trigger("change");
         if (shouldShift !== $shiftDiff.prop("checked"))
@@ -307,7 +365,7 @@ export async function rollDesafio(actor, opts = {}) {
   dlg.render(true);
 }
 
-async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
+async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, usedItem = null }) {
   const required = Number(dificuldade?.required ?? 1);
   const target = Number(dificuldade?.target ?? 4);
 
@@ -362,6 +420,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
       ? `<span class="gambi-badge is-strong">🌟 Sucesso Forte</span>`
       : `<span class="gambi-badge is-ok">✨ Sucesso</span>`;
 
+  const itemLine = usedItem?.name
+    ? `<div class="gambi-sub"><strong>🎒 Item:</strong> ${usedItem.name}${usedItem.effect ? ` — <span class="hint">efeito: ${usedItem.effect}</span>` : ""}</div>`
+    : "";
+
   const baseLine = `
     <div class="gambi-line">
       <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
@@ -401,6 +463,8 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
         <div><strong>Alvo:</strong> ${target}+</div>
       </div>
 
+      ${itemLine}
+
       ${baseLine}
       ${roxoLine}
 
@@ -415,10 +479,12 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0 }) {
       </div>
     </div>
   `;
-  ChatMessage.create({ content: chatHtml });
-}
 
-function listSuccesses(results, target) {
-  const suc = results.filter((r) => r.result >= target).map((r) => r.result);
-  return suc.join(", ");
+  await ChatMessage.create({ content: chatHtml });
+
+  // ✅ Consumiu o "pending item effect" (se existir)
+  const pending = actor.system?.meta?.pendingItemEffect ?? null;
+  if (pending?.itemId) {
+    await actor.update({ "system.meta.pendingItemEffect": null });
+  }
 }

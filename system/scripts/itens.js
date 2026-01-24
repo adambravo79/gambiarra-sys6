@@ -1,12 +1,6 @@
-// scripts/itens.js (v0.6.2)
-// - Itens nao mexem em actor.update (apenas chat + integracao opcional com rolagem)
+// scripts/itens.js (v0.6.2a)
 // - Consumiveis: gastam carga e marcam usado quando chega a 0
-// - Pode criar item "em mesa" e opcionalmente salvar no compendio do mundo
-
-// scripts/itens.js (v0.6.4)
-// - Consumíveis: gastam 1 carga e, ao zerar, marcam usado + "🪢 Nó recebeu..."
-// - Fallback: se consumível vier com cargas 0 mas usado=false, ao usar ele vira usado e anuncia
-
+// - Integração com rolagem: "marca" o próximo teste do Actor via system.meta.pendingItemEffect
 export class GambiarraItem extends Item {
   async corromper(descricao) {
     const corrupcoes = foundry.utils.duplicate(this.system.corrupcoes || []);
@@ -18,10 +12,28 @@ export class GambiarraItem extends Item {
     });
   }
 
+  // ✅ marca o próximo teste do actor com um efeito vindo do item
+  async _queueNextRollEffect(
+    actor,
+    { mode = "scene", effect = "", note = "" } = {},
+  ) {
+    if (!actor) return;
+
+    await actor.update({
+      "system.meta.pendingItemEffect": {
+        itemId: this.id,
+        itemName: this.name,
+        mode,
+        effect,
+        note,
+      },
+    });
+  }
+
   async usarNaCena(actor) {
     const content = `
       <p><strong>${this.name}</strong> entrou em cena.</p>
-      <p class="hint">Escolha um efeito narrativo (só registra; não automatiza).</p>
+      <p class="hint">Escolha um efeito narrativo (vai marcar o próximo teste).</p>
       <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
         <button type="button" data-efeito="reduzir">➖ Reduzir a dificuldade (1 passo)</button>
         <button type="button" data-efeito="dado">🎲 +1 dado (vira 🟣)</button>
@@ -29,6 +41,9 @@ export class GambiarraItem extends Item {
         <button type="button" data-efeito="trocar">🔁 Trocar o atributo do desafio</button>
         <button type="button" data-efeito="complicar">🌀 Criar uma complicação interessante</button>
       </div>
+      <p class="hint" style="margin-top:10px;">
+        Dica: a próxima vez que clicar em “🎲 Rolar Desafio”, o diálogo já vem pré-ajustado.
+      </p>
     `;
 
     const dlg = new Dialog({
@@ -40,9 +55,19 @@ export class GambiarraItem extends Item {
           ev.preventDefault();
           ev.stopPropagation();
 
-          const efeito = ev.currentTarget.dataset.efeito;
+          const efeito = String(ev.currentTarget.dataset.efeito || "");
+
+          // chat
           this._postChatUso(actor, efeito, { context: "scene" });
 
+          // ✅ marca o próximo teste
+          await this._queueNextRollEffect(actor, {
+            mode: "scene",
+            effect: efeito,
+            note: "Item usado na cena",
+          });
+
+          // consome carga se necessário
           if (this.system.tipoItem === "consumivel") {
             await this.gastarUmaCarga({ announceNo: true });
           }
@@ -68,13 +93,16 @@ export class GambiarraItem extends Item {
 
     const content = `
       <p><strong>${this.name}</strong> reage ao BUG.</p>
-      <p class="hint">Escolha como ele muda a situação (só registra; não automatiza).</p>
+      <p class="hint">Escolha como ele muda a situação (vai marcar o próximo teste).</p>
       <div class="gambi-item-buttons" style="display:flex; flex-direction:column; gap:8px;">
         <button type="button" data-efeito="suavizar">🧯 Suavizar o BUG</button>
         <button type="button" data-efeito="anular">🛡️ Anular o BUG (nesta cena)</button>
         <button type="button" data-efeito="transformar">🔀 Transformar o BUG (vira outro tipo de custo)</button>
         <button type="button" data-efeito="dado">🎲 Converter em +1 🟣 no próximo teste</button>
       </div>
+      <p class="hint" style="margin-top:10px;">
+        Dica: a próxima vez que clicar em “🎲 Rolar Desafio”, o diálogo já vem pré-ajustado.
+      </p>
     `;
 
     const dlg = new Dialog({
@@ -86,8 +114,16 @@ export class GambiarraItem extends Item {
           ev.preventDefault();
           ev.stopPropagation();
 
-          const efeito = ev.currentTarget.dataset.efeito;
+          const efeito = String(ev.currentTarget.dataset.efeito || "");
+
           this._postChatUso(actor, efeito, { context: "bug" });
+
+          // ✅ marca o próximo teste
+          await this._queueNextRollEffect(actor, {
+            mode: "bug",
+            effect: efeito,
+            note: "Item usado contra BUG",
+          });
 
           if (this.system.tipoItem === "consumivel") {
             await this.gastarUmaCarga({ announceNo: true });
@@ -129,7 +165,7 @@ export class GambiarraItem extends Item {
   }
 
   async _postChatRecebidoPeloNo() {
-    ChatMessage.create({
+    await ChatMessage.create({
       content: `🪢 O Nó recebeu o item <strong>${this.name}</strong> e o absorveu na história.`,
     });
   }
@@ -156,6 +192,7 @@ export class GambiarraItem extends Item {
         <div><strong>🎒 Item:</strong> ${this.name} <span class="hint">(${tipo})</span></div>
         <div><strong>👤 Personagem:</strong> ${actor?.name ?? "—"}</div>
         <div><strong>${context === "bug" ? "🐞 No BUG" : "🎬 Na cena"}:</strong> ${texto}</div>
+        <div class="hint" style="margin-top:6px;">✅ Próxima rolagem será influenciada por este item.</div>
       </div>
     `;
 

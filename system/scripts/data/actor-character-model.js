@@ -1,4 +1,4 @@
-// scripts/data/actor-character-model.js v(0.6.2)
+// scripts/data/actor-character-model.js v(0.6.2a) + pendingItemEffect
 export class GambiarraCharacterModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const f = foundry.data.fields;
@@ -39,6 +39,17 @@ export class GambiarraCharacterModel extends foundry.abstract.TypeDataModel {
         descricao: new f.StringField({ initial: "" }),
       });
 
+    // ✅ Marca "próxima rolagem" (setado por itens e consumido no rollDesafio)
+    // Nota: usamos ObjectField com initial null pra poder "zerar" com update(...: null)
+    const makePendingItemEffectSchema = () =>
+      new f.SchemaField({
+        itemId: new f.StringField({ initial: "" }),
+        itemName: new f.StringField({ initial: "" }),
+        mode: new f.StringField({ initial: "scene" }), // scene | bug
+        effect: new f.StringField({ initial: "" }), // dado | reduzir | trocar | complicar | etc
+        note: new f.StringField({ initial: "" }),
+      });
+
     return {
       attributes: new f.SchemaField({
         corpo: makeAtributoSchema(),
@@ -61,6 +72,13 @@ export class GambiarraCharacterModel extends foundry.abstract.TypeDataModel {
         custos: new f.ArrayField(makeEfeitoPermanenteSchema(), { initial: [] }),
         corrupcoes: new f.ArrayField(makeEfeitoPermanenteSchema(), {
           initial: [],
+        }),
+
+        // ✅ integração itens -> rolagem (próximo teste)
+        // fica null quando não há nada pendente
+        pendingItemEffect: new f.ObjectField({
+          initial: null,
+          nullable: true,
         }),
       }),
     };
