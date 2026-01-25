@@ -1,5 +1,5 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — CSS v0.6.0
+ * GAMBIARRA.SYS6 — CSS v0.6.3a
  * Objetivo: melhorar visual sem quebrar classes existentes.
  * Mantém compatibilidade com:
  * - templates/actor-character.html
@@ -1125,3 +1125,207 @@
     width: 100%;
   }
 }
+
+/* HEADER */
+.gambi-header {
+  display: grid;
+  grid-template-columns: 56px 1fr 120px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 10px 6px 10px;
+}
+
+.gambi-token-wrap {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gambi-token-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.gambi-name-wrap .gambi-name {
+  width: 100%;
+  font-size: 22px;
+  font-weight: 700;
+  height: 34px;
+}
+
+.gambi-subline {
+  margin-top: 4px;
+}
+
+.gambi-arch-badge {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* Arquétipo (placeholder 48x48) */
+.gambi-arch-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.gambi-arch-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px dashed rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.25);
+}
+
+.gambi-arch-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Toggle GM */
+.gambi-free-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  user-select: none;
+}
+
+/* descrição do arquétipo */
+.gambi-arch-desc {
+  padding: 0 10px 10px 10px;
+}
+
+/* ATRIBUTOS */
+.gambi-attrs {
+  padding: 10px;
+}
+
+.gambi-attr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.gambi-attr {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.20);
+  background: rgba(255,255,255,0.22);
+}
+
+.gambi-attr-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.gambi-attr-input {
+  width: 100%;
+  height: 36px;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* estado travado */
+.gambi-attrs-locked .gambi-attr {
+  opacity: 0.95;
+}
+
+.gambi-attr-input.is-locked {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* sumbar */
+.gambiarra-sumbar {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 80px 60px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.20);
+  background: rgba(255,255,255,0.18);
+}
+
+.gambiarra-sumbar.ok { outline: 1px solid rgba(0, 150, 0, 0.35); }
+.gambiarra-sumbar.bad { outline: 1px solid rgba(180, 0, 0, 0.35); }
+
+.sum-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.22);
+  background: rgba(255,255,255,0.35);
+  font-weight: 800;
+}
+
+/* AÇÕES */
+.gambi-actions,
+.gambi-actions-row {
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gambi-section-title {
+  margin: 0;
+  padding: 10px 10px 0 10px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* LISTA */
+.gambi-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gambi-row {
+  display: grid;
+  grid-template-columns: 1fr 220px 70px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.18);
+}
+
+.gambi-row.is-used {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+.gambi-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.gambi-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.25);
+  font-size: 12px;
+}
+

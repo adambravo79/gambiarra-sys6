@@ -1,4 +1,4 @@
-// scripts/init.js (v0.6.1d)
+// scripts/init.js (v0.6.3a)
 
 import { GambiarraActor } from "./actor.js";
 import { GambiarraActorSheet } from "./actor-sheet.js";
@@ -16,13 +16,17 @@ import {
   seedWorldItemsFromSystemPackIfEmpty,
 } from "./seed-compendiums.js";
 
-Hooks.once("init", () => {
-  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.6.2)");
+import { ARCHETYPES, applyArchetypeToSystem, getArchetype } from "./archetypes.js";
 
-  CONFIG.Actor.dataModels = {
-    character: GambiarraCharacterModel,
-    npc: GambiarraNpcModel,
-  };
+Hooks.once("init", () => {
+  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.6.3");
+
+  // registra sheet
+  Actors.unregisterSheet("core", ActorSheet);
+  Actors.registerSheet("gambiarra-sys6", GambiarraActorSheet, {
+    makeDefault: true,
+    types: ["character"],
+  });
 
   CONFIG.Item.dataModels = {
     item: GambiarraItemModel,
@@ -132,3 +136,104 @@ Hooks.once("ready", async () => {
   await seedWorldFromSystemPackIfEmpty();
   await seedWorldItemsFromSystemPackIfEmpty();
 });
+
+Hooks.once("ready", async () => {
+  // Intercepta o "Criar Ator" no diretório de Actors
+  Hooks.on("renderActorDirectory", (app, html) => {
+    // Foundry v12: botão padrão
+    const $btn = html.find('button.create-document, a.create-document');
+    if (!$btn.length) return;
+
+    // evita duplicar handler
+    $btn.off("click.gambi-archetypes").on("click.gambi-archetypes", async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      // se não tiver permissão para criar, deixa o core lidar (fail-safe)
+      if (!game.user.can("ACTOR_CREATE")) return;
+
+      openArchetypeCreateDialog();
+    });
+  });
+});
+
+function openArchetypeCreateDialog() {
+  const options = ARCHETYPES.map(
+    (a) =>
+      `<option value="${a.key}">${a.icon} ${a.nome} — (${a.attrs.corpo}/${a.attrs.mente}/${a.attrs.coracao})</option>`,
+  ).join("");
+
+  const content = `
+  <form class="gambi-create-actor">
+    <div class="form-group">
+      <label>Nome</label>
+      <input type="text" name="name" value="Novo Personagem" />
+    </div>
+
+    <div class="form-group">
+      <label>Arquétipo</label>
+      <select name="archKey">${options}</select>
+      <p class="hint">O jogo oferece apenas 10 fichas fixas. Os atributos nascem travados.</p>
+    </div>
+
+    <div class="gambi-arch-preview" style="margin-top:10px;"></div>
+
+    <hr/>
+    <div class="hint">
+      <strong>Modo livre</strong> (editar atributos) existe, mas é liberado apenas para o GM dentro da ficha.
+    </div>
+  </form>
+  `;
+
+  const dlg = new Dialog({
+    title: "🧩 Galeria de Arquétipos do Nó",
+    content,
+    buttons: {
+      create: {
+        label: "✅ Criar Personagem",
+        callback: async (html) => {
+          const name = String(html.find('[name="name"]').val() || "Novo Personagem").trim();
+          const key = String(html.find('[name="archKey"]').val() || "atleta");
+
+          const system = applyArchetypeToSystem({}, key);
+
+          await Actor.create({
+            name,
+            type: "character",
+            img: "icons/svg/mystery-man.svg",
+            system,
+          });
+        },
+      },
+      cancel: { label: "Cancelar" },
+    },
+    default: "create",
+    render: (html) => {
+      const $sel = html.find('[name="archKey"]');
+      const $prev = html.find(".gambi-arch-preview");
+
+      const renderPreview = () => {
+        const key = String($sel.val() || "atleta");
+        const a = getArchetype(key);
+
+        $prev.html(`
+          <div class="gambi-arch-card">
+            <div class="gambi-arch-card-row">
+              <div class="gambi-arch-icon">${a.icon}</div>
+              <div class="gambi-arch-info">
+                <div><strong>${a.nome}</strong></div>
+                <div class="hint">Corpo ${a.attrs.corpo} • Mente ${a.attrs.mente} • Coração ${a.attrs.coracao}</div>
+              </div>
+            </div>
+            <div class="hint" style="margin-top:6px;">${a.descricao}</div>
+          </div>
+        `);
+      };
+
+      $sel.on("change", renderPreview);
+      renderPreview();
+    },
+  });
+
+  dlg.render(true);
+}

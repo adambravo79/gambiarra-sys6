@@ -1,170 +1,163 @@
 {{!-- templates/actor-character.html v0.6.2c --}}
+<form class="gambiarra-actor-sheet {{#if attrsLocked}}gambi-attrs-locked{{/if}}" autocomplete="off">
 
-<form class="gambiarra-sheet" autocomplete="off">
-  <header class="sheet-header">
-    <h1 class="charname">
-      <input
-        name="name"
-        type="text"
-        value="{{actor.name}}"
-        placeholder="Nome do Personagem"
-        style="width: 100%"
-      />
-    </h1>
-    <p class="arquetipo">{{system.meta.arquetipo}}</p>
+  <!-- HEADER -->
+  <header class="gambi-header">
+    <!-- Token / imagem do personagem (placeholder na linha do nome) -->
+    <div class="gambi-token-wrap">
+      <img class="gambi-token-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+
+    <!-- Nome -->
+    <div class="gambi-name-wrap">
+      <input class="gambi-name" name="name" type="text" value="{{actor.name}}" placeholder="Nome do personagem" />
+      <div class="gambi-subline">
+        {{#if hasArchetype}}
+          <span class="gambi-arch-badge">Arquétipo: <strong>{{arquetipo.nome}}</strong></span>
+        {{else}}
+          <span class="hint">Sem arquétipo (antigo). Recomenda-se recriar via Galeria.</span>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Ícone do arquétipo (placeholder 48x48) -->
+    <div class="gambi-arch-wrap" title="Arquétipo do Nó">
+      <div class="gambi-arch-icon">
+        {{#if arquetipo.icon}}
+          <span class="gambi-arch-emoji">{{arquetipo.icon}}</span>
+        {{else}}
+          <span class="gambi-arch-emoji">🧩</span>
+        {{/if}}
+      </div>
+
+      {{#if isGM}}
+        {{#if hasArchetype}}
+          <label class="gambi-free-toggle">
+            <input class="gambi-toggle-free" type="checkbox" name="system.meta.modoLivre" {{checked system.meta.modoLivre}} />
+            <span>Modo livre</span>
+          </label>
+        {{/if}}
+      {{/if}}
+    </div>
   </header>
 
-  {{!-- ✅ trava visual quando soma != 6 --}}
-  {{#unless attrOk}}
-    <section class="gambi-attr-lock" style="margin-top:12px;">
-      <div style="border:1px solid rgba(231,76,60,.35); background: rgba(231,76,60,.10); border-radius:14px; padding:10px 12px;">
-        <strong>⚠️ Ajuste os Atributos</strong>
-        <div class="hint" style="margin-top:4px;">
-          Corpo + Mente + Coração precisam somar <strong>6</strong> (mínimo <strong>1</strong> em cada).<br/>
-          Enquanto isso, rolagens e ações ficam desativadas.
-        </div>
-      </div>
+  {{#if hasArchetype}}
+    <section class="gambi-arch-desc">
+      <div class="hint">{{arquetipo.descricao}}</div>
+      {{#if attrsLocked}}
+        <div class="hint"><strong>🔒 Atributos travados</strong> (somente GM pode liberar “Modo livre”).</div>
+      {{/if}}
     </section>
-  {{/unless}}
+  {{/if}}
 
-  <section class="attributes">
-    <div class="attribute corpo">
-      <h2>🟢 Corpo</h2>
-      <input type="number" name="system.attributes.corpo.value" value="{{system.attributes.corpo.value}}" min="1" max="4" step="1" />
-    </div>
-    <div class="attribute mente">
-      <h2>🔵 Mente</h2>
-      <input type="number" name="system.attributes.mente.value" value="{{system.attributes.mente.value}}" min="1" max="4" step="1" />
-    </div>
-    <div class="attribute coracao">
-      <h2>🔴 Coração</h2>
-      <input type="number" name="system.attributes.coracao.value" value="{{system.attributes.coracao.value}}" min="1" max="4" step="1" />
-    </div>
-    <div class="gambiarra-sumbar ok">
-      <div class="sum-left">
-        <span>📐 Soma</span> <span class="sum-pill">6</span>
+  <!-- ATRIBUTOS -->
+  <section class="gambi-attrs">
+    <h2 class="gambi-section-title">Atributos</h2>
+
+    <div class="gambi-attr-grid">
+      <div class="gambi-attr">
+        <div class="gambi-attr-title">💪 Corpo</div>
+        <input class="gambi-attr-input" type="number" name="system.attributes.corpo.value" value="{{system.attributes.corpo.value}}" min="0" />
       </div>
-      <div class="sum-right">Regra opcional ativa</div>
+
+      <div class="gambi-attr">
+        <div class="gambi-attr-title">🧠 Mente</div>
+        <input class="gambi-attr-input" type="number" name="system.attributes.mente.value" value="{{system.attributes.mente.value}}" min="0" />
+      </div>
+
+      <div class="gambi-attr">
+        <div class="gambi-attr-title">❤️ Coração</div>
+        <input class="gambi-attr-input" type="number" name="system.attributes.coracao.value" value="{{system.attributes.coracao.value}}" min="0" />
+      </div>
+    </div>
+
+    <div class="gambiarra-sumbar">
+      <div class="sum-left">Soma</div>
+      <div class="sum-pill">{{attrSum}}</div>
+      <div class="sum-right">{{#if attrOk}}OK ✅ (Soma = 6){{else}}Ajuste para Soma = 6 (mínimo 1 em cada){{/if}}</div>
     </div>
   </section>
 
-  <section class="roll-section">
+  <!-- AÇÕES -->
+  <section class="gambi-actions">
     <button type="button" class="roll-desafio">🎲 Rolar Desafio</button>
+    <button type="button" class="roll-power">⚡ Despertar Poder (sorteio)</button>
+    <button type="button" class="add-power">➕ Adicionar Poder</button>
+    <button type="button" class="create-power">🧪 Criar Poder (Compêndio/Ficha)</button>
   </section>
 
-  <section class="powers">
-    <h2>⚡ Poderes Gambiarra</h2>
-    {{#if (eq poderes.length 0)}}
-      <p class="hint">Nenhum poder ainda.</p>
-    {{/if}}
-    <ul class="power-list">
-      {{#each poderes as |poder|}}
-      <li class="power power-{{poder.system.estado}}">
-        <header class="power-header">
-          <strong>{{poder.name}}</strong>
-          <span class="state">{{poder.system.estado}}</span>
-          {{#if @root.isGM}}
-          <div class="power-actions">
-            <button type="button" class="power-remove" data-item-id="{{poder.id}}">🗑️ Remover</button>
-            <button type="button" class="power-replace" data-item-id="{{poder.id}}">🔁 Trocar</button>
+  <!-- PODERES -->
+  <section class="gambi-powers">
+    <h2 class="gambi-section-title">Poderes Gambiarra</h2>
+    <div class="gambi-list">
+      {{#each poderes as |p|}}
+        <div class="gambi-row">
+          <div class="gambi-row-main">
+            <strong>{{p.name}}</strong>
+            <div class="hint">{{p.system.descricao}}</div>
           </div>
-          {{/if}}
-        </header>
-        <p class="description">{{poder.system.descricao}}</p>
-      </li>
-      {{/each}}
-    </ul>
 
-    {{#if @root.isGM}}
-      {{#if (lt poderes.length 2)}}
-        <button type="button" class="add-power">➕ Escolher Poder</button>
-        <button type="button" class="roll-power">🎲 Sortear Poder</button>
-        <button type="button" class="create-power">🧩 Criar Poder (em mesa)</button>
-      {{/if}}
-    {{/if}}
-  </section>
-
-  <section class="effects">
-    <h2>🧠 Efeitos do Nó</h2>
-    {{#if (or system.meta.marcas.length system.meta.custos.length system.meta.corrupcoes.length)}}
-      {{#if system.meta.marcas.length}}
-        <h3>🧬 Marcas do Nó</h3>
-        <ul>
-          {{#each system.meta.marcas}}
-            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-          {{/each}}
-        </ul>
-      {{/if}}
-
-      {{#if system.meta.custos.length}}
-        <h3>💔 Custos Emocionais</h3>
-        <ul>
-          {{#each system.meta.custos}}
-            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-          {{/each}}
-        </ul>
-      {{/if}}
-
-      {{#if system.meta.corrupcoes.length}}
-        <h3>🧩 Corrupções</h3>
-        <ul>
-          {{#each system.meta.corrupcoes}}
-            <li><strong>{{this.nome}}</strong> — {{this.descricao}}</li>
-          {{/each}}
-        </ul>
-      {{/if}}
-    {{else}}
-      <p class="hint">Nenhum efeito permanente… ainda.</p>
-    {{/if}}
-
-    {{#if @root.isGM}}
-      <button type="button" class="add-effect">➕ Registrar Efeito Permanente</button>
-      <button type="button" class="bug-effect">🐞 BUG → Efeito Permanente</button>
-    {{/if}}
-  </section>
-
-  {{!-- ITENS --}}
-  <section class="items">
-    <h2>🎒 Itens do Nó</h2>
-
-    {{#if (eq items.length 0)}}
-      <p class="hint">Nenhum item ainda.</p>
-    {{/if}}
-
-    <ul class="gambi-items">
-      {{#each items as |item|}}
-      <li class="gambi-item {{#if item.system.usado}}is-used{{/if}}">
-        <div class="gambi-item-left">
-          <span class="item-name"><strong>{{item.name}}</strong></span>
-
-          <span class="gambi-item-badge">
-            {{#if (eq item.system.tipoItem "consumivel")}}🔸 Consumível{{else}}🔹 Relíquia{{/if}}
-          </span>
-
-          {{#if (eq item.system.tipoItem "consumivel")}}
-            <span class="gambi-item-meta">🔋 {{item.system.cargas}}/{{item.system.cargasMax}}</span>
-          {{/if}}
-
-          {{#if item.system.usado}}
-            <span class="hint">(usado/sem carga)</span>
+          {{#if ../isGM}}
+            <div class="gambi-row-actions">
+              <button type="button" class="power-remove" data-item-id="{{p.id}}">🗑️</button>
+              <button type="button" class="power-replace" data-item-id="{{p.id}}">🔁</button>
+            </div>
           {{/if}}
         </div>
-
-        <div class="gambi-item-actions">
-          <button type="button" class="remove-item" data-item-id="{{item.id}}">
-            🗑️ Remover
-          </button>
-        </div>
-      </li>
       {{/each}}
-    </ul>
-
-    {{#if @root.isGM}}
-      <button type="button" class="add-item">➕ Adicionar Item</button>
-      <button type="button" class="create-item">🧩 Criar Item (em mesa)</button>
-    {{else}}
-      <button type="button" class="add-item">➕ Adicionar Item</button>
-    {{/if}}
-
+      {{#unless poderes.length}}
+        <div class="hint">— Nenhum poder ainda.</div>
+      {{/unless}}
+    </div>
   </section>
+
+  <!-- ITENS -->
+  <section class="gambi-items">
+    <h2 class="gambi-section-title">🎒 Itens do Nó</h2>
+
+    <div class="gambi-actions-row">
+      <button type="button" class="add-item">➕ Adicionar do Compêndio</button>
+      {{#if isGM}}
+        <button type="button" class="create-item">🧰 Criar Item (Compêndio/Ficha)</button>
+      {{/if}}
+    </div>
+
+    <div class="gambi-list">
+      {{#each items as |it|}}
+        <div class="gambi-row {{#if it.system.usado}}is-used{{/if}}">
+          <div class="gambi-row-main">
+            <strong>{{it.name}}</strong>
+            <div class="hint">{{it.system.descricao}}</div>
+          </div>
+
+          <div class="gambi-row-meta">
+            {{#if (eq it.system.tipoItem "consumivel")}}
+              <span class="gambi-chip">🔸 Consumível</span>
+              <span class="gambi-chip">🔋 {{it.system.cargas}}/{{it.system.cargasMax}}</span>
+            {{else}}
+              <span class="gambi-chip">🔹 Relíquia</span>
+            {{/if}}
+          </div>
+
+          <div class="gambi-row-actions">
+            <button type="button" class="remove-item" data-item-id="{{it.id}}">🗑️</button>
+          </div>
+        </div>
+      {{/each}}
+
+      {{#unless items.length}}
+        <div class="hint">— Nenhum item ainda.</div>
+      {{/unless}}
+    </div>
+  </section>
+
+  <!-- EFEITOS -->
+  <section class="gambi-effects">
+    <h2 class="gambi-section-title">Efeitos</h2>
+    <div class="gambi-actions-row">
+      <button type="button" class="add-effect">➕ Adicionar efeito permanente</button>
+      <button type="button" class="bug-effect">🐞 Converter BUG em efeito</button>
+    </div>
+  </section>
+
 </form>

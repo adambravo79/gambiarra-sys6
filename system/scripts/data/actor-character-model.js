@@ -1,85 +1,30 @@
-// scripts/data/actor-character-model.js v(0.6.2a) + pendingItemEffect
-export class GambiarraCharacterModel extends foundry.abstract.TypeDataModel {
+// scripts/data/actor-character-model.js v(0.6.3a)
+
+export class GambiarraCharacterModel extends foundry.abstract.DataModel {
   static defineSchema() {
-    const f = foundry.data.fields;
-
-    // ⚠️ IMPORTANTE (Foundry v12):
-    // Não reutilize a mesma instância de Field/SchemaField em mais de um lugar.
-    // Use fábricas para criar instâncias novas.
-
-    const makeAtributoSchema = () =>
-      new f.SchemaField({
-        label: new f.StringField({ initial: "" }),
-        value: new f.NumberField({ initial: 2, integer: true, min: 1, max: 4 }),
-      });
-
-    const makePoderSchema = () =>
-      new f.SchemaField({
-        nome: new f.StringField({ initial: "" }),
-        descricao: new f.StringField({ initial: "" }),
-        estado: new f.StringField({ initial: "ativo" }), // ativo | esgotado | fora | latente
-        usos: new f.NumberField({ initial: 0, integer: true, min: 0 }),
-        dadoRoxo: new f.BooleanField({ initial: true }),
-        efeitosPossiveis: new f.ArrayField(new f.StringField({ initial: "" }), {
-          initial: [],
-        }),
-      });
-
-    const makeBugSchema = () =>
-      new f.SchemaField({
-        ativo: new f.BooleanField({ initial: false }),
-        intensidade: new f.StringField({ initial: "leve" }), // leve | pesado
-        descricao: new f.StringField({ initial: "" }),
-        recorrente: new f.BooleanField({ initial: false }),
-      });
-
-    const makeEfeitoPermanenteSchema = () =>
-      new f.SchemaField({
-        nome: new f.StringField({ initial: "" }),
-        descricao: new f.StringField({ initial: "" }),
-      });
-
-    // ✅ Marca "próxima rolagem" (setado por itens e consumido no rollDesafio)
-    // Nota: usamos ObjectField com initial null pra poder "zerar" com update(...: null)
-    const makePendingItemEffectSchema = () =>
-      new f.SchemaField({
-        itemId: new f.StringField({ initial: "" }),
-        itemName: new f.StringField({ initial: "" }),
-        mode: new f.StringField({ initial: "scene" }), // scene | bug
-        effect: new f.StringField({ initial: "" }), // dado | reduzir | trocar | complicar | etc
-        note: new f.StringField({ initial: "" }),
-      });
+    const fields = foundry.data.fields;
 
     return {
-      attributes: new f.SchemaField({
-        corpo: makeAtributoSchema(),
-        mente: makeAtributoSchema(),
-        coracao: makeAtributoSchema(),
+      attributes: new fields.SchemaField({
+        corpo: new fields.SchemaField({
+          value: new fields.NumberField({ required: true, initial: 2, min: 0 }),
+        }),
+        mente: new fields.SchemaField({
+          value: new fields.NumberField({ required: true, initial: 2, min: 0 }),
+        }),
+        coracao: new fields.SchemaField({
+          value: new fields.NumberField({ required: true, initial: 2, min: 0 }),
+        }),
       }),
 
-      meta: new f.SchemaField({
-        arquetipo: new f.StringField({ initial: "" }),
+      meta: new fields.SchemaField({
+        arquetipoKey: new fields.StringField({ required: false, initial: "" }),
+        arquetipoNome: new fields.StringField({ required: false, initial: "" }),
+        arquetipoIcon: new fields.StringField({ required: false, initial: "" }),
+        arquetipoDescricao: new fields.StringField({ required: false, initial: "" }),
 
-        poderes: new f.ArrayField(makePoderSchema(), { initial: [] }),
-        estados: new f.ArrayField(new f.StringField({ initial: "" }), {
-          initial: [],
-        }),
-
-        bug: makeBugSchema(),
-
-        // efeitos permanentes (cada um com instância própria)
-        marcas: new f.ArrayField(makeEfeitoPermanenteSchema(), { initial: [] }),
-        custos: new f.ArrayField(makeEfeitoPermanenteSchema(), { initial: [] }),
-        corrupcoes: new f.ArrayField(makeEfeitoPermanenteSchema(), {
-          initial: [],
-        }),
-
-        // ✅ integração itens -> rolagem (próximo teste)
-        // fica null quando não há nada pendente
-        pendingItemEffect: new f.ObjectField({
-          initial: null,
-          nullable: true,
-        }),
+        // Toggle: somente GM usa na ficha para liberar edição
+        modoLivre: new fields.BooleanField({ required: true, initial: false }),
       }),
     };
   }
