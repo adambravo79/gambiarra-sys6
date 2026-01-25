@@ -6,32 +6,6 @@
  * - templates/item/item-poder.html
  * - scripts/rolls.js chat card + dialog
  * ============================================================ */
-
-:root {
-  --gambi-bg: rgba(20, 20, 26, 0.03);
-  --gambi-panel: rgba(255, 255, 255, 0.85);
-  --gambi-panel-2: rgba(255, 255, 255, 0.65);
-  --gambi-border: rgba(0, 0, 0, 0.12);
-  --gambi-border-strong: rgba(0, 0, 0, 0.2);
-  --gambi-text: rgba(0, 0, 0, 0.88);
-  --gambi-muted: rgba(0, 0, 0, 0.6);
-
-  --gambi-radius: 14px;
-  --gambi-radius-sm: 10px;
-  --gambi-gap: 12px;
-
-  --gambi-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  --gambi-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  /* sem mudar suas cores “semânticas” */
-  --gambi-ok: rgba(46, 204, 113, 0.18);
-  --gambi-strong: rgba(52, 152, 219, 0.18);
-  --gambi-bug: rgba(231, 76, 60, 0.16);
-  --gambi-purple: rgba(138, 77, 232, 0.18);
-
-  --gambi-focus: rgba(138, 77, 232, 0.35);
-}
-
 /* ------------------------------------------------------------
  * Base
  * ------------------------------------------------------------ */
@@ -1209,3 +1183,79 @@
 }
 
 .gambi-arch-desc { padding: 10px 12px 0; }
+
+/* Header novo (compatível com OldStyle) */
+.gambi-header{
+  display:grid;
+  grid-template-columns:56px 1fr 120px;
+  gap:12px;
+  align-items:center;
+  padding:12px;
+  margin-bottom:12px;
+  border:1px solid rgba(0,0,0,.12);
+  border-radius:12px;
+  background:rgba(255,255,255,.75);
+}
+
+.gambi-token-img{
+  width:56px;height:56px;
+  border-radius:10px;
+  object-fit:cover;
+  border:1px solid rgba(0,0,0,.25);
+}
+
+.gambi-name{
+  width:100%;
+  font-size:22px;
+  font-weight:800;
+}
+
+.gambi-arch-wrap{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.gambi-arch-icon{
+  width:48px;height:48px;
+  border-radius:12px;
+  border:1px dashed rgba(0,0,0,.35);
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.35);
+}
+.gambi-arch-emoji{ font-size:22px; line-height:1; }
+
+.gambi-free-toggle{ display:inline-flex; gap:6px; font-size:12px; user-select:none; }
+.gambi-subline{ margin-top:4px; }
+.gambi-arch-badge{ font-size:12px; opacity:.9; }
+
+/* ============================================================
+ * FIX: Atributos em 3 cards na mesma linha
+ * Motivo: o .section-title estava ocupando 1 coluna do grid
+ * ============================================================ */
+
+.attributes > .section-title {
+  grid-column: 1 / -1;
+}
+
+/* (opcional, mas recomendado) deixa o sumbar também “100%” */
+.attributes > .gambiarra-sumbar {
+  grid-column: 1 / -1;
+}
+
+/* seu template usa .attribute-label e .attribute-value,
+   mas o CSS antigo estava mirando h2 e input genérico. */
+.attribute .attribute-label {
+  font-weight: 900;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attribute .attribute-value {
+  width: 100%;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  padding: 10px 12px;
+}
+
+.gambiarra-sumbar.bad {
+  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.88));
+}
