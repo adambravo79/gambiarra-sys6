@@ -701,7 +701,12 @@ export class GambiarraActor extends Actor {
           refresh();
         },
       },
-      { width: 520, height: 640, resizable: true },
+      { 
+        width: 520, 
+        height: 465, 
+        resizable: true,
+        classes: ["gambi-create-item-dialog"],
+      },
     );
 
     dlg.render(true);

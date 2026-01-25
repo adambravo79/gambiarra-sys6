@@ -1072,3 +1072,56 @@
 .gambi-roll-desafio-dialog .gambi-effect-note {
   margin-top: 4px;
 }
+
+/* ============================================================
+ * Dialog: "🎒 Adicionar Item do Compêndio"
+ * - footer fixo
+ * - resize aumenta conteúdo, não o botão
+ * ============================================================ */
+
+.gambi-pick-item-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* conteúdo rola */
+.gambi-pick-item-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+/* footer não cresce */
+.gambi-pick-item-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+/* botão com altura fixa (não vira "banner") */
+.gambi-pick-item-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* se ficar estreito, empilha */
+@media (max-width: 520px) {
+  .gambi-pick-item-dialog .dialog-buttons {
+    flex-direction: column;
+  }
+  .gambi-pick-item-dialog .dialog-buttons button {
+    width: 100%;
+  }
+}
