@@ -2,7 +2,7 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas aqui.
 
-## [0.6.2] GAMBIARRA.SYS6 - v0.6.2 
+## [0.6.3] GAMBIARRA.SYS6 - v0.6.3 
 
 Itens do Nó atuando nas rolagens
 

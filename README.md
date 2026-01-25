@@ -13,7 +13,7 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ## 📦 Versão atual
 
-## **v0.6.2 — Núcleo com Itens Integrados**
+## **v0.6.3 - 
 
 ### O que já existe
 
