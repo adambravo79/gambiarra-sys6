@@ -805,3 +805,323 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ============================================================
+ * v0.6.2e — Ajuste cirúrgico do dialog:
+ * “🎒 Criar Item do Nó (em mesa)”
+ * Objetivos:
+ * 1) Mais espaço para os efeitos (radios) sem sobrepor
+ * 2) Botões do rodapé com altura fixa (não gigantes)
+ * 3) Resize aumenta o conteúdo, não o footer
+ * ============================================================ */
+
+/* 1) Estrutura vertical do Foundry Dialog */
+.gambi-create-item-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* impede que o footer empurre o conteúdo */
+}
+
+/* Conteúdo é o que cresce/rola */
+.gambi-create-item-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+/* Footer não cresce */
+.gambi-create-item-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+/* 2) Botões com altura fixa (acabou “botão gigante”) */
+.gambi-create-item-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Se a janela ficar estreita, empilha botões (sem estourar layout) */
+@media (max-width: 520px) {
+  .gambi-create-item-dialog .dialog-buttons {
+    flex-direction: column;
+  }
+  .gambi-create-item-dialog .dialog-buttons button {
+    width: 100%;
+  }
+}
+
+/* 3) Área de efeitos: MAIS espaço e sem sobreposição
+      (funciona tanto com radios “simples” quanto com “cards”) */
+
+.gambi-create-item-dialog .gambiarra-create-item .form-group {
+  margin-bottom: 12px;
+}
+
+/* Se você estiver usando a grade .gambi-radios (v0.6.2d), melhora ela */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  align-items: startretch;
+  margin-top: 8px;
+}
+
+/* Em janelas pequenas vira 1 coluna */
+@media (max-width: 560px) {
+  .gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cada opção vira um “bloco” clicável e bem espaçado */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios > label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+/* Evita “pular”/sobrepor texto */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios input[type="radio"] {
+  margin-top: 2px;
+  flex: 0 0 auto;
+}
+
+/* Texto pode quebrar linha sem estourar o grid */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios > label {
+  white-space: normal;
+  line-height: 1.15;
+}
+
+/* ============================================================
+ * v0.6.2e — Radios em 2 colunas (2x2), não 1 por linha
+ * Layout desejado:
+ * | (x) opção 1 | ( ) opção 2 |
+ * | ( ) opção 3 | ( ) opção 4 |
+ * ============================================================ */
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* <- força 2 colunas */
+  gap: 10px 14px;                /* linha x coluna */
+  align-items: start;
+  margin-top: 8px;
+}
+
+/* cada opção fica “compacta”, sem virar bloco gigante */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 8px;             /* mais baixo */
+  border-radius: 10px;
+  border: 1px solid transparent; /* não vira card pesado */
+  background: transparent;
+
+  white-space: normal;
+  line-height: 1.15;
+}
+
+/* hover leve (mantém o estilo do resto do sistema) */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios > label:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* radio alinhado certinho */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios input[type="radio"] {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+/* Em telas MUITO estreitas pode cair pra 1 coluna (opcional).
+   Se você quer 2 colunas sempre, pode apagar este bloco. */
+@media (max-width: 420px) {
+  .gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+ * Dialog "Criar Item do Nó" — radios 2x2 (2 colunas)
+ * ============================================================ */
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 colunas fixas */
+  gap: 10px 14px;
+  align-items: stretch;
+  margin-top: 6px;
+}
+
+/* cada opção vira uma “capsula” horizontal (input + texto) */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.015);
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* garante que o input NÃO pula pra linha de cima */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio input[type="radio"] {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+/* texto em 2 linhas (título + subtítulo) mas dentro do mesmo “card” */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-title {
+  font-weight: 800;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-sub {
+  font-size: 12px;
+  color: var(--gambi-muted);
+}
+
+/* 2 colunas SEMPRE (mesmo estreito).
+   Se quiser cair pra 1 coluna no mobile, eu adiciono um @media depois. */
+
+   /* ============================================================
+ * v0.6.2e+ — Dialog: 🎲 Rolar Desafio
+ * - Aumenta altura útil do conteúdo
+ * - Footer não cresce (botões com altura fixa)
+ * ============================================================ */
+
+.gambi-roll-desafio-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gambi-roll-desafio-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.gambi-roll-desafio-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.gambi-roll-desafio-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-title {
+  margin-left: 6px;
+  font-weight: 900;
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-note {
+  margin-top: 4px;
+}
+
+/* ============================================================
+ * Dialog: "🎒 Adicionar Item do Compêndio"
+ * - footer fixo
+ * - resize aumenta conteúdo, não o botão
+ * ============================================================ */
+
+.gambi-pick-item-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* conteúdo rola */
+.gambi-pick-item-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+/* footer não cresce */
+.gambi-pick-item-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+/* botão com altura fixa (não vira "banner") */
+.gambi-pick-item-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* se ficar estreito, empilha */
+@media (max-width: 520px) {
+  .gambi-pick-item-dialog .dialog-buttons {
+    flex-direction: column;
+  }
+  .gambi-pick-item-dialog .dialog-buttons button {
+    width: 100%;
+  }
+}

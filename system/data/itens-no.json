@@ -1,185 +1,70 @@
 [
   {
-    "name": "Bússola Estranha",
+    "name": "Chave (Quase) Universal",
     "type": "item",
-    "img": "icons/tools/navigation/compass-worn-brass.webp",
+    "img": "icons/tools/misc/toolbox.webp",
     "system": {
-      "categoria": "direcao",
-      "tipoItem": "reliquia",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Aponta para algo importante, não para o norte.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar", "transformar"]
-    }
-  },
-  {
-    "name": "Mapa que Muda",
-    "type": "item",
-    "img": "icons/sundries/books/book-embossed-gold.webp",
-    "system": {
-      "categoria": "direcao",
-      "tipoItem": "reliquia",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Se reorganiza conforme as escolhas do grupo.",
-      "efeitosPossiveis": ["reduzir", "trocar", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["transformar", "dado"]
-    }
-  },
-  {
-    "name": "Olho de Drone",
-    "type": "item",
-    "img": "icons/commodities/tech/eye-lens.webp",
-    "system": {
-      "categoria": "direcao",
-      "tipoItem": "reliquia",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Enxerga lugares inacessíveis e detalhes que ninguém alcança.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": false,
-      "efeitosBug": []
-    }
-  },
-
-  {
-    "name": "Chave Universal (Quase)",
-    "type": "item",
-    "img": "icons/tools/hand/wrench.webp",
-    "system": {
+      "descricao": "Uma chave que abre quase qualquer coisa. Às vezes, ela abre a coisa errada.",
       "categoria": "gambiarra",
       "tipoItem": "reliquia",
+      "cargasMax": 1,
       "cargas": 1,
       "usado": false,
-      "descricao": "Abre quase tudo… mas nunca do jeito esperado.",
-      "efeitosPossiveis": ["permitir", "complicar"],
-      "reageABug": true,
-      "efeitosBug": ["transformar"]
-    }
-  },
-  {
-    "name": "Fita de Pixel",
-    "type": "item",
-    "img": "icons/tools/smithing/tongs.webp",
-    "system": {
-      "categoria": "gambiarra",
-      "tipoItem": "consumivel",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Gruda qualquer coisa por alguns minutos.",
-      "efeitosPossiveis": ["dado", "reduzir"],
-      "reageABug": false,
-      "efeitosBug": []
-    }
-  },
-  {
-    "name": "Kit de Conserto Improvisado",
-    "type": "item",
-    "img": "icons/tools/hand/hammer.webp",
-    "system": {
-      "categoria": "gambiarra",
-      "tipoItem": "consumivel",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Faz algo quebrado funcionar só dessa vez.",
-      "efeitosPossiveis": ["permitir", "dado"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar", "anular"]
-    }
-  },
-
-  {
-    "name": "Capa de Dados",
-    "type": "item",
-    "img": "icons/equipment/back/cloak-collared-red.webp",
-    "system": {
-      "categoria": "protecao",
-      "tipoItem": "reliquia",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Reage a ameaças inesperadas.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar"]
+      "efeito": "reduzir",
+      "corrompido": false,
+      "corrupcoes": [],
+      "sourceId": ""
     }
   },
   {
     "name": "Escudo de Luz",
     "type": "item",
-    "img": "icons/equipment/shield/heater-steel.webp",
+    "img": "icons/tools/misc/toolbox.webp",
     "system": {
+      "descricao": "Uma tela brilhante que te protege por um instante. Ela chama atenção e ilumina o caminho.",
       "categoria": "protecao",
       "tipoItem": "reliquia",
+      "cargasMax": 1,
       "cargas": 1,
       "usado": false,
-      "descricao": "Surge quando alguém protege outra pessoa.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": true,
-      "efeitosBug": ["anular"]
+      "efeito": "reduzir",
+      "corrompido": false,
+      "corrupcoes": [],
+      "sourceId": ""
     }
   },
   {
-    "name": "Botas Magnéticas",
+    "name": "Terminal Fantasma",
     "type": "item",
-    "img": "icons/equipment/feet/boots-leather-brown.webp",
+    "img": "icons/tools/misc/toolbox.webp",
     "system": {
-      "categoria": "protecao",
+      "descricao": "Um terminal que aparece no ar por alguns segundos. Ele não faz milagres, mas registra que você ‘hackeou o Nó’.",
+      "categoria": "direcao",
       "tipoItem": "reliquia",
+      "cargasMax": 1,
       "cargas": 1,
       "usado": false,
-      "descricao": "Impedem quedas em superfícies estranhas.",
-      "efeitosPossiveis": ["reduzir", "permitir"],
-      "reageABug": false,
-      "efeitosBug": []
-    }
-  },
-
-  {
-    "name": "Frasco Vazio",
-    "type": "item",
-    "img": "icons/containers/kitchenware/jar-glass-brown.webp",
-    "system": {
-      "categoria": "estranho",
-      "tipoItem": "reliquia",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Pode guardar qualquer coisa… inclusive ideias.",
-      "efeitosPossiveis": ["permitir", "complicar"],
-      "reageABug": true,
-      "efeitosBug": ["transformar"]
+      "efeito": "hackear",
+      "corrompido": false,
+      "corrupcoes": [],
+      "sourceId": ""
     }
   },
   {
-    "name": "Relógio Parado",
+    "name": "Pulseira de Modo Alternativo",
     "type": "item",
-    "img": "icons/sundries/clock/clockwork-pocket.webp",
+    "img": "icons/tools/misc/toolbox.webp",
     "system": {
-      "categoria": "estranho",
-      "tipoItem": "reliquia",
-      "cargas": 1,
+      "descricao": "Ela não te deixa mais forte. Ela só muda ‘por onde’ você tenta — registrando que você trocou o atributo do desafio.",
+      "categoria": "direcao",
+      "tipoItem": "consumivel",
+      "cargasMax": 2,
+      "cargas": 2,
       "usado": false,
-      "descricao": "Reage quando o tempo se comporta mal.",
-      "efeitosPossiveis": ["reduzir", "permitir", "trocar"],
-      "reageABug": true,
-      "efeitosBug": ["suavizar", "transformar"]
-    }
-  },
-  {
-    "name": "Caixa que Sussurra",
-    "type": "item",
-    "img": "icons/containers/chest/chest-wooden-brown.webp",
-    "system": {
-      "categoria": "estranho",
-      "tipoItem": "reliquia",
-      "cargas": 1,
-      "usado": false,
-      "descricao": "Dá dicas confusas, mas nunca mente.",
-      "efeitosPossiveis": ["reduzir", "trocar"],
-      "reageABug": false,
-      "efeitosBug": []
+      "efeito": "trocar",
+      "corrompido": false,
+      "corrupcoes": [],
+      "sourceId": ""
     }
   }
 ]

@@ -2,6 +2,97 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas aqui.
 
+## [0.6.2] GAMBIARRA.SYS6 - v0.6.2 
+
+Itens do Nó atuando nas rolagens
+
+> Primeira versão com **sistema de Itens totalmente integrado às rolagens**.
+
+---
+
+## Sistema de Itens completo
+
+Agora os Itens do Nó fazem parte real da mecânica do jogo.
+
+Cada item possui **1 efeito único travado**:
+
+- **Reduzir dificuldade** *(mecânico)*
+- **+1 dado roxo** *(mecânico)*
+- **Hackear o Nó** *(registro narrativo)*
+- **Trocar atributo do desafio** *(registro narrativo)*
+
+Tipos de item:
+
+- 🔸 **Consumível** - possui **cargas (1–3)** e é absorvido pelo Nó ao zerar.
+- 🔹 **Relíquia** - acompanha o personagem, sem consumo.
+
+---
+
+## Integração total com Rolar Desafio
+
+Os itens agora aparecem diretamente no diálogo de rolagem:
+
+- Dropdown com todos os itens utilizáveis do personagem.
+- Preview visual do efeito selecionado.
+- Efeitos aplicados automaticamente:
+  - 🟣 +1 dado roxo entra e sai dinamicamente.
+  - ➖ Reduzir dificuldade respeita limites (confirmação em Normal).
+- Consumo de cargas ocorre após a rolagem.
+- Quando um consumível zera:
+  - item fica marcado como usado.
+  - mensagem narrativa no chat: o Nó absorveu o item.
+
+---
+
+## Chat mais informativo
+
+Cada rolagem agora registra:
+
+- Dados base e dados roxos separados.
+- Sucessos individuais.
+- Notas automáticas dos itens usados.
+- Resultado final com badge visual:
+  - ✨ Sucesso
+  - 🌟 Sucesso Forte
+  - 🐞 BUG
+
+---
+
+## Interface e UX
+
+- Diálogos redimensionáveis de verdade.
+- Área de efeitos organizada em **grid 2x2**.
+- Botões com tamanho fixo (não crescem ao redimensionar).
+- Preview de efeito no Rolar Desafio.
+- Itens consumidos aparecem:
+  - riscados
+  - hachurados
+  - visualmente “mortos”.
+- Dados coloridos por atributo (integração Dice So Nice).
+
+---
+
+## Correções importantes
+
+- Corrigido bug do dado roxo “grudar” ao trocar item.
+- Corrigido crescimento exagerado de botões em dialogs.
+- Padronização completa entre:
+  - criação de item
+  - compêndio
+  - ficha
+  - rolagem.
+
+---
+
+## 📌 Marco do projeto
+
+A partir da v0.6.2, o sistema possui:
+
+- economia real de recursos,
+- mecânica de bônus contextual,
+- narrativa registrada no chat,
+- loop completo: **criar → usar → consumir → consequência**.
+
 ## [0.6.1] Itens do Nó vivos + Seed automático
 23/01/2026
 
