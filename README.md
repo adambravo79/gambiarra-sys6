@@ -13,29 +13,44 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ## 📦 Versão atual
 
-## **v0.6.1 - Sistema Jogável Completo (Seed Automático)**
-
-Primeira versão realmente *plug and play* do GAMBIARRA.SYS6.  
-Instalou → criou mundo → já tem tudo pronto para jogar.
+## **v0.6.2 — Núcleo com Itens Integrados**
 
 ### O que já existe
 
 - 🎲 Sistema de rolagem d6 visual (Dice So Nice)
 - 🟢🔵🔴 Atributos: Corpo, Mente, Coração
-- ⚡ Poderes Gambiarra (máx. 2 por personagem)
-- 🎒 Itens do Nó:
-  - Relíquias (persistentes)
-  - Consumíveis com cargas (1–3)
-  - Uso na cena e contra BUG
-  - Consumo automático com “O Nó recebeu…”
-- 📦 Compêndios automáticos:
-  - `world.gambiarra-poderes`
-  - `world.gambiarra-itens`
-- 🧩 Criação em mesa:
-  - Poderes e Itens podem ser criados durante a sessão
-  - Salvamento direto no compêndio do mundo
-- Interface clara para crianças e Programadora
-- Sistema funciona sem macros ou setup manual
+- ⚡ Poderes Gambiarra (máx. 2)
+- 🎒 Sistema completo de Itens do Nó
+- 🟣 Dados roxos (bônus narrativos)
+- 💬 Chat rico com feedback visual
+- 🔁 Consumo real de recursos (cargas)
+
+### Itens do Nó
+
+Cada item possui **1 efeito travado**:
+
+- ➖ Reduzir dificuldade
+- 🟣 +1 dado roxo
+- 🪢 Hackear o Nó (registro narrativo)
+- 🔁 Trocar atributo do desafio (registro narrativo)
+
+Tipos:
+
+- 🔸 Consumível (1–3 cargas)
+- 🔹 Relíquia (permanente)
+
+Os itens:
+- aparecem no Rolar Desafio,
+- afetam a rolagem automaticamente,
+- são registrados no chat,
+- podem ser absorvidos pelo Nó.
+
+---
+
+## O que ainda NÃO existe
+
+- ❌ fichas prontas - arquétipos
+- ❌ listas fechadas de equipamentos
 
 ---
 
