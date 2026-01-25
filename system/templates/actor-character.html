@@ -121,13 +121,6 @@
   <section class="gambi-items">
     <h2 class="gambi-section-title">🎒 Itens do Nó</h2>
 
-    <div class="gambi-actions-row">
-      <button type="button" class="add-item">➕ Adicionar do Compêndio</button>
-      {{#if isGM}}
-      <button type="button" class="create-item">🧰 Criar Item (Compêndio/Ficha)</button>
-      {{/if}}
-    </div>
-
     <div class="gambi-list">
       {{#each items as |it|}}
       <div class="gambi-row {{#if it.system.usado}}is-used{{/if}}">
@@ -154,6 +147,13 @@
       {{#unless items.length}}
       <div class="hint">— Nenhum item ainda.</div>
       {{/unless}}
+    </div>
+
+    <div class="gambi-actions-row">
+      <button type="button" class="add-item">➕ Adicionar do Compêndio</button>
+      {{#if isGM}}
+      <button type="button" class="create-item">🧰 Criar Item (Compêndio/Ficha)</button>
+      {{/if}}
     </div>
   </section>
 

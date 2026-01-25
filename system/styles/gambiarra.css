@@ -388,11 +388,6 @@
   margin: 6px 0;
 }
 
-.effects button,
-.items button {
-  margin-top: 10px;
-  margin-right: 8px;
-}
 
 /* ------------------------------------------------------------
  * Item sheet: Poder
@@ -1258,4 +1253,195 @@
 
 .gambiarra-sumbar.bad {
   background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.88));
+}
+
+/* ============================================================
+ * Pills para Poderes e Itens (linha única + ações no final)
+ * ============================================================ */
+
+/* --- Poderes --- */
+.gambi-powers .gambi-list .gambi-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding:10px 12px;
+  border-radius:999px;               /* pill */
+  border:1px solid var(--gambi-border);
+  background:rgba(255,255,255,.92);
+}
+
+.gambi-powers .gambi-row-main{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.gambi-powers .gambi-row-main strong{
+  display:block;
+  font-weight:900;
+}
+
+.gambi-powers .gambi-row-main .hint{
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.gambi-powers .gambi-row-actions{
+  flex:0 0 auto;
+  display:flex;
+  gap:8px;
+}
+
+.gambi-powers .gambi-row-actions button{
+  padding:6px 10px;
+  border-radius:999px;
+}
+
+/* botões “Escolher/Sortear/Criar” em UMA linha */
+.gambi-powers .powers-buttons{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.gambi-powers .powers-buttons > button{
+  flex:1 1 180px;
+  border-radius:999px;
+}
+
+/* --- Itens --- */
+.gambi-items .gambi-list .gambi-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding:10px 12px;
+  border-radius:999px;               /* pill */
+  border:1px solid var(--gambi-border);
+  background:rgba(255,255,255,.92);
+}
+
+.gambi-items .gambi-row-main{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.gambi-items .gambi-row-main strong{
+  display:block;
+  font-weight:900;
+}
+
+.gambi-items .gambi-row-main .hint{
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.gambi-items .gambi-row-meta{
+  flex:0 0 auto;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.gambi-items .gambi-row-actions{
+  flex:0 0 auto;
+  display:flex;
+  gap:8px;
+}
+
+.gambi-items .gambi-row-actions button{
+  padding:6px 10px;
+  border-radius:999px;
+}
+
+/* botões de Itens embaixo, na mesma linha */
+.gambi-items .gambi-actions-row--bottom{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.gambi-items .gambi-actions-row--bottom > button{
+  flex:1 1 220px;
+  border-radius:999px;
+}
+
+/* ============================================================
+ * FIX: botões de ITENS em uma única linha (igual Poderes)
+ * ============================================================ */
+
+.gambi-items .gambi-actions-row--bottom{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center;
+  gap:10px;
+
+  /* impede layout “coluna” antigo */
+  flex-wrap:nowrap !important;
+}
+
+/* garante que cada botão ocupe metade e NÃO vire bloco 100% */
+.gambi-items .gambi-actions-row--bottom > button{
+  flex:1 1 0 !important;
+  width:auto !important;
+  max-width:none !important;
+
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:999px;
+}
+
+/* se a janela ficar estreita, aí sim pode quebrar (opcional) */
+@media (max-width: 520px){
+  .gambi-items .gambi-actions-row--bottom{
+    flex-wrap:wrap !important;
+  }
+  .gambi-items .gambi-actions-row--bottom > button{
+    flex:1 1 220px !important;
+  }
+}
+/* ============================================================
+ * FIX REAL: Botões de ITENS em uma linha (usa o HTML atual)
+ * ============================================================ */
+
+.gambi-items .gambi-actions-row{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:10px;
+  flex-wrap:nowrap;
+  margin-top:10px;
+}
+
+.gambi-items .gambi-actions-row > button{
+  flex:1 1 0;
+  width:auto;
+  max-width:none;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:999px;
+  margin:0; /* neutraliza margens herdadas */
+}
+
+/* se ficar estreito, pode quebrar em 2 linhas */
+@media (max-width: 520px){
+  .gambi-items .gambi-actions-row{
+    flex-wrap:wrap;
+  }
+  .gambi-items .gambi-actions-row > button{
+    flex:1 1 220px;
+  }
 }
