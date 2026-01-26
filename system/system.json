@@ -2,29 +2,35 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.6.3c",
+  "version": "0.6.3",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
   },
-"packs": [
-  {
-    "name": "gambiarra-poderes",
-    "label": "⚡ Poderes Gambiarra",
-    "type": "Item",
-    "path": "packs/gambiarra-poderes",
-    "system": "gambiarra-sys6",
-    "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
-  },
-  {
-    "name": "gambiarra-itens",
-    "label": "🎒 Itens do Nó",
-    "type": "Item",
-    "path": "packs/gambiarra-itens",
-    "system": "gambiarra-sys6",
-    "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
-  }
-],
+  "packs": [
+    {
+      "name": "gambiarra-poderes",
+      "label": "⚡ Poderes Gambiarra",
+      "type": "Item",
+      "path": "packs/gambiarra-poderes",
+      "system": "gambiarra-sys6",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "gambiarra-itens",
+      "label": "🎒 Itens do Nó",
+      "type": "Item",
+      "path": "packs/gambiarra-itens",
+      "system": "gambiarra-sys6",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
   "relationships": {
     "recommends": [
       {
@@ -38,8 +44,16 @@
       "name": "André 'AdamBravo79' Nascimento"
     }
   ],
-  "esmodules": ["scripts/init.js"],
-  "styles": ["styles/gambiarra.css"],
+  "esmodules": [
+    "scripts/init.js"
+  ],
+  "styles": [
+    "styles/gambiarra.css",
+    "styles/actor.css",
+    "styles/item.css",
+    "styles/power.css",
+    "styles/rolls.css"
+  ],
   "languages": [
     {
       "lang": "pt-BR",
@@ -58,5 +72,5 @@
     }
   },
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
-  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.6.3c/gambiarra-sys6-system-0.6.3c.zip"
+  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.6.3/gambiarra-sys6-system-0.6.3.zip"
 }

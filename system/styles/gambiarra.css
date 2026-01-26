@@ -1,13 +1,13 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — CSS v0.6.0
- * Objetivo: melhorar visual sem quebrar classes existentes.
- * Mantém compatibilidade com:
- * - templates/actor-character.html
- * - templates/item/item-poder.html
- * - scripts/rolls.js chat card + dialog
+ * GAMBIARRA.SYS6 — gambiarra.css (GLOBAL) v0.6.3c
+ * - Tokens (CSS vars) + base UI (inputs, botões, form-groups)
+ * - Componentes compartilhados (header, chips, rows, listas)
+ * - NÃO inclui: Actor layout (actor.css), Dialogs Item/Power (item.css/power.css),
+ *   nem Rolagens/Chat (rolls.css)
  * ============================================================ */
+
 /* ------------------------------------------------------------
- * Base
+ * Tokens
  * ------------------------------------------------------------ */
 :root {
   --gambi-bg: rgba(20, 20, 26, 0.03);
@@ -35,6 +35,9 @@
   --gambi-focus: rgba(138, 77, 232, 0.35);
 }
 
+/* ------------------------------------------------------------
+ * Base de folhas (actor + item)
+ * ------------------------------------------------------------ */
 .gambiarra-sheet,
 .gambiarra-actor-sheet,
 .item-sheet {
@@ -48,6 +51,9 @@
   border-radius: var(--gambi-radius);
 }
 
+/* ------------------------------------------------------------
+ * Headers (item sheets ainda usam sheet-header)
+ * ------------------------------------------------------------ */
 .gambiarra-sheet .sheet-header,
 .item-sheet .sheet-header {
   display: grid;
@@ -78,43 +84,42 @@
   box-shadow: 0 0 0 4px var(--gambi-focus);
 }
 
-.gambiarra-sheet .arquetipo {
-  margin: 0;
-  color: var(--gambi-muted);
-  font-weight: 600;
-}
-
-.gambiarra-sheet section,
-.gambiarra-actor-sheet section,
-.item-sheet section {
-  margin-top: 12px;
-}
-
-/* Títulos */
-.gambiarra-sheet h2,
-.gambiarra-sheet h3,
-.item-sheet h2,
-.item-sheet h3 {
-  margin: 0 0 8px;
-  line-height: 1.2;
-}
-
-.gambiarra-sheet h2 {
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.gambiarra-sheet h3 {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--gambi-muted);
-}
-
-/* Texto auxiliar */
+/* ------------------------------------------------------------
+ * Texto auxiliar
+ * ------------------------------------------------------------ */
 .hint,
 .gambi-sub.is-muted {
   color: var(--gambi-muted);
   font-size: 12px;
+}
+
+.gambi-sub {
+  font-size: 12px;
+}
+
+/* ------------------------------------------------------------
+ * Form base
+ * ------------------------------------------------------------ */
+.form-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+/* Labels “de formulário” */
+.form-group > label {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--gambi-border);
+  margin: 12px 0;
 }
 
 /* Inputs padrões */
@@ -162,7 +167,6 @@
 /* Botões */
 .gambiarra-sheet button,
 .gambiarra-actor-sheet button,
-.gambiarra-roll button,
 .item-sheet button {
   border: 1px solid var(--gambi-border);
   border-radius: 12px;
@@ -177,7 +181,6 @@
 }
 
 .gambiarra-sheet button:hover,
-.gambiarra-roll button:hover,
 .item-sheet button:hover {
   border-color: var(--gambi-border-strong);
   box-shadow: var(--gambi-shadow-sm);
@@ -185,277 +188,16 @@
 }
 
 .gambiarra-sheet button:active,
-.gambiarra-roll button:active,
 .item-sheet button:active {
   transform: translateY(0px);
   box-shadow: none;
 }
 
 /* ------------------------------------------------------------
- * Actor: Atributos
+ * Checkbox “padrão” em sheets
  * ------------------------------------------------------------ */
-
-.attributes {
-  display: grid;
-  gap: var(--gambi-gap);
-}
-
-/* grid responsivo: 3 atributos + sumbar */
-.attributes {
-  grid-template-columns: repeat(12, 1fr);
-}
-
-.attribute {
-  grid-column: span 4;
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: var(--gambi-panel);
-  box-shadow: var(--gambi-shadow-sm);
-  padding: 12px;
-  display: grid;
-  gap: 10px;
-}
-
-.attribute h2 {
-  font-size: 14px;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.attribute input[type="number"] {
-  width: 100%;
-  font-size: 18px;
-  font-weight: 900;
-  text-align: center;
-  padding: 10px 12px;
-}
-
-/* leve identidade por atributo */
-.attribute.corpo {
-  background: linear-gradient(180deg, rgba(31, 179, 91, 0.1), rgba(255, 255, 255, 0.88));
-}
-
-.attribute.mente {
-  background: linear-gradient(180deg, rgba(47, 125, 225, 0.1), rgba(255, 255, 255, 0.88));
-}
-
-.attribute.coracao {
-  background: linear-gradient(180deg, rgba(226, 74, 74, 0.1), rgba(255, 255, 255, 0.88));
-}
-
-@media (max-width: 820px) {
-  .attribute {
-    grid-column: span 12;
-  }
-}
-
-/* Sumbar (mantém a classe existente) */
-.gambiarra-sumbar {
-  grid-column: span 12;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-
-  padding: 10px 12px;
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: var(--gambi-panel-2);
-  box-shadow: var(--gambi-shadow-sm);
-}
-
-.gambiarra-sumbar .sum-left,
-.gambiarra-sumbar .sum-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sum-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.92);
-  font-weight: 900;
-}
-
-/* .gambiarra-sumbar.ok {
-  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.88));
-}
-
-.gambiarra-sumbar.bug {
-  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.88));
-}
-
-.gambiarra-sumbar.strong {
-  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.88));
-} */
-
-/* ------------------------------------------------------------
- * Actor: Rolagem
- * ------------------------------------------------------------ */
-
-.roll-section {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 12px;
-}
-
-.roll-section .roll-desafio {
-  padding: 10px 14px;
-  border-radius: 14px;
-}
-
-/* ------------------------------------------------------------
- * Actor: Poderes
- * ------------------------------------------------------------ */
-
-.powers,
-.effects,
-.items {
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: var(--gambi-panel);
-  box-shadow: var(--gambi-shadow-sm);
-  padding: 12px;
-}
-
-.power-list {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0 0;
-  display: grid;
-  gap: 10px;
-}
-
-.power {
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: rgba(255, 255, 255, 0.92);
-  padding: 10px 12px;
-}
-
-.power-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.power-header strong {
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.power .state {
-  font-size: 12px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(0, 0, 0, 0.03);
-  color: var(--gambi-muted);
-}
-
-/* estado do poder via classe power-ativo / power-esgotado / power-fora */
-.power-ativo {
-  background: linear-gradient(180deg, rgba(31, 179, 91, 0.1), rgba(255, 255, 255, 0.92));
-}
-
-.power-esgotado {
-  background: linear-gradient(180deg, rgba(241, 196, 15, 0.14), rgba(255, 255, 255, 0.92));
-}
-
-.power-fora {
-  background: linear-gradient(180deg, rgba(231, 76, 60, 0.12), rgba(255, 255, 255, 0.92));
-}
-
-.power-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  grid-column: 1 / -1;
-}
-
-.power-actions button {
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-weight: 800;
-}
-
-.power .description {
-  margin: 10px 0 0;
-  white-space: pre-line;
-  /* mantém \n da descricao */
-  color: var(--gambi-text);
-}
-
-/* botões do bloco de poderes */
-.powers .add-power,
-.powers .roll-power,
-.powers .create-power {
-  margin-top: 10px;
-  margin-right: 8px;
-}
-
-/* ------------------------------------------------------------
- * Actor: Efeitos / Itens
- * ------------------------------------------------------------ */
-
-.effects ul,
-.items ul {
-  margin: 6px 0 0;
-  padding-left: 18px;
-}
-
-.effects li,
-.items li {
-  margin: 6px 0;
-}
-
-
-/* ------------------------------------------------------------
- * Item sheet: Poder
- * ------------------------------------------------------------ */
-
-.item-sheet .sheet-body {
-  margin-top: 12px;
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: var(--gambi-panel);
-  box-shadow: var(--gambi-shadow-sm);
-  padding: 12px;
-}
-
-.item-sheet .form-group {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.item-sheet .form-group>label {
-  font-weight: 900;
-  font-size: 12px;
-  color: var(--gambi-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.item-sheet hr {
-  border: none;
-  height: 1px;
-  background: var(--gambi-border);
-  margin: 12px 0;
-}
-
-.item-sheet label.checkbox {
+.item-sheet label.checkbox,
+.gambiarra-sheet label.checkbox {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -465,708 +207,24 @@
   border: 1px solid transparent;
 }
 
-.item-sheet label.checkbox:hover {
+.item-sheet label.checkbox:hover,
+.gambiarra-sheet label.checkbox:hover {
   border-color: var(--gambi-border);
   background: rgba(0, 0, 0, 0.02);
 }
 
 /* ------------------------------------------------------------
- * Dialog: Rolagem (gambiarra-roll + roxos)
+ * Header novo do Actor (compartilhado, mas usado no actor)
  * ------------------------------------------------------------ */
-
-.gambiarra-roll .form-group {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.gambiarra-roll hr {
-  border: none;
-  height: 1px;
-  background: var(--gambi-border);
-  margin: 12px 0;
-}
-
-.purple-label {
-  font-weight: 900;
-}
-
-.purple-row {
-  display: grid;
-  grid-template-columns: auto 64px auto 1fr;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 10px;
-  border-radius: 14px;
-  border: 1px solid rgba(138, 77, 232, 0.25);
-  background: linear-gradient(180deg, var(--gambi-purple), rgba(255, 255, 255, 0.86));
-}
-
-.purple-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  font-weight: 900;
-  font-size: 18px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.purple-value {
-  text-align: center;
-  font-weight: 900;
-  font-size: 16px;
-  padding: 8px 10px;
-}
-
-@media (max-width: 520px) {
-  .purple-row {
-    grid-template-columns: auto 64px auto;
-  }
-
-  .purple-row .hint {
-    grid-column: 1 / -1;
-  }
-}
-
-/* ------------------------------------------------------------
- * Chat card: gambi-chat
- * ------------------------------------------------------------ */
-
-.gambi-chat {
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: rgba(255, 255, 255, 0.92);
-  padding: 12px;
-}
-
-.gambi-chat-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.gambi-chat-head h2 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.gambi-chat-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(0, 0, 0, 0.02);
-  margin-bottom: 10px;
-}
-
-.gambi-line {
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: rgba(0, 0, 0, 0.01);
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.gambi-line-title {
-  font-weight: 900;
-  font-size: 12px;
-  color: var(--gambi-muted);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.gambi-dice {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-
-.gambi-die {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--gambi-border);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.gambi-die.is-success {
-  border-color: rgba(46, 204, 113, 0.45);
-  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
-}
-
-.gambi-chat-summary {
-  border-top: 1px solid var(--gambi-border);
-  padding-top: 10px;
-  display: grid;
-  gap: 6px;
-}
-
-.gambi-result {
-  margin-top: 4px;
-  padding: 10px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(0, 0, 0, 0.02);
-}
-
-/* badges do chat */
-.gambi-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--gambi-border);
-  font-weight: 900;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.gambi-badge.is-ok {
-  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.92));
-}
-
-.gambi-badge.is-strong {
-  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.92));
-}
-
-.gambi-badge.is-bug {
-  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.92));
-}
-
-/* ============================================================
- * 0.6.0 — Chat dice: cor de sucesso por atributo/origem
- * ============================================================ */
-
-/* sucessos por atributo */
-.gambi-die.is-success.suc-corpo {
-  border-color: rgba(31, 179, 91, 0.65);
-  background: rgba(31, 179, 91, 0.18);
-  box-shadow: 0 0 0 4px rgba(31, 179, 91, 0.14);
-}
-
-.gambi-die.is-success.suc-mente {
-  border-color: rgba(47, 125, 225, 0.65);
-  background: rgba(47, 125, 225, 0.18);
-  box-shadow: 0 0 0 4px rgba(47, 125, 225, 0.14);
-}
-
-.gambi-die.is-success.suc-coracao {
-  border-color: rgba(226, 74, 74, 0.65);
-  background: rgba(226, 74, 74, 0.18);
-  box-shadow: 0 0 0 4px rgba(226, 74, 74, 0.14);
-}
-
-/* sucesso vindo do dado roxo */
-.gambi-die.is-success.suc-roxo {
-  border-color: rgba(138, 77, 232, 0.7);
-  background: rgba(138, 77, 232, 0.2);
-  box-shadow: 0 0 0 4px rgba(138, 77, 232, 0.14);
-}
-
-/* ---------------------------------------
- * Rolagem — cores dos dados em sucesso
- * ------------------------------------- */
-
-.gambi-die {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 28px;
-  height: 28px;
-  padding: 0 6px;
-
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(0, 0, 0, 0.18);
-
-  font-weight: 700;
-  line-height: 1;
-  margin-right: 6px;
-}
-
-/* Sucesso: deixa “aceso” */
-.gambi-die.is-success {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) inset;
-}
-
-/* Sucesso por atributo */
-.gambi-die.is-success.suc-corpo {
-  background: rgba(31, 179, 91, 0.9);
-  color: #fff;
-}
-
-/* verde */
-.gambi-die.is-success.suc-mente {
-  background: rgba(47, 125, 225, 0.9);
-  color: #fff;
-}
-
-/* azul */
-.gambi-die.is-success.suc-coracao {
-  background: rgba(226, 74, 74, 0.9);
-  color: #fff;
-}
-
-/* vermelho */
-
-/* Sucesso dos roxos */
-.gambi-die.is-success.suc-roxo {
-  background: rgba(138, 77, 232, 0.9);
-  color: #fff;
-}
-
-/* roxo */
-
-/* Não-sucesso (mantém neutro) */
-.gambi-die:not(.is-success) {
-  opacity: 0.85;
-}
-
-.gambi-die.is-roxo {
-  border-style: dashed;
-}
-
-.gambi-die.is-base {
-  border-style: solid;
-}
-
-/* Itens usados (consumíveis sem carga) */
-.gambi-item.is-used .item-name {
-  text-decoration: line-through;
-  opacity: 0.7;
-}
-
-.gambi-item.is-used {
-  opacity: 0.75;
-  background-image: repeating-linear-gradient(45deg,
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.06) 6px,
-      rgba(0, 0, 0, 0.06) 6px,
-      rgba(0, 0, 0, 0.06) 12px);
-  border-radius: 8px;
-  padding: 2px 6px;
-}
-
-/* lista de itens */
-.gambi-items {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.gambi-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 10px;
-  border-radius: 10px;
-}
-
-.gambi-item-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.gambi-item-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.gambi-item-badge {
-  font-size: 12px;
-  opacity: 0.85;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.gambi-item-meta {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-/* ✅ usados: strikeout + hachurado */
-.gambi-item.is-used .item-name {
-  text-decoration: line-through;
-  opacity: 0.7;
-}
-
-.gambi-item.is-used {
-  opacity: 0.75;
-  background-image: repeating-linear-gradient(45deg,
-      rgba(255, 255, 255, 0.06),
-      rgba(255, 255, 255, 0.06) 6px,
-      rgba(0, 0, 0, 0.06) 6px,
-      rgba(0, 0, 0, 0.06) 12px);
-}
-
-/* botão desabilitado (mais óbvio) */
-.gambi-item button[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ============================================================
- * v0.6.2e — Ajuste cirúrgico do dialog:
- * “🎒 Criar Item do Nó (em mesa)”
- * Objetivos:
- * 1) Mais espaço para os efeitos (radios) sem sobrepor
- * 2) Botões do rodapé com altura fixa (não gigantes)
- * 3) Resize aumenta o conteúdo, não o footer
- * ============================================================ */
-
-/* 1) Estrutura vertical do Foundry Dialog */
-.gambi-create-item-dialog .window-content {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  /* impede que o footer empurre o conteúdo */
-}
-
-/* Conteúdo é o que cresce/rola */
-.gambi-create-item-dialog .dialog-content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding-bottom: 8px;
-}
-
-/* Footer não cresce */
-.gambi-create-item-dialog .dialog-buttons {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-top: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.88);
-}
-
-/* 2) Botões com altura fixa (acabou “botão gigante”) */
-.gambi-create-item-dialog .dialog-buttons button {
-  flex: 1 1 0;
-  height: 40px;
-  min-height: 40px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Se a janela ficar estreita, empilha botões (sem estourar layout) */
-@media (max-width: 520px) {
-  .gambi-create-item-dialog .dialog-buttons {
-    flex-direction: column;
-  }
-
-  .gambi-create-item-dialog .dialog-buttons button {
-    width: 100%;
-  }
-}
-
-/* 3) Área de efeitos: MAIS espaço e sem sobreposição
-      (funciona tanto com radios “simples” quanto com “cards”) */
-
-.gambi-create-item-dialog .gambiarra-create-item .form-group {
-  margin-bottom: 12px;
-}
-
-/* Se você estiver usando a grade .gambi-radios (v0.6.2d), melhora ela */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 14px;
-  align-items: startretch;
-  margin-top: 8px;
-}
-
-/* Em janelas pequenas vira 1 coluna */
-@media (max-width: 560px) {
-  .gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Cada opção vira um “bloco” clicável e bem espaçado */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios>label {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.88);
-}
-
-/* Evita “pular”/sobrepor texto */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios input[type="radio"] {
-  margin-top: 2px;
-  flex: 0 0 auto;
-}
-
-/* Texto pode quebrar linha sem estourar o grid */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios>label {
-  white-space: normal;
-  line-height: 1.15;
-}
-
-/* ============================================================
- * v0.6.2e — Radios em 2 colunas (2x2), não 1 por linha
- * Layout desejado:
- * | (x) opção 1 | ( ) opção 2 |
- * | ( ) opção 3 | ( ) opção 4 |
- * ============================================================ */
-
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* <- força 2 colunas */
-  gap: 10px 14px;
-  /* linha x coluna */
-  align-items: start;
-  margin-top: 8px;
-}
-
-/* cada opção fica “compacta”, sem virar bloco gigante */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios>label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 6px 8px;
-  /* mais baixo */
-  border-radius: 10px;
-  border: 1px solid transparent;
-  /* não vira card pesado */
-  background: transparent;
-
-  white-space: normal;
-  line-height: 1.15;
-}
-
-/* hover leve (mantém o estilo do resto do sistema) */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios>label:hover {
-  border-color: var(--gambi-border);
-  background: rgba(0, 0, 0, 0.02);
-}
-
-/* radio alinhado certinho */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios input[type="radio"] {
-  margin: 0;
-  flex: 0 0 auto;
-}
-
-/* Em telas MUITO estreitas pode cair pra 1 coluna (opcional).
-   Se você quer 2 colunas sempre, pode apagar este bloco. */
-@media (max-width: 420px) {
-  .gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ============================================================
- * Dialog "Criar Item do Nó" — radios 2x2 (2 colunas)
- * ============================================================ */
-
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* 2 colunas fixas */
-  gap: 10px 14px;
-  align-items: stretch;
-  margin-top: 6px;
-}
-
-/* cada opção vira uma “capsula” horizontal (input + texto) */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  background: rgba(0, 0, 0, 0.015);
-
-  cursor: pointer;
-  user-select: none;
-}
-
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio:hover {
-  border-color: var(--gambi-border);
-  background: rgba(0, 0, 0, 0.03);
-}
-
-/* garante que o input NÃO pula pra linha de cima */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio input[type="radio"] {
-  margin: 0;
-  flex: 0 0 auto;
-}
-
-/* texto em 2 linhas (título + subtítulo) mas dentro do mesmo “card” */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  line-height: 1.15;
-}
-
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-title {
-  font-weight: 800;
-}
-
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-sub {
-  font-size: 12px;
-  color: var(--gambi-muted);
-}
-
-/* 2 colunas SEMPRE (mesmo estreito).
-   Se quiser cair pra 1 coluna no mobile, eu adiciono um @media depois. */
-
-/* ============================================================
- * v0.6.2e+ — Dialog: 🎲 Rolar Desafio
- * - Aumenta altura útil do conteúdo
- * - Footer não cresce (botões com altura fixa)
- * ============================================================ */
-
-.gambi-roll-desafio-dialog .window-content {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.gambi-roll-desafio-dialog .dialog-content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding-bottom: 8px;
-}
-
-.gambi-roll-desafio-dialog .dialog-buttons {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-top: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.88);
-}
-
-.gambi-roll-desafio-dialog .dialog-buttons button {
-  flex: 1 1 0;
-  height: 40px;
-  min-height: 40px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gambi-roll-desafio-dialog .gambi-effect-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 14px;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.gambi-roll-desafio-dialog .gambi-effect-title {
-  margin-left: 6px;
-  font-weight: 900;
-}
-
-.gambi-roll-desafio-dialog .gambi-effect-note {
-  margin-top: 4px;
-}
-
-/* ============================================================
- * Dialog: "🎒 Adicionar Item do Compêndio"
- * - footer fixo
- * - resize aumenta conteúdo, não o botão
- * ============================================================ */
-
-.gambi-pick-item-dialog .window-content {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* conteúdo rola */
-.gambi-pick-item-dialog .dialog-content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding-bottom: 8px;
-}
-
-/* footer não cresce */
-.gambi-pick-item-dialog .dialog-buttons {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-top: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.88);
-}
-
-/* botão com altura fixa (não vira "banner") */
-.gambi-pick-item-dialog .dialog-buttons button {
-  flex: 1 1 0;
-  height: 40px;
-  min-height: 40px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* se ficar estreito, empilha */
-@media (max-width: 520px) {
-  .gambi-pick-item-dialog .dialog-buttons {
-    flex-direction: column;
-  }
-
-  .gambi-pick-item-dialog .dialog-buttons button {
-    width: 100%;
-  }
-}
-
-/* ------------------------------------------------------------
- * Header (compat: new layout v0.6.3+)
- * ------------------------------------------------------------ */
-
 .gambi-header {
   display: grid;
   grid-template-columns: 56px 1fr 120px;
   gap: 12px;
   align-items: center;
+
   padding: 12px;
+  margin-bottom: 12px;
+
   border: 1px solid var(--gambi-border);
   border-radius: var(--gambi-radius);
   background: var(--gambi-panel);
@@ -1241,272 +299,17 @@
   padding: 10px 12px 0;
 }
 
-/* Header novo (compatível com OldStyle) */
-.gambi-header {
-  display: grid;
-  grid-template-columns: 56px 1fr 120px;
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
-  margin-bottom: 12px;
-  border: 1px solid rgba(0, 0, 0, .12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .75);
-}
-
-.gambi-token-img {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid rgba(0, 0, 0, .25);
-}
-
-.gambi-name {
-  width: 100%;
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.gambi-arch-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.gambi-arch-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  border: 1px dashed rgba(0, 0, 0, .35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, .35);
-}
-
-.gambi-arch-emoji {
-  font-size: 22px;
-  line-height: 1;
-}
-
-.gambi-free-toggle {
-  display: inline-flex;
-  gap: 6px;
-  font-size: 12px;
-  user-select: none;
-}
-
-.gambi-subline {
-  margin-top: 4px;
-}
-
-.gambi-arch-badge {
-  font-size: 12px;
-  opacity: .9;
-}
-
-/* ============================================================
- * FIX: Atributos em 3 cards na mesma linha
- * Motivo: o .section-title estava ocupando 1 coluna do grid
- * ============================================================ */
-
-.attributes>.section-title {
-  grid-column: 1 / -1;
-}
-
-/* (opcional, mas recomendado) deixa o sumbar também “100%” */
-.attributes>.gambiarra-sumbar {
-  grid-column: 1 / -1;
-}
-
-/* seu template usa .attribute-label e .attribute-value,
-   mas o CSS antigo estava mirando h2 e input genérico. */
-.attribute .attribute-label {
-  font-weight: 900;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.attribute .attribute-value {
-  width: 100%;
-  font-size: 18px;
-  font-weight: 900;
-  text-align: center;
-  padding: 10px 12px;
-}
-
-.gambiarra-sumbar.bad {
-  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.88));
-}
-
-/* ============================================================
- * Pills para Poderes e Itens (linha única + ações no final)
- * ============================================================ */
-
-/* --- Poderes --- */
-.gambi-powers .gambi-list .gambi-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  padding: 10px 12px;
-  border-radius: 999px;
-  /* pill */
-  border: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, .92);
-}
-
-.gambi-powers .gambi-row-main {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.gambi-powers .gambi-row-main strong {
-  display: block;
+/* ------------------------------------------------------------
+ * Componentes compartilhados (chips / actions row / listas)
+ * ------------------------------------------------------------ */
+.gambi-section-title {
+  margin: 0 0 8px;
+  line-height: 1.2;
+  font-size: 16px;
   font-weight: 900;
 }
 
-.gambi-powers .gambi-row-main .hint {
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gambi-powers .gambi-row-actions {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 8px;
-}
-
-.gambi-powers .gambi-row-actions button {
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-
-/* botões “Escolher/Sortear/Criar” em UMA linha */
-.gambi-powers .powers-buttons {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.gambi-powers .powers-buttons>button {
-  flex: 1 1 180px;
-  border-radius: 999px;
-}
-
-/* --- Itens --- */
-.gambi-items .gambi-list .gambi-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  padding: 10px 12px;
-  border-radius: 999px;
-  /* pill */
-  border: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, .92);
-}
-
-.gambi-items .gambi-row-main {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.gambi-items .gambi-row-main strong {
-  display: block;
-  font-weight: 900;
-}
-
-.gambi-items .gambi-row-main .hint {
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gambi-items .gambi-row-meta {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.gambi-items .gambi-row-actions {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 8px;
-}
-
-.gambi-items .gambi-row-actions button {
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-
-/* botões de Itens embaixo, na mesma linha */
-.gambi-items .gambi-actions-row--bottom {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.gambi-items .gambi-actions-row--bottom>button {
-  flex: 1 1 220px;
-  border-radius: 999px;
-}
-
-/* ============================================================
- * FIX: botões de ITENS em uma única linha (igual Poderes)
- * ============================================================ */
-
-.gambi-items .gambi-actions-row--bottom {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
-  gap: 10px;
-
-  /* impede layout “coluna” antigo */
-  flex-wrap: nowrap !important;
-}
-
-/* garante que cada botão ocupe metade e NÃO vire bloco 100% */
-.gambi-items .gambi-actions-row--bottom>button {
-  flex: 1 1 0 !important;
-  width: auto !important;
-  max-width: none !important;
-
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 999px;
-}
-
-/* se a janela ficar estreita, aí sim pode quebrar (opcional) */
-@media (max-width: 520px) {
-  .gambi-items .gambi-actions-row--bottom {
-    flex-wrap: wrap !important;
-  }
-
-  .gambi-items .gambi-actions-row--bottom>button {
-    flex: 1 1 220px !important;
-  }
-}
-
-/* ============================================================
- * FIX REAL: Botões de ITENS em uma linha (usa o HTML atual)
- * ============================================================ */
-
-.gambi-items .gambi-actions-row {
+.gambi-actions-row {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1515,193 +318,34 @@
   margin-top: 10px;
 }
 
-.gambi-items .gambi-actions-row>button {
+.gambi-actions-row > button {
   flex: 1 1 0;
-  width: auto;
-  max-width: none;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 999px;
   margin: 0;
-  /* neutraliza margens herdadas */
 }
 
-/* se ficar estreito, pode quebrar em 2 linhas */
 @media (max-width: 520px) {
-  .gambi-items .gambi-actions-row {
+  .gambi-actions-row {
     flex-wrap: wrap;
   }
 
-  .gambi-items .gambi-actions-row>button {
+  .gambi-actions-row > button {
     flex: 1 1 220px;
   }
 }
 
-/* ============================================================
- * FIX DEFINITIVO: texto (hint) dos ITENS reaparecer
- * Cole no FINAL do gambiarra.css
- * ============================================================ */
-
-/* garante espaçamento vertical */
-.gambi-items .gambi-list {
-  gap: 12px;
-}
-
-/* pílula em grid (texto | meta | ações) */
-.gambi-items .gambi-list .gambi-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  column-gap: 12px;
-  align-items: start;
-}
-
-/* bloco principal em coluna */
-.gambi-items .gambi-row-main {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* >>> AQUI o “anti-sumir” (força aparecer contra CSS externo) <<< */
-.gambi-items .gambi-row-main .hint {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-
-  height: auto !important;
-  max-height: none !important;
-
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-
-  color: var(--gambi-muted) !important;
-  font-size: 12px !important;
-  line-height: 1.2 !important;
-  margin-top: 2px !important;
-}
-
-/* meta fica à direita; descrição quebra antes dela */
-.gambi-items .gambi-row-meta {
-  white-space: nowrap;
-  align-self: start;
-}
-
-/* ações alinhadas ao topo */
-.gambi-items .gambi-row-actions {
-  align-self: start;
-}
-
-/* se estreitar muito: meta desce e fica legível */
-@media (max-width: 620px) {
-  .gambi-items .gambi-list .gambi-row {
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-    row-gap: 6px;
-  }
-
-  .gambi-items .gambi-row-meta {
-    grid-column: 1 / -1;
-    justify-self: end;
-  }
-}
-
-/* mantém conteúdos bem distribuídos dentro da pill */
-.attributes>.gambiarra-sumbar .sum-left,
-.attributes>.gambiarra-sumbar .sum-right {
+.gambi-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-/* no mobile fica mais largo pra não apertar */
-@media (max-width: 820px) {
-  .attributes>.gambiarra-sumbar {
-    width: min(92%, 760px);
-  }
-}
-
-/* ============================================================
- * PATCH — Atributos mais arredondados
- * ============================================================ */
-
-.attribute {
-  border-radius: 18px;
-}
-
-.attribute input[type="number"] {
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: 999px;
-  /* valor vira uma pill */
-}
-
-/* ============================================================
- * PATCH — Atributos mais arredondados
- * ============================================================ */
-
-.attribute {
-  border-radius: 18px;
-}
-
-.attribute input[type="number"] {
-  border-radius: 999px;
-  /* valor vira uma pill */
-}
-
-
-/* em telas menores, deixa mais largo pra não apertar demais */
-@media (max-width: 820px) {
-  .attributes>.gambiarra-sumbar {
-    width: min(92%, 520px);
-  }
-}
-
-
-/* em telas menores, deixa mais largo pra não apertar demais */
-@media (max-width: 820px) {
-  .attributes>.gambiarra-sumbar {
-    width: min(92%, 520px);
-  }
-}
-
-/* ============================================================
- * SUMBAR — 60% central + cores OK/BAD
- * (cole NO FINAL do gambiarra.css)
- * ============================================================ */
-
-.attributes > .gambiarra-sumbar{
-  grid-column: 1 / -1;
-  width: min(60%, 760px);
-  margin: 10px auto 0;
-  border-radius: 999px;
-  padding: 12px 16px;
-
-  display:flex;
-  justify-content: space-between;
-  align-items:center;
-  gap: 12px;
-}
-
-/* mobile */
-@media (max-width: 820px){
-  .attributes > .gambiarra-sumbar{
-    width: min(92%, 760px);
-  }
-}
-
-/* pill do número */
-.attributes > .gambiarra-sumbar .sum-pill{
-  min-width: 44px;
-}
-
-/* ✅ CORES */
-.attributes > .gambiarra-sumbar.ok{
-  background: linear-gradient(180deg, var(--gambi-ok), rgba(255,255,255,.88)) !important;
-}
-
-.attributes > .gambiarra-sumbar.bad{
-  background: linear-gradient(180deg, var(--gambi-bug), rgba(255,255,255,.88)) !important;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
 }

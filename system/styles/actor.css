@@ -1,215 +1,257 @@
-/* ================================
- * GAMBIARRA.SYS6 — ACTOR SHEET
- * Estágio: Estados Visuais de Poder
- * ================================ */
+/* ============================================================
+ * GAMBIARRA.SYS6 — actor.css v0.6.3c
+ * - Somente layout/visual da ficha do personagem (actor-character)
+ * - Não inclui dialogs nem chat/rolagens (ver item.css/power.css/rolls.css)
+ * ============================================================ */
 
-/* ===== BASE ===== */
-
-.gambiarra-sheet {
-  font-family: sans-serif;
-  padding: 10px;
-}
-
-.sheet-header {
-  border-bottom: 2px solid #444;
-  margin-bottom: 10px;
-}
-
-.sheet-header h1 {
-  margin: 0;
-}
-
-.arquetipo {
-  font-style: italic;
-  opacity: 0.8;
-}
-
-/* ===== BUG ===== */
-
-.bug-state {
-  padding: 8px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-.bug-state.leve {
-  background: #fff3cd;
-  border: 2px dashed #ffcc00;
-}
-
-.bug-state.pesado {
-  background: #f8d7da;
-  border: 2px solid #cc0000;
-}
-
-.bug-warning {
-  margin-top: 0.5em;
-  padding: 0.3em 0.5em;
-  background: rgba(255, 200, 0, 0.15);
-  border-left: 3px solid #f5c542;
-  font-size: 0.9em;
-}
-
-/* ===== ATRIBUTOS ===== */
-
+/* ------------------------------------------------------------
+ * Atributos (3 cards + sumbar)
+ * ------------------------------------------------------------ */
 .attributes {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  display: grid;
+  gap: var(--gambi-gap);
+  grid-template-columns: repeat(12, 1fr);
+}
+
+/* título ocupa linha inteira (fix do grid) */
+.attributes > .section-title {
+  grid-column: 1 / -1;
 }
 
 .attribute {
-  width: 32%;
-  padding: 6px;
+  grid-column: span 4;
+  border: 1px solid var(--gambi-border);
+  border-radius: 18px;
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.attribute .attribute-label {
+  font-weight: 900;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attribute .attribute-value {
+  width: 100%;
+  font-size: 18px;
+  font-weight: 900;
   text-align: center;
-  border-radius: 6px;
-  font-size: 1.2em;
+  padding: 10px 12px;
+  border-radius: 999px; /* valor vira pill */
 }
 
+/* identidade por atributo */
 .attribute.corpo {
-  background: #e6f7e6;
-  border: 1px solid #3aa63a;
+  background: linear-gradient(180deg, rgba(31, 179, 91, 0.1), rgba(255, 255, 255, 0.88));
 }
-
 .attribute.mente {
-  background: #e6f0ff;
-  border: 1px solid #3366cc;
+  background: linear-gradient(180deg, rgba(47, 125, 225, 0.1), rgba(255, 255, 255, 0.88));
 }
-
 .attribute.coracao {
-  background: #ffe6e6;
-  border: 1px solid #cc3333;
+  background: linear-gradient(180deg, rgba(226, 74, 74, 0.1), rgba(255, 255, 255, 0.88));
 }
 
-/* ===== PODERES GAMBIARRA ===== */
-
-.powers {
-  margin-top: 15px;
+@media (max-width: 820px) {
+  .attribute {
+    grid-column: span 12;
+  }
 }
 
-.power-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+/* Sumbar central (60%) + cores OK/BAD */
+.attributes > .gambiarra-sumbar {
+  grid-column: 1 / -1;
+  width: min(60%, 760px);
+  margin: 10px auto 0;
+  border-radius: 999px;
+  padding: 12px 16px;
 
-.power {
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  border-left: 6px solid #999;
-  background: #f5f5f5;
-}
-
-.power header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+
+  border: 1px solid var(--gambi-border);
+  background: var(--gambi-panel-2);
+  box-shadow: var(--gambi-shadow-sm);
 }
 
-.power .state {
-  font-size: 0.85em;
-  font-weight: bold;
-  text-transform: uppercase;
+@media (max-width: 820px) {
+  .attributes > .gambiarra-sumbar {
+    width: min(92%, 760px);
+  }
 }
 
-/* ===== ESTADOS DE PODER ===== */
-
-/* ⚡ ATIVO */
-.power-ativo {
-  border-left-color: #8a2be2;
-  background: #f3e8ff;
+.attributes > .gambiarra-sumbar .sum-left,
+.attributes > .gambiarra-sumbar .sum-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.power-ativo .state {
-  color: #6a1bb1;
+.attributes > .gambiarra-sumbar .sum-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.92);
+  font-weight: 900;
 }
 
-/* ⚠ ESGOTADO */
-.power-esgotado {
-  border-left-color: #ff9900;
-  background: #fff2cc;
+.attributes > .gambiarra-sumbar.ok {
+  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.88)) !important;
+}
+.attributes > .gambiarra-sumbar.bad {
+  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.88)) !important;
 }
 
-.power-esgotado .state {
-  color: #cc7a00;
+/* ------------------------------------------------------------
+ * Rolagem (botão na ficha)
+ * ------------------------------------------------------------ */
+.roll-section {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 12px;
 }
 
-/* 🐞 FORA DE CONTROLE */
-.power-fora {
-  border-left-color: #cc0000;
-  background: #fdecea;
+.roll-section .roll-desafio {
+  padding: 10px 14px;
+  border-radius: 14px;
 }
 
-.power-fora .state {
-  color: #990000;
+/* ------------------------------------------------------------
+ * Seções de Poderes / Itens / Efeitos (cards)
+ * ------------------------------------------------------------ */
+.gambi-powers,
+.gambi-items,
+.gambi-effects {
+  margin-top: 12px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
 }
 
-/* ===== DESCRIÇÃO ===== */
-
-.power .description {
-  margin: 6px 0;
+/* lista de “linhas/pills” */
+.gambi-list {
+  display: grid;
+  gap: 10px;
 }
 
-/* ===== STATUS TEXTUAL ===== */
+/* row pill (grid: texto | meta? | ações) */
+.gambi-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  align-items: start;
 
-.power-status {
-  font-size: 0.85em;
-  margin-top: 4px;
-  opacity: 0.85;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.92);
 }
 
-/* ===== CONTROLES GM ===== */
-
-.power-controls {
-  margin-top: 6px;
+.gambi-row-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.power-controls button {
-  margin-right: 4px;
-  font-size: 0.75em;
-  padding: 2px 6px;
-  cursor: pointer;
+.gambi-row-main strong {
+  display: block;
+  font-weight: 900;
 }
 
-/* ===== ITENS ===== */
-
-.items {
-  margin-top: 15px;
+.gambi-row-main .hint {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.items ul {
-  list-style: none;
-  padding: 0;
+/* Ações */
+.gambi-row-actions {
+  display: flex;
+  gap: 8px;
+  align-self: start;
 }
 
-.items li {
-  padding: 4px 0;
+.gambi-row-actions button {
+  padding: 6px 10px;
+  border-radius: 999px;
 }
 
-.item-corrompido {
-  opacity: 0.85;
+/* Itens têm meta + ações => 3 colunas */
+.gambi-items .gambi-row {
+  grid-template-columns: 1fr auto auto;
 }
 
-.tag-corrompido {
-  margin-left: 0.5em;
-  font-size: 0.8em;
-  color: #b86cff;
+.gambi-row-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+  align-self: start;
 }
 
-.item-corruption-list {
-  margin: 0.3em 0 0 1em;
-  font-size: 0.85em;
+@media (max-width: 620px) {
+  .gambi-items .gambi-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    row-gap: 6px;
+  }
+
+  .gambi-items .gambi-row-meta {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
 }
 
-/* ===== BOTÕES ===== */
-
-button {
-  cursor: pointer;
+/* “nenhum item/poder” */
+.gambi-list .hint {
+  padding: 4px 2px;
 }
 
-button.clear-bug {
-  margin-top: 6px;
+/* ------------------------------------------------------------
+ * Itens usados (HTML usa .gambi-row.is-used)
+ * ------------------------------------------------------------ */
+.gambi-items .gambi-row.is-used {
+  opacity: 0.75;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.06) 6px,
+    rgba(0, 0, 0, 0.06) 6px,
+    rgba(0, 0, 0, 0.06) 12px
+  );
 }
 
+.gambi-items .gambi-row.is-used strong {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+/* ------------------------------------------------------------
+ * Botões “Escolher/Sortear/Criar” (poderes)
+ * ------------------------------------------------------------ */
+.powers-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.powers-buttons > button {
+  flex: 1 1 180px;
+  border-radius: 999px;
+}

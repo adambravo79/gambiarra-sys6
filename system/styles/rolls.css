@@ -1,0 +1,256 @@
+/* ============================================================
+ * GAMBIARRA.SYS6 — rolls.css v0.6.3c
+ * - Dialog “🎲 Rolar Desafio”
+ * - UI dos dados roxos
+ * - Chat card: gambi-chat, badges e dados renderizados
+ * ============================================================ */
+
+/* ------------------------------------------------------------
+ * Dialog: 🎲 Rolar Desafio (footer fixo)
+ * ------------------------------------------------------------ */
+.gambi-roll-desafio-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gambi-roll-desafio-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.gambi-roll-desafio-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.gambi-roll-desafio-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* effect preview card */
+.gambi-roll-desafio-dialog .gambi-effect-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-title {
+  margin-left: 6px;
+  font-weight: 900;
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-note {
+  margin-top: 4px;
+}
+
+/* ------------------------------------------------------------
+ * Dados Roxos UI
+ * ------------------------------------------------------------ */
+.purple-label {
+  font-weight: 900;
+}
+
+.purple-row {
+  display: grid;
+  grid-template-columns: auto 64px auto 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(138, 77, 232, 0.25);
+  background: linear-gradient(180deg, var(--gambi-purple), rgba(255, 255, 255, 0.86));
+}
+
+.purple-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.purple-value {
+  text-align: center;
+  font-weight: 900;
+  font-size: 16px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 520px) {
+  .purple-row {
+    grid-template-columns: auto 64px auto;
+  }
+  .purple-row .hint {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ------------------------------------------------------------
+ * Chat card: gambi-chat
+ * ------------------------------------------------------------ */
+.gambi-chat {
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 12px;
+}
+
+.gambi-chat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.gambi-chat-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.gambi-chat-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+  margin-bottom: 10px;
+}
+
+.gambi-line {
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: rgba(0, 0, 0, 0.01);
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.gambi-line-title {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gambi-dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+/* Dado do chat (padrão CLARO) */
+.gambi-die {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--gambi-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* sucesso “aceso” */
+.gambi-die.is-success {
+  border-color: rgba(46, 204, 113, 0.45);
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
+}
+
+/* sucesso por atributo */
+.gambi-die.is-success.suc-corpo {
+  border-color: rgba(31, 179, 91, 0.65);
+  background: rgba(31, 179, 91, 0.18);
+  box-shadow: 0 0 0 4px rgba(31, 179, 91, 0.14);
+}
+
+.gambi-die.is-success.suc-mente {
+  border-color: rgba(47, 125, 225, 0.65);
+  background: rgba(47, 125, 225, 0.18);
+  box-shadow: 0 0 0 4px rgba(47, 125, 225, 0.14);
+}
+
+.gambi-die.is-success.suc-coracao {
+  border-color: rgba(226, 74, 74, 0.65);
+  background: rgba(226, 74, 74, 0.18);
+  box-shadow: 0 0 0 4px rgba(226, 74, 74, 0.14);
+}
+
+/* sucesso vindo do roxo */
+.gambi-die.is-success.suc-roxo {
+  border-color: rgba(138, 77, 232, 0.7);
+  background: rgba(138, 77, 232, 0.2);
+  box-shadow: 0 0 0 4px rgba(138, 77, 232, 0.14);
+}
+
+/* marca origem (base/roxo) */
+.gambi-die.is-roxo {
+  border-style: dashed;
+}
+.gambi-die.is-base {
+  border-style: solid;
+}
+
+/* badges */
+.gambi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.gambi-badge.is-ok {
+  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.92));
+}
+.gambi-badge.is-strong {
+  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.92));
+}
+.gambi-badge.is-bug {
+  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.92));
+}
+
+.gambi-chat-summary {
+  border-top: 1px solid var(--gambi-border);
+  padding-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.gambi-result {
+  margin-top: 4px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+}

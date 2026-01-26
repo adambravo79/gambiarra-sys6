@@ -1,0 +1,176 @@
+/* ============================================================
+ * GAMBIARRA.SYS6 — item.css v0.6.3c
+ * - Dialogs de Itens do Nó (criar/pegar do compêndio)
+ * - Pequenos helpers do item sheet (remove inline styles do template)
+ * ============================================================ */
+
+/* ------------------------------------------------------------
+ * Helpers do sheet de item (layout de cargas)
+ * ------------------------------------------------------------ */
+.gambi-cargas-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gambi-cargas-col {
+  display: grid;
+  gap: 4px;
+}
+
+.gambi-cargas-pill {
+  font-weight: 900;
+}
+
+/* ------------------------------------------------------------
+ * Dialog: 🎒 Criar Item do Nó (em mesa)
+ * - footer fixo, resize aumenta conteúdo
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gambi-create-item-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.gambi-create-item-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.gambi-create-item-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+  .gambi-create-item-dialog .dialog-buttons {
+    flex-direction: column;
+  }
+  .gambi-create-item-dialog .dialog-buttons button {
+    width: 100%;
+  }
+}
+
+/* Radios (2x2) */
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  align-items: stretch;
+  margin-top: 6px;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.015);
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio input[type="radio"] {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-title {
+  font-weight: 900;
+}
+
+.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-sub {
+  font-size: 12px;
+  color: var(--gambi-muted);
+}
+
+/* ------------------------------------------------------------
+ * Dialog: 🎒 Adicionar Item do Compêndio
+ * - footer fixo
+ * ------------------------------------------------------------ */
+.gambi-pick-item-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gambi-pick-item-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.gambi-pick-item-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.gambi-pick-item-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+  .gambi-pick-item-dialog .dialog-buttons {
+    flex-direction: column;
+  }
+  .gambi-pick-item-dialog .dialog-buttons button {
+    width: 100%;
+  }
+}
+
+/* Preview box “padrão” (substitui inline style do JS) */
+.gambi-item-preview-box {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 100px;
+  background: rgba(0, 0, 0, 0.01);
+}

@@ -1,0 +1,62 @@
+/* ============================================================
+ * GAMBIARRA.SYS6 — power.css v0.6.3c
+ * - Dialogs relacionados a Poderes (criar / escolher do compêndio)
+ * ============================================================ */
+
+/* Dialog “Criar Poder” (footer fixo + resize útil) */
+.gambi-create-power-dialog .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gambi-create-power-dialog .dialog-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.gambi-create-power-dialog .dialog-buttons {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.gambi-create-power-dialog .dialog-buttons button {
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+  .gambi-create-power-dialog .dialog-buttons {
+    flex-direction: column;
+  }
+  .gambi-create-power-dialog .dialog-buttons button {
+    width: 100%;
+  }
+}
+
+/* Preview box do “Escolher Poder” (substitui inline style do JS) */
+.gambi-power-preview-box {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 110px;
+  background: rgba(0, 0, 0, 0.01);
+}
+
+/* Spacer (substitui div com height inline) */
+.gambiarra-dialog-spacer {
+  height: 48px;
+}
