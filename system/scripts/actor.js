@@ -153,6 +153,169 @@ export class GambiarraActor extends Actor {
     return data;
   }
 
+    /* =========================================================
+   * ✅ Criar Poder em mesa
+   * - pode adicionar na ficha
+   * - pode salvar no compêndio world.gambiarra-poderes (GM)
+   * ========================================================= */
+
+  async _criarPoderNoCompendioOuFicha() {
+    if (!game.user.isGM) {
+      ui.notifications.warn("Apenas a Programadora (GM) pode criar poderes em mesa.");
+      return;
+    }
+
+    const worldPack = game.packs.get("world.gambiarra-poderes") ?? null;
+    const canWritePack = !!worldPack && game.user.isGM;
+
+    const content = `
+      <form class="gambiarra-create-power">
+        <p class="hint">
+          Crie um <strong>Poder Gambiarra</strong> junto com o grupo.
+          Você pode <strong>adicionar à ficha</strong> e/ou <strong>salvar no compêndio</strong>.
+        </p>
+
+        <div class="form-group">
+          <label>Nome do Poder</label>
+          <input type="text" name="nome" placeholder="Ex: Alterar Tamanho" />
+        </div>
+
+        <div class="form-group">
+          <label>Categoria</label>
+          <input type="text" name="categoria" placeholder="Ex: Utilidade e Suporte" />
+          <p class="hint">Aparece como: <strong>Categoria:</strong> ...</p>
+        </div>
+
+        <div class="form-group">
+          <label>O que faz</label>
+          <textarea name="descricao" rows="4" placeholder="Descreva o efeito do poder."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Observações de segurança (opcional)</label>
+          <textarea name="obsSeguranca" rows="2" placeholder="Limites, cuidados, gatilhos, etc."></textarea>
+        </div>
+
+        ${canWritePack
+          ? `<p class="hint">✅ Pode salvar em <strong>world.gambiarra-poderes</strong>.</p>`
+          : `<p class="hint">⚠️ Para salvar no compêndio: precisa existir <strong>world.gambiarra-poderes</strong> e você ser GM.</p>`
+        }
+      </form>
+    `;
+
+    const read = (html) => {
+      const nome = String(html.find('[name="nome"]').val() ?? "").trim();
+      const categoria = String(html.find('[name="categoria"]').val() ?? "").trim();
+      const descricao = String(html.find('[name="descricao"]').val() ?? "").trim();
+      const obsSeguranca = String(html.find('[name="obsSeguranca"]').val() ?? "").trim();
+
+      if (!nome) {
+        ui.notifications.warn("Dê um nome para o Poder.");
+        return null;
+      }
+      if (!descricao) {
+        ui.notifications.warn("Escreva o que o poder faz.");
+        return null;
+      }
+
+      return {
+        name: nome,
+        type: "poder",
+        img: "icons/svg/lightning.svg",
+        system: {
+          descricao,
+          categoria,
+          estado: "ativo",
+          usos: 0,
+          efeitosPossiveis: [],
+          obsSeguranca,
+          origem: "criado-em-mesa",
+          sourceId: "",
+        },
+      };
+    };
+
+    const dlg = new Dialog(
+      {
+        title: "⚡ Criar Poder Gambiarra (em mesa)",
+        content,
+        buttons: {
+          addActor: {
+            label: "➕ Adicionar à ficha",
+            callback: async (html) => {
+              const data = read(html);
+              if (!data) return;
+
+              // usa o helper existente (anti-duplicado)
+              await this._criarPoderEmbedado({
+                nome: data.name,
+                descricao: data.system.descricao,
+                categoria: data.system.categoria,
+                obsSeguranca: data.system.obsSeguranca,
+                meta: { origem: "criado-em-mesa" },
+              });
+
+              ui.notifications.info("✅ Poder adicionado à ficha.");
+            },
+          },
+
+          savePack: {
+            label: "📦 Salvar no Compêndio",
+            callback: async (html) => {
+              const data = read(html);
+              if (!data) return;
+
+              if (!canWritePack) {
+                ui.notifications.warn("Não consigo salvar no compêndio (precisa ser GM e pack world).");
+                return;
+              }
+
+              const created = await this._createPowerInWorldPack(data);
+              if (!created) return;
+
+              ui.notifications.info("✅ Poder criado no compêndio do mundo.");
+            },
+          },
+
+          saveAndAdd: {
+            label: "✅ Salvar + Adicionar",
+            callback: async (html) => {
+              const data = read(html);
+              if (!data) return;
+
+              // 1) adiciona na ficha
+              await this._criarPoderEmbedado({
+                nome: data.name,
+                descricao: data.system.descricao,
+                categoria: data.system.categoria,
+                obsSeguranca: data.system.obsSeguranca,
+                meta: { origem: "criado-em-mesa" },
+              });
+
+              // 2) salva no compêndio (se puder)
+              if (canWritePack) {
+                await this._createPowerInWorldPack(data);
+                ui.notifications.info("✅ Poder salvo no compêndio e adicionado à ficha.");
+              } else {
+                ui.notifications.warn("⚠️ Não deu para salvar no compêndio — mas o poder foi adicionado à ficha.");
+              }
+            },
+          },
+        },
+        default: "saveAndAdd",
+      },
+      {
+        width: 560,
+        height: 520,
+        resizable: true,
+        classes: ["gambi-create-power-dialog"],
+      },
+    );
+
+    dlg.render(true);
+  }
+
+
   async _criarPoderEmbedado({
     nome,
     descricao,

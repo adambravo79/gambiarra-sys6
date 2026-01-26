@@ -172,7 +172,7 @@ export class GambiarraActorSheet extends ActorSheet {
 
     html.find(".create-power").off("click").on("click", () => {
       if (!guardAttrOk()) return;
-      this.actor._criarPoderNoCompendioOuFicha();
+      this.actor._criarPoderNoCompendioOuFicha?.();
     });
 
     // remover poder (GM)
