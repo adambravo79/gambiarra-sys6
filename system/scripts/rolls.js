@@ -1,5 +1,5 @@
 /**
- * GAMBIARRA.SYS6 — Rolagens (v0.6.2d)
+ * GAMBIARRA.SYS6 — Rolagens (v0.6.3)
  * - Pool = valor do atributo
  * - Dificuldade = required + target
  * - Dados Roxos = bônus (item + manual)
