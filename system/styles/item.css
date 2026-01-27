@@ -1,54 +1,116 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — item.css v0.6.3c
- * - Dialogs de Itens do Nó (criar/pegar do compêndio)
- * - Pequenos helpers do item sheet (remove inline styles do template)
+ * GAMBIARRA.SYS6 — item.css (ITENS)
+ * v0.6.3c
+ *
+ * Objetivo:
+ * - Estilo do ItemSheet (templates/item/item-item.html)
+ * - Dialogs de item:
+ *   - Criar Item (em mesa)
+ *   - Adicionar do Compêndio
  * ============================================================ */
 
 /* ------------------------------------------------------------
- * Helpers do sheet de item (layout de cargas)
+ * Item sheet base
  * ------------------------------------------------------------ */
-.gambi-cargas-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.gambi-cargas-col {
+.item-sheet .sheet-header {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+  padding: 12px 12px 10px;
+
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
 }
 
-.gambi-cargas-pill {
+.item-sheet .sheet-header input[name="name"] {
+  width: 100%;
+  font-size: 22px;
+  line-height: 1.15;
   font-weight: 900;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.item-sheet .sheet-body {
+  margin-top: 12px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
+}
+
+.item-sheet .form-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.item-sheet .form-group > label {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.item-sheet hr {
+  border: none;
+  height: 1px;
+  background: var(--gambi-border);
+  margin: 12px 0;
+}
+
+.item-sheet label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 6px 0;
+  padding: 6px 8px;
+
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.item-sheet label.checkbox:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 /* ------------------------------------------------------------
- * Dialog: 🎒 Criar Item do Nó (em mesa)
- * - footer fixo, resize aumenta conteúdo
+ * Dialogs — footer fixo (padrão)
  * ------------------------------------------------------------ */
-.gambi-create-item-dialog .window-content {
+.gambi-create-item-dialog .window-content,
+.gambi-pick-item-dialog .window-content {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.gambi-create-item-dialog .dialog-content {
+.gambi-create-item-dialog .dialog-content,
+.gambi-pick-item-dialog .dialog-content {
   flex: 1 1 auto;
   overflow: auto;
   padding-bottom: 8px;
 }
 
-.gambi-create-item-dialog .dialog-buttons {
+.gambi-create-item-dialog .dialog-buttons,
+.gambi-pick-item-dialog .dialog-buttons {
   flex: 0 0 auto;
   display: flex;
   gap: 10px;
+
   padding: 10px;
   border-top: 1px solid var(--gambi-border);
   background: rgba(255, 255, 255, 0.88);
 }
 
-.gambi-create-item-dialog .dialog-buttons button {
+.gambi-create-item-dialog .dialog-buttons button,
+.gambi-pick-item-dialog .dialog-buttons button {
   flex: 1 1 0;
   height: 40px;
   min-height: 40px;
@@ -56,22 +118,16 @@
   border-radius: 12px;
   font-weight: 900;
   line-height: 1;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-@media (max-width: 520px) {
-  .gambi-create-item-dialog .dialog-buttons {
-    flex-direction: column;
-  }
-  .gambi-create-item-dialog .dialog-buttons button {
-    width: 100%;
-  }
-}
-
-/* Radios (2x2) */
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radios {
+/* ------------------------------------------------------------
+ * Criar Item — radios 2x2
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog .gambi-radios {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px 14px;
@@ -79,7 +135,7 @@
   margin-top: 6px;
 }
 
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio {
+.gambi-create-item-dialog .gambi-radio {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -93,84 +149,39 @@
   user-select: none;
 }
 
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio:hover {
+.gambi-create-item-dialog .gambi-radio:hover {
   border-color: var(--gambi-border);
   background: rgba(0, 0, 0, 0.03);
 }
 
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio input[type="radio"] {
+.gambi-create-item-dialog .gambi-radio input[type="radio"] {
   margin: 0;
   flex: 0 0 auto;
 }
 
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-text {
+.gambi-create-item-dialog .gambi-radio-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
   line-height: 1.15;
 }
 
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-title {
+.gambi-create-item-dialog .gambi-radio-title {
   font-weight: 900;
 }
 
-.gambi-create-item-dialog .gambiarra-create-item .gambi-radio-sub {
+.gambi-create-item-dialog .gambi-radio-sub {
   font-size: 12px;
   color: var(--gambi-muted);
 }
 
 /* ------------------------------------------------------------
- * Dialog: 🎒 Adicionar Item do Compêndio
- * - footer fixo
+ * “Preview box” (usado no pick-item)
  * ------------------------------------------------------------ */
-.gambi-pick-item-dialog .window-content {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.gambi-pick-item-dialog .dialog-content {
-  flex: 1 1 auto;
-  overflow: auto;
-  padding-bottom: 8px;
-}
-
-.gambi-pick-item-dialog .dialog-buttons {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-top: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.88);
-}
-
-.gambi-pick-item-dialog .dialog-buttons button {
-  flex: 1 1 0;
-  height: 40px;
-  min-height: 40px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 520px) {
-  .gambi-pick-item-dialog .dialog-buttons {
-    flex-direction: column;
-  }
-  .gambi-pick-item-dialog .dialog-buttons button {
-    width: 100%;
-  }
-}
-
-/* Preview box “padrão” (substitui inline style do JS) */
-.gambi-item-preview-box {
+.gambi-preview-box {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px;
+  background: rgba(0, 0, 0, 0.02);
   min-height: 100px;
-  background: rgba(0, 0, 0, 0.01);
 }

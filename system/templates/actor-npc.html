@@ -1,1 +1,51 @@
-{{!-- templates/actor-npc.html v0.6.1 --}}
+{{!-- templates/actor-npc.html v0.6.3c
+  Objetivo: ficha mínima para NPCs.
+  Mantém consistência visual e evita “template vazio” quebrar sheet.
+--}}
+<form class="gambiarra-sheet" autocomplete="off">
+  <header class="gambi-header">
+    <div class="gambi-token-wrap">
+      <img class="gambi-token-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+
+    <div class="gambi-name-wrap">
+      <input class="gambi-name" name="name" type="text" value="{{actor.name}}" placeholder="Nome do NPC" />
+      <div class="gambi-subline">
+        <span class="hint">NPC — ficha simples.</span>
+      </div>
+    </div>
+
+    <div class="gambi-arch-wrap">
+      <div class="gambi-arch-icon">
+        <span class="gambi-arch-emoji">👾</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="attributes">
+    <h2 class="section-title">Atributos</h2>
+
+    <div class="attribute corpo">
+      <span class="attribute-label">💪 Corpo</span>
+      <input class="attribute-value" type="number" name="system.attributes.corpo.value"
+        value="{{system.attributes.corpo.value}}" min="0" />
+    </div>
+
+    <div class="attribute mente">
+      <span class="attribute-label">🧠 Mente</span>
+      <input class="attribute-value" type="number" name="system.attributes.mente.value"
+        value="{{system.attributes.mente.value}}" min="0" />
+    </div>
+
+    <div class="attribute coracao">
+      <span class="attribute-label">❤️ Coração</span>
+      <input class="attribute-value" type="number" name="system.attributes.coracao.value"
+        value="{{system.attributes.coracao.value}}" min="0" />
+    </div>
+  </section>
+
+  <section class="section roll-section roll-only">
+    <button type="button" class="roll-desafio">🎲 Rolar Desafio</button>
+    <p class="hint">NPC usa as mesmas regras de rolagem do personagem.</p>
+  </section>
+</form>

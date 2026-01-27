@@ -14,10 +14,7 @@
       "type": "Item",
       "path": "packs/gambiarra-poderes",
       "system": "gambiarra-sys6",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     },
     {
       "name": "gambiarra-itens",
@@ -25,28 +22,18 @@
       "type": "Item",
       "path": "packs/gambiarra-itens",
       "system": "gambiarra-sys6",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     }
   ],
   "relationships": {
     "recommends": [
-      {
-        "id": "dice-so-nice",
-        "type": "module"
-      }
+      { "id": "dice-so-nice", "type": "module" }
     ]
   },
   "authors": [
-    {
-      "name": "André 'AdamBravo79' Nascimento"
-    }
+    { "name": "André 'AdamBravo79' Nascimento" }
   ],
-  "esmodules": [
-    "scripts/init.js"
-  ],
+  "esmodules": ["scripts/init.js"],
   "styles": [
     "styles/gambiarra.css",
     "styles/actor.css",
@@ -62,14 +49,8 @@
     }
   ],
   "documentTypes": {
-    "Actor": {
-      "character": {},
-      "npc": {}
-    },
-    "Item": {
-      "item": {},
-      "poder": {}
-    }
+    "Actor": { "character": {}, "npc": {} },
+    "Item": { "item": {}, "poder": {} }
   },
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
   "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.6.3/gambiarra-sys6-system-0.6.3.zip"

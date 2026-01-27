@@ -1,31 +1,116 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — power.css v0.6.3c
- * - Dialogs relacionados a Poderes (criar / escolher do compêndio)
+ * GAMBIARRA.SYS6 — item.css (ITENS)
+ * v0.6.3c
+ *
+ * Objetivo:
+ * - Estilo do ItemSheet (templates/item/item-item.html)
+ * - Dialogs de item:
+ *   - Criar Item (em mesa)
+ *   - Adicionar do Compêndio
  * ============================================================ */
 
-/* Dialog “Criar Poder” (footer fixo + resize útil) */
-.gambi-create-power-dialog .window-content {
+/* ------------------------------------------------------------
+ * Item sheet base
+ * ------------------------------------------------------------ */
+.item-sheet .sheet-header {
+  display: grid;
+  gap: 6px;
+  padding: 12px 12px 10px;
+
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+}
+
+.item-sheet .sheet-header input[name="name"] {
+  width: 100%;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 900;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.item-sheet .sheet-body {
+  margin-top: 12px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
+}
+
+.item-sheet .form-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.item-sheet .form-group > label {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.item-sheet hr {
+  border: none;
+  height: 1px;
+  background: var(--gambi-border);
+  margin: 12px 0;
+}
+
+.item-sheet label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 6px 0;
+  padding: 6px 8px;
+
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.item-sheet label.checkbox:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ------------------------------------------------------------
+ * Dialogs — footer fixo (padrão)
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog .window-content,
+.gambi-pick-item-dialog .window-content {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.gambi-create-power-dialog .dialog-content {
+.gambi-create-item-dialog .dialog-content,
+.gambi-pick-item-dialog .dialog-content {
   flex: 1 1 auto;
   overflow: auto;
   padding-bottom: 8px;
 }
 
-.gambi-create-power-dialog .dialog-buttons {
+.gambi-create-item-dialog .dialog-buttons,
+.gambi-pick-item-dialog .dialog-buttons {
   flex: 0 0 auto;
   display: flex;
   gap: 10px;
+
   padding: 10px;
   border-top: 1px solid var(--gambi-border);
   background: rgba(255, 255, 255, 0.88);
 }
 
-.gambi-create-power-dialog .dialog-buttons button {
+.gambi-create-item-dialog .dialog-buttons button,
+.gambi-pick-item-dialog .dialog-buttons button {
   flex: 1 1 0;
   height: 40px;
   min-height: 40px;
@@ -33,30 +118,70 @@
   border-radius: 12px;
   font-weight: 900;
   line-height: 1;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-@media (max-width: 520px) {
-  .gambi-create-power-dialog .dialog-buttons {
-    flex-direction: column;
-  }
-  .gambi-create-power-dialog .dialog-buttons button {
-    width: 100%;
-  }
+/* ------------------------------------------------------------
+ * Criar Item — radios 2x2
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog .gambi-radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  align-items: stretch;
+  margin-top: 6px;
 }
 
-/* Preview box do “Escolher Poder” (substitui inline style do JS) */
-.gambi-power-preview-box {
+.gambi-create-item-dialog .gambi-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.015);
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.gambi-create-item-dialog .gambi-radio:hover {
+  border-color: var(--gambi-border);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.gambi-create-item-dialog .gambi-radio input[type="radio"] {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.gambi-create-item-dialog .gambi-radio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.gambi-create-item-dialog .gambi-radio-title {
+  font-weight: 900;
+}
+
+.gambi-create-item-dialog .gambi-radio-sub {
+  font-size: 12px;
+  color: var(--gambi-muted);
+}
+
+/* ------------------------------------------------------------
+ * “Preview box” (usado no pick-item)
+ * ------------------------------------------------------------ */
+.gambi-preview-box {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px;
-  min-height: 110px;
-  background: rgba(0, 0, 0, 0.01);
-}
-
-/* Spacer (substitui div com height inline) */
-.gambiarra-dialog-spacer {
-  height: 48px;
+  background: rgba(0, 0, 0, 0.02);
+  min-height: 100px;
 }

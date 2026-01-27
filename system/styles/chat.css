@@ -1,0 +1,207 @@
+/* styles/chat.css — v0.6.3b
+ * ============================================================
+ * CHAT / ROLL RESULT (GAMBIARRA.SYS6)
+ * - Compatível com o HTML gerado em executarRolagem():
+ *   .gambi-chat, .gambi-chat-head, .gambi-chat-meta, .gambi-line,
+ *   .gambi-sub, .gambi-badge, .gambi-result, .gambi-chat-summary
+ * ============================================================
+ */
+
+:root {
+  --gambi-chat-radius: 16px;
+  --gambi-chat-radius-sm: 12px;
+
+  --gambi-chat-bg: rgba(255, 255, 255, 0.80);
+  --gambi-chat-bg-soft: rgba(255, 255, 255, 0.65);
+
+  --gambi-chat-border: rgba(120, 40, 40, 0.22);
+  --gambi-chat-border-soft: rgba(120, 40, 40, 0.14);
+
+  --gambi-chat-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  --gambi-chat-shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.12);
+
+  --gambi-chat-pad: 10px;
+}
+
+/* ============================================================
+ * 1) Card externo (mensagem do Foundry)
+ * ============================================================
+ */
+.chat-message {
+  border-radius: var(--gambi-chat-radius) !important;
+  overflow: hidden; /* garante arredondamento real */
+  border: 1px solid var(--gambi-chat-border) !important;
+  background: var(--gambi-chat-bg-soft) !important;
+  box-shadow: var(--gambi-chat-shadow) !important;
+}
+
+.chat-message .message-header {
+  padding: 8px 10px !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-bottom: 1px solid var(--gambi-chat-border-soft) !important;
+}
+
+.chat-message .message-content {
+  padding: var(--gambi-chat-pad) !important;
+}
+
+/* ============================================================
+ * 2) Seu rollcard: .gambi-chat (container interno)
+ * ============================================================
+ */
+.chat-message .message-content .gambi-chat {
+  border-radius: var(--gambi-chat-radius) !important;
+  background: var(--gambi-chat-bg) !important;
+  border: 1px solid var(--gambi-chat-border-soft) !important;
+  box-shadow: var(--gambi-chat-shadow-soft);
+  padding: 12px;
+}
+
+/* Cabeçalho (título + badge) */
+.chat-message .message-content .gambi-chat .gambi-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--gambi-chat-border-soft);
+}
+
+/* h2 do chat */
+.chat-message .message-content .gambi-chat .gambi-chat-head h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+/* Meta (Dificuldade / Alvo) */
+.chat-message .message-content .gambi-chat .gambi-chat-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+
+  padding: 8px 10px;
+  margin-bottom: 10px;
+
+  border-radius: var(--gambi-chat-radius-sm);
+  border: 1px solid var(--gambi-chat-border-soft);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ============================================================
+ * 3) Blocos de linhas (base / roxo / notas)
+ * ============================================================
+ */
+.chat-message .message-content .gambi-chat .gambi-line {
+  padding: 10px;
+  margin-top: 10px;
+
+  border-radius: var(--gambi-chat-radius-sm);
+  border: 1px solid var(--gambi-chat-border-soft);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* título da linha */
+.chat-message .message-content .gambi-chat .gambi-line .gambi-line-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* subtexto */
+.chat-message .message-content .gambi-chat .gambi-sub {
+  margin-top: 6px;
+  opacity: 0.95;
+}
+
+/* subtexto muted */
+.chat-message .message-content .gambi-chat .gambi-sub.is-muted {
+  opacity: 0.65;
+}
+
+/* ============================================================
+ * 4) Badges (BUG / Forte / OK)
+ * ============================================================
+ */
+.chat-message .message-content .gambi-chat .gambi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Variações por classe */
+.chat-message .message-content .gambi-chat .gambi-badge.is-bug {
+  border-color: rgba(160, 40, 40, 0.25);
+  background: rgba(255, 235, 235, 0.85);
+}
+
+.chat-message .message-content .gambi-chat .gambi-badge.is-strong {
+  border-color: rgba(160, 120, 0, 0.25);
+  background: rgba(255, 245, 220, 0.85);
+}
+
+.chat-message .message-content .gambi-chat .gambi-badge.is-ok {
+  border-color: rgba(40, 120, 60, 0.22);
+  background: rgba(235, 255, 242, 0.85);
+}
+
+/* ============================================================
+ * 5) Resumo + Resultado
+ * ============================================================
+ */
+.chat-message .message-content .gambi-chat .gambi-chat-summary {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--gambi-chat-border-soft);
+}
+
+/* Resultado final (a “caixa” do Resultado:) */
+.chat-message .message-content .gambi-chat .gambi-result {
+  margin-top: 10px;
+  padding: 10px 12px;
+
+  border-radius: var(--gambi-chat-radius-sm);
+  border: 1px solid rgba(160, 90, 0, 0.18);
+  background: rgba(255, 246, 220, 0.88);
+
+  font-weight: 700;
+}
+
+/* ============================================================
+ * 6) Dados (seu renderDiceLine injeta elementos dentro de .gambi-dice)
+ * - Não sei quais classes você usa nos “quadradinhos”, então aqui vai
+ *   um fallback seguro para qualquer span/div dentro de .gambi-dice.
+ * ============================================================
+ */
+.chat-message .message-content .gambi-chat .gambi-dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.chat-message .message-content .gambi-chat .gambi-dice span,
+.chat-message .message-content .gambi-chat .gambi-dice div {
+  border-radius: 10px;
+}
+
+/* ============================================================
+ * 7) Fallback: caso o Foundry/tema force “quadrado” em elementos internos
+ * ============================================================
+ */
+.chat-message .message-content .dice-roll,
+.chat-message .message-content .dice-result,
+.chat-message .message-content .dice-tooltip {
+  border-radius: 12px !important;
+  overflow: hidden;
+}

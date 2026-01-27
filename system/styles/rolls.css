@@ -1,8 +1,15 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — rolls.css v0.6.3c
- * - Dialog “🎲 Rolar Desafio”
- * - UI dos dados roxos
- * - Chat card: gambi-chat, badges e dados renderizados
+ * GAMBIARRA.SYS6 — rolls.css (ROLAGEM + CHAT)
+ * v0.6.3d
+ *
+ * Objetivo:
+ * - Dialog "Rolar Desafio"
+ * - Chat card .gambi-chat
+ * - Visual dos dados .gambi-die (SUCESSOS COLORIDOS)
+ *
+ * Importante:
+ * - O "quadradão" vem do container do Foundry (.chat-message).
+ *   Então este arquivo também aplica border-radius nele (com !important).
  * ============================================================ */
 
 /* ------------------------------------------------------------
@@ -37,41 +44,22 @@
   border-radius: 12px;
   font-weight: 900;
   line-height: 1;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* effect preview card */
-.gambi-roll-desafio-dialog .gambi-effect-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 14px;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.02);
-}
-
-.gambi-roll-desafio-dialog .gambi-effect-title {
-  margin-left: 6px;
-  font-weight: 900;
-}
-
-.gambi-roll-desafio-dialog .gambi-effect-note {
-  margin-top: 4px;
-}
-
-/* ------------------------------------------------------------
- * Dados Roxos UI
- * ------------------------------------------------------------ */
-.purple-label {
-  font-weight: 900;
-}
+/* Roxos row */
+.purple-label { font-weight: 900; }
 
 .purple-row {
   display: grid;
   grid-template-columns: auto 64px auto 1fr;
   gap: 10px;
   align-items: center;
-  padding: 10px 10px;
+
+  padding: 10px;
   border-radius: 14px;
   border: 1px solid rgba(138, 77, 232, 0.25);
   background: linear-gradient(180deg, var(--gambi-purple), rgba(255, 255, 255, 0.86));
@@ -97,16 +85,29 @@
 }
 
 @media (max-width: 520px) {
-  .purple-row {
-    grid-template-columns: auto 64px auto;
-  }
-  .purple-row .hint {
-    grid-column: 1 / -1;
-  }
+  .purple-row { grid-template-columns: auto 64px auto; }
+  .purple-row .hint { grid-column: 1 / -1; }
+}
+
+/* Card de preview do efeito */
+.gambi-roll-desafio-dialog .gambi-effect-card {
+  border: 1px solid var(--gambi-border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-title {
+  margin-left: 6px;
+  font-weight: 900;
+}
+
+.gambi-roll-desafio-dialog .gambi-effect-note {
+  margin-top: 4px;
 }
 
 /* ------------------------------------------------------------
- * Chat card: gambi-chat
+ * Chat card (conteúdo interno do seu ChatMessage)
  * ------------------------------------------------------------ */
 .gambi-chat {
   border: 1px solid var(--gambi-border);
@@ -134,9 +135,11 @@
   flex-wrap: wrap;
   gap: 10px 14px;
   padding: 8px 10px;
+
   border-radius: 12px;
   border: 1px solid var(--gambi-border);
   background: rgba(0, 0, 0, 0.02);
+
   margin-bottom: 10px;
 }
 
@@ -164,26 +167,72 @@
   margin-bottom: 6px;
 }
 
-/* Dado do chat (padrão CLARO) */
+.gambi-chat-summary {
+  border-top: 1px solid var(--gambi-border);
+  padding-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.gambi-result {
+  margin-top: 4px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Badges do chat */
+.gambi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+
+  border-radius: 999px;
+  border: 1px solid var(--gambi-border);
+
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.gambi-badge.is-ok {
+  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.92));
+}
+
+.gambi-badge.is-strong {
+  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.92));
+}
+
+.gambi-badge.is-bug {
+  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.92));
+}
+
+/* ------------------------------------------------------------
+ * Dados (o “bonito” do print antigo)
+ * ------------------------------------------------------------ */
 .gambi-die {
   width: 34px;
   height: 34px;
   border-radius: 10px;
+
   border: 1px solid var(--gambi-border);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   font-weight: 900;
   background: rgba(255, 255, 255, 0.95);
 }
 
-/* sucesso “aceso” */
+/* Sucesso base */
 .gambi-die.is-success {
-  border-color: rgba(46, 204, 113, 0.45);
-  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.06);
 }
 
-/* sucesso por atributo */
+/* Sucesso por atributo */
 .gambi-die.is-success.suc-corpo {
   border-color: rgba(31, 179, 91, 0.65);
   background: rgba(31, 179, 91, 0.18);
@@ -202,55 +251,86 @@
   box-shadow: 0 0 0 4px rgba(226, 74, 74, 0.14);
 }
 
-/* sucesso vindo do roxo */
+/* Sucesso vindo do roxo */
 .gambi-die.is-success.suc-roxo {
   border-color: rgba(138, 77, 232, 0.7);
   background: rgba(138, 77, 232, 0.2);
   box-shadow: 0 0 0 4px rgba(138, 77, 232, 0.14);
 }
 
-/* marca origem (base/roxo) */
-.gambi-die.is-roxo {
-  border-style: dashed;
-}
-.gambi-die.is-base {
-  border-style: solid;
+/* ============================================================
+ * FOUNDY CONTAINER FIX — o que estava deixando “quadradão”
+ * ============================================================
+ * O Foundry aplica estilo no card da mensagem (.chat-message) e
+ * no conteúdo (.message-content). Se eles ficam retos/sem overflow,
+ * seu .gambi-chat nunca “parece” arredondado de verdade.
+ *
+ * Aqui a gente:
+ * - arredonda o card inteiro
+ * - força overflow hidden (pra borda cortar certinho)
+ * - dá um background suave e borda consistente
+ * - dá um padding mais “card”
+ * ============================================================ */
+
+/* Card externo da mensagem */
+#chat-log .chat-message,
+#chat-log li.chat-message {
+  border-radius: 16px !important;
+  overflow: hidden !important; /* ESSENCIAL */
+  border: 1px solid var(--gambi-border) !important;
+  background: rgba(255, 255, 255, 0.70) !important;
 }
 
-/* badges */
-.gambi-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--gambi-border);
-  font-weight: 900;
-  font-size: 12px;
-  white-space: nowrap;
+/* Header do chat-message (barra superior) */
+#chat-log .chat-message .message-header {
+  padding: 8px 10px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.10) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
 }
 
-.gambi-badge.is-ok {
-  background: linear-gradient(180deg, var(--gambi-ok), rgba(255, 255, 255, 0.92));
-}
-.gambi-badge.is-strong {
-  background: linear-gradient(180deg, var(--gambi-strong), rgba(255, 255, 255, 0.92));
-}
-.gambi-badge.is-bug {
-  background: linear-gradient(180deg, var(--gambi-bug), rgba(255, 255, 255, 0.92));
+/* Área do conteúdo (onde entra a .gambi-chat) */
+#chat-log .chat-message .message-content {
+  padding: 10px !important;
 }
 
-.gambi-chat-summary {
-  border-top: 1px solid var(--gambi-border);
-  padding-top: 10px;
-  display: grid;
-  gap: 6px;
+/* “Polimento” extra: se algum tema estiver removendo radius interno */
+#chat-log .chat-message .message-content .gambi-chat {
+  border-radius: 14px !important;
+}
+/* ============================================================
+ * FOUNDY CHAT — anti “quadradão” (core + temas)
+ * Cole no FINAL do rolls.css
+ * ============================================================ */
+
+/* cobre variações: .chat-message, .message e <li> */
+#chat-log li.chat-message,
+#chat-log li.message,
+#chat-log .chat-message,
+#chat-log .message {
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--gambi-border) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: var(--gambi-shadow-sm) !important;
 }
 
-.gambi-result {
-  margin-top: 4px;
-  padding: 10px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(0, 0, 0, 0.02);
+/* header do card (nome/hora) */
+#chat-log .chat-message .message-header,
+#chat-log .message .message-header {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.10) !important;
+  padding: 8px 10px !important;
+}
+
+/* conteúdo */
+#chat-log .chat-message .message-content,
+#chat-log .message .message-content {
+  padding: 10px !important;
+  border-radius: 0 !important; /* evita “dobro de radius” estranho */
+}
+
+/* seu card interno continua arredondado e com cara própria */
+#chat-log .chat-message .message-content .gambi-chat,
+#chat-log .message .message-content .gambi-chat {
+  border-radius: var(--gambi-radius) !important;
 }
