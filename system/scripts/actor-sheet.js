@@ -110,9 +110,9 @@ export class GambiarraActorSheet extends ActorSheet {
       const locked = isLocked();
       html.toggleClass("gambi-attrs-locked", locked);
 
-      // inputs dos atributos
+      // inputs dos atributos (template usa .attribute-value)
       html
-        .find(".gambi-attr-input")
+        .find(".attribute-value")
         .prop("disabled", locked)
         .toggleClass("is-locked", locked);
 
@@ -151,6 +151,7 @@ export class GambiarraActorSheet extends ActorSheet {
         }
 
         applyLockUI();
+        lockAttrInputs();
       });
 
     // rolagem
