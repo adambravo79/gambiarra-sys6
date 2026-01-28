@@ -94,7 +94,14 @@
       <div class="gambi-row">
         <div class="gambi-row-main">
           <strong>{{p.name}}</strong>
-          <div class="hint">{{p.system.descricao}}</div>
+
+          {{#if p.system.categoria}}
+          <div class="hint gambi-power-desc">
+            <strong>{{p.system.categoria}}:</strong> {{p.system.descricao}}
+          </div>
+          {{else}}
+          <div class="hint gambi-power-desc">{{p.system.descricao}}</div>
+          {{/if}}
         </div>
 
         {{#if ../isGM}}

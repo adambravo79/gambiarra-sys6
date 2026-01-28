@@ -8,6 +8,12 @@
  * - Listas (poderes/itens) com “pills”
  * ============================================================ */
 
+ :root {
+  --gambi-radius-xs: 6px;
+  --gambi-radius-sm: 8px;
+  --gambi-radius-md: 10px;
+}
+
 /* ------------------------------------------------------------
  * Container
  * ------------------------------------------------------------ */
@@ -28,7 +34,7 @@
 
   padding: 12px;
   border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
+border-radius: var(--gambi-radius-md);
   background: var(--gambi-panel);
   box-shadow: var(--gambi-shadow-sm);
 
@@ -46,7 +52,7 @@
 .gambi-token-img {
   width: 56px;
   height: 56px;
-  border-radius: 10px;
+  border-radius: var(--gambi-radius-sm);
   object-fit: cover;
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
@@ -74,7 +80,7 @@
 .gambi-arch-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--gambi-radius-sm);
   border: 1px dashed rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
@@ -119,7 +125,7 @@
   grid-column: span 4;
 
   border: 1px solid var(--gambi-border);
-  border-radius: 18px;
+  border-radius: var(--gambi-radius-md);
   background: var(--gambi-panel);
   box-shadow: var(--gambi-shadow-sm);
 
@@ -142,7 +148,7 @@
   font-weight: 900;
   text-align: center;
   padding: 10px 12px;
-  border-radius: 999px;
+  border-radius: var(--gambi-radius-sm);
 }
 
 /* leve identidade por atributo */
@@ -169,7 +175,7 @@
   margin: 10px auto 0;
 
   border: 1px solid var(--gambi-border);
-  border-radius: 999px;
+  border-radius: 18px;
   background: var(--gambi-panel-2);
   box-shadow: var(--gambi-shadow-sm);
 
@@ -193,7 +199,7 @@
   height: 26px;
   padding: 0 10px;
 
-  border-radius: 999px;
+  border-radius: var(--gambi-radius-sm);
   border: 1px solid var(--gambi-border);
   background: rgba(255, 255, 255, 0.92);
   font-weight: 900;
@@ -227,7 +233,7 @@
 .gambi-items,
 .gambi-effects {
   border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
+  border-radius: var(--gambi-radius-xs);
   background: var(--gambi-panel);
   box-shadow: var(--gambi-shadow-sm);
   padding: 12px;
@@ -276,7 +282,7 @@
 
 .gambi-row-actions button {
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--gambi-radius-sm);
 }
 
 /* ------------------------------------------------------------
@@ -293,7 +299,7 @@
 .powers-buttons > button,
 .gambi-actions-row > button {
   flex: 1 1 200px;
-  border-radius: 999px;
+  border-radius: var(--gambi-radius-md);
 }
 
 @media (max-width: 520px) {
@@ -301,4 +307,153 @@
   .gambi-actions-row > button {
     flex: 1 1 220px;
   }
+}
+
+/* ============================================================
+ * FIX: pills de Poderes/Itens não atravessam e quebram texto
+ * - trava ações à direita
+ * - texto quebra dentro do card
+ * ============================================================ */
+
+/* Base comum para qualquer row */
+.gambi-list .gambi-row {
+  display: grid;
+  grid-template-columns: 1fr auto;        /* texto | ações */
+  grid-template-areas:
+    "main actions"
+    "meta actions";
+  gap: 10px 12px;
+  align-items: start;
+
+  /* importante: impede “vazar” */
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Conteúdo principal (nome + descrição) */
+.gambi-list .gambi-row-main {
+  grid-area: main;
+  min-width: 0;                           /* CRÍTICO p/ quebra no grid */
+}
+
+/* Nome pode quebrar (se for muito grande) */
+.gambi-list .gambi-row-main strong {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Descrição quebra e nunca “empurra” o layout */
+.gambi-list .gambi-row-main .hint {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Ações sempre visíveis e não encolhem */
+.gambi-list .gambi-row-actions {
+  grid-area: actions;
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Se não tiver ações (não-GM em poderes), remove o espaço */
+.gambi-list .gambi-row-actions:empty {
+  display: none;
+}
+
+/* Meta (chips) — itens usam, poderes podem não usar */
+.gambi-list .gambi-row-meta {
+  grid-area: meta;
+  display: flex;
+  flex-wrap: wrap;                         /* quebra chips */
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Chips nunca podem atravessar */
+.gambi-chip,
+.gambi-item-badge {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Em telas muito estreitas, deixa ações caírem pra baixo sem quebrar */
+@media (max-width: 520px) {
+  .gambi-list .gambi-row {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "meta"
+      "actions";
+  }
+  .gambi-list .gambi-row-actions {
+    justify-content: flex-start;
+  }
+}
+/* Poderes: descrição quebra em várias linhas */
+.gambi-powers .gambi-power-desc {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ============================================================
+ * Itens: 1 linha (main quebra / meta não quebra / ações fixas)
+ * ============================================================ */
+
+.gambi-items .gambi-list .gambi-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto; /* main | meta | actions */
+  gap: 10px 12px;
+  align-items: center;
+
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* main pode quebrar */
+.gambi-items .gambi-row-main {
+  min-width: 0; /* crítico pro wrap funcionar no grid */
+}
+
+.gambi-items .gambi-row-main strong,
+.gambi-items .gambi-row-main .hint {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* meta NÃO quebra (fica sempre numa linha) */
+.gambi-items .gambi-row-meta {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;   /* não quebra */
+  flex: 0 0 auto;
+}
+
+/* se ficar apertado, chips podem “encurtar” com reticências */
+.gambi-items .gambi-row-meta .gambi-chip {
+  max-width: 160px;      /* ajuste se quiser */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ações sempre no final */
+.gambi-items .gambi-row-actions {
+  display: inline-flex;
+  gap: 8px;
+  flex: 0 0 auto;
+  justify-content: flex-end;
 }
