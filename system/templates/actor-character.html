@@ -139,7 +139,16 @@
         <div class="gambi-row-meta">
           {{#if (eq it.system.tipoItem "consumivel")}}
           <span class="gambi-chip">🔸 Consumível</span>
-          <span class="gambi-chip">🔋 {{it.system.cargas}}/{{it.system.cargasMax}}</span>
+          {{!-- v0.6.3e — ícone muda quando consumido --}}
+          <span class="gambi-chip">
+            {{#if it.system.usado}}
+            🪫
+            {{else}}
+            🔋
+            {{/if}}
+            {{it.system.cargas}}/{{it.system.cargasMax}}
+          </span>
+
           {{else}}
           <span class="gambi-chip">🔹 Relíquia</span>
           {{/if}}
