@@ -1,6 +1,6 @@
 /* ============================================================
  * GAMBIARRA.SYS6 — item.css (ITENS)
- * v0.6.3c
+ * v0.6.3d
  *
  * Objetivo:
  * - Estilo do ItemSheet (templates/item/item-item.html)
@@ -125,6 +125,48 @@
 }
 
 /* ------------------------------------------------------------
+ * Dialog head (igual ao power)
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog .gambi-dialog-head,
+.gambi-pick-item-dialog .gambi-dialog-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+
+  padding: 10px 10px 8px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+}
+
+.gambi-create-item-dialog .gambi-dialog-title,
+.gambi-pick-item-dialog .gambi-dialog-title {
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1.1;
+}
+
+/* ------------------------------------------------------------
+ * Criar Item — bloco "Efeitos"
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog .gambi-block {
+  padding: 10px 10px 8px;
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius);
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.gambi-create-item-dialog .gambi-block-title {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+/* ------------------------------------------------------------
  * Criar Item — radios 2x2
  * ------------------------------------------------------------ */
 .gambi-create-item-dialog .gambi-radios {
@@ -178,10 +220,17 @@
 /* ------------------------------------------------------------
  * “Preview box” (usado no pick-item)
  * ------------------------------------------------------------ */
-.gambi-preview-box {
+.gambi-item-preview-box {
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 12px;
   padding: 10px;
   background: rgba(0, 0, 0, 0.02);
   min-height: 100px;
+}
+
+/* ------------------------------------------------------------
+ * Helpers
+ * ------------------------------------------------------------ */
+.gambi-is-hidden {
+  display: none !important;
 }
