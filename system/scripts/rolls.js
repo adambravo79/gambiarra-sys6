@@ -63,23 +63,45 @@ async function show3dIfAvailable(roll) {
   await game.dice3d.showForRoll(roll, game.user, true);
 }
 
-function renderDiceLine(results, target, { baseAttr = null, source = "base" } = {}) {
+// ============================================================
+// Renderiza uma linha de dados como “pílulas” (chat)
+// - aplica .gambi-die
+// - marca .is-success quando >= target
+// - marca .suc-corpo/.suc-mente/.suc-coracao/.suc-roxo
+// - marca .is-base / .is-roxo (opcional)
+// ============================================================
+function renderDiceLine(results = [], target = 4, { baseAttr = "corpo", source = "base" } = {}) {
+  const sucClass =
+    source === "roxo"
+      ? "suc-roxo"
+      : baseAttr === "mente"
+        ? "suc-mente"
+        : baseAttr === "coracao"
+          ? "suc-coracao"
+          : "suc-corpo";
+
+  const originClass = source === "roxo" ? "is-roxo" : "is-base";
+
+  // results pode ser [{result: 6}, ...] (Foundry) ou [6, ...] (fallback)
   return results
     .map((r) => {
-      const ok = r.result >= target;
-      const cls = ["gambi-die"];
-      if (ok) cls.push("is-success");
+      const val = Number(r?.result ?? r);
+      const isSuccess = val >= Number(target);
 
-      if (ok) {
-        if (source === "roxo") cls.push("suc-roxo");
-        else cls.push(`suc-${baseAttr}`);
-      }
+      const cls = [
+        "gambi-die",
+        originClass,
+        isSuccess ? "is-success" : "",
+        isSuccess ? sucClass : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
 
-      cls.push(source === "roxo" ? "is-roxo" : "is-base");
-      return `<span class="${cls.join(" ")}">${r.result}</span>`;
+      return `<span class="${cls}" title="${isSuccess ? "Sucesso" : "Sem sucesso"}">${val}</span>`;
     })
-    .join(" ");
+    .join("");
 }
+
 
 function shiftDifficultyKey(currentKey, steps) {
   if (!steps) return currentKey;

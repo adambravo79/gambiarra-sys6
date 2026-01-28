@@ -2,7 +2,7 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.6.3",
+  "version": "0.6.3d",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
