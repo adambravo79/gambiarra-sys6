@@ -1,6 +1,15 @@
 /**
- * GAMBIARRA.SYS6 — Rolagens (v0.6.3c)
+ * GAMBIARRA.SYS6 — Rolagens (v0.6.3d)
  * - Limpeza CSS: remove inline style e usa classes do rolls.css/item.css
+ *
+ * v0.6.3d (fix consumível "perde dados"):
+ * ✅ Ao gastar carga de consumível, faz update defensivo preservando:
+ *   - system.descricao
+ *   - system.tipoItem
+ *   - system.efeito
+ *   - system.cargasMax
+ * Isso evita que itens legados/normalizações acabem “resetando” campos
+ * após o primeiro uso (efeito virar errado, sumir descrição, sumir contador).
  */
 
 const COLORSET = {
@@ -101,7 +110,6 @@ function renderDiceLine(results = [], target = 4, { baseAttr = "corpo", source =
     })
     .join("");
 }
-
 
 function shiftDifficultyKey(currentKey, steps) {
   if (!steps) return currentKey;
@@ -303,6 +311,17 @@ export async function rollDesafio(actor, opts = {}) {
               notes
             });
 
+            // ============================================================
+            // v0.6.3d — FIX DEFENSIVO DO CONSUMÍVEL
+            //
+            // Problema reportado:
+            // - Após usar consumível, some descricao / some contagem / efeito vira outro.
+            //
+            // Estratégia:
+            // - Ao gastar carga, além de cargas/usado, regrava campos essenciais
+            //   para evitar “reset” por normalização/migração/itens legados.
+            // - Se o item não tiver system.efeito consistente, fixa com o normalizeEffectKey.
+            // ============================================================
             if (item && String(item.system?.tipoItem ?? "reliquia") === "consumivel") {
               if (!actor.isOwner) {
                 ui.notifications.warn("Sem permissão de dono: o consumível não pôde gastar carga (mas ficou registrado no chat).");
@@ -314,9 +333,22 @@ export async function rollDesafio(actor, opts = {}) {
               const novo = Math.max(0, Math.min(max, Math.trunc(cargas) - 1));
               const virouUsado = novo === 0;
 
+              // ✅ inserção v0.6.3d: “freeze” dos campos essenciais
+              const safeDescricao = String(item.system?.descricao ?? "");
+              const safeTipoItem = "consumivel"; // estamos dentro do bloco consumível
+              const safeCargasMax = clampInt(max, 1, 3);
+              const safeEfeito = String(item.system?.efeito ?? "").trim() || normalizeEffectKey(item);
+
               await item.update({
+                // sempre
                 "system.cargas": novo,
-                "system.usado": virouUsado
+                "system.usado": virouUsado,
+
+                // ✅ defensivo: preserva / fixa
+                "system.descricao": safeDescricao,
+                "system.tipoItem": safeTipoItem,
+                "system.cargasMax": safeCargasMax,
+                "system.efeito": safeEfeito
               });
 
               if (virouUsado) {
