@@ -1,19 +1,22 @@
 # 🎲 GAMBIARRA.SYS6 (Foundry VTT)
 
-Sistema de RPG narrativo infantil focado em criatividade, cooperação
+Sistema de RPG narrativo infantil focado em criatividade, cooperação  
 e consequências emocionais, ambientado no **Nó / Circuito**.
 
 > A história vem antes das regras.  
 > Os dados existem para perguntar:  
 > **“Isso dá certo… ou o Nó reage?”**
 
-“Ao iniciar o mundo pela primeira vez como GM, o sistema cria automaticamente o compêndio ⚡ Poderes Gambiarra e importa os poderes iniciais.”
+---
+
+“Ao iniciar o mundo pela primeira vez como GM, o sistema cria automaticamente
+o compêndio ⚡ Poderes Gambiarra e importa os poderes iniciais.”
 
 ---
 
 ## 📦 Versão atual
 
-## **v0.6.3 - 
+## **v0.6.3 — Ficha Viva & UX Unificada**
 
 ### O que já existe
 
@@ -23,9 +26,12 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 - 🎒 Sistema completo de Itens do Nó
 - 🟣 Dados roxos (bônus narrativos)
 - 💬 Chat rico com feedback visual
-- 🔁 Consumo real de recursos (cargas)
+- 🔁 Consumo real de recursos
+- 🧩 Ficha visual interativa (estado do personagem)
 
-### Itens do Nó
+---
+
+## 🎒 Itens do Nó
 
 Cada item possui **1 efeito travado**:
 
@@ -34,33 +40,44 @@ Cada item possui **1 efeito travado**:
 - 🪢 Hackear o Nó (registro narrativo)
 - 🔁 Trocar atributo do desafio (registro narrativo)
 
-Tipos:
+### Tipos
 
-- 🔸 Consumível (1–3 cargas)
-- 🔹 Relíquia (permanente)
+- 🔸 **Consumível** — 1–3 cargas, é absorvido ao zerar.
+- 🔹 **Relíquia** — permanente, acompanha o personagem.
 
 Os itens:
-- aparecem no Rolar Desafio,
+
+- aparecem no **Rolar Desafio**,
 - afetam a rolagem automaticamente,
 - são registrados no chat,
+- exibem estado visual (🔋 / 🪫),
 - podem ser absorvidos pelo Nó.
 
 ---
 
-## O que ainda NÃO existe
+## ⚡ Poderes Gambiarra
 
-- ❌ fichas prontas - arquétipos
-- ❌ listas fechadas de equipamentos
+- Surgem durante a história.
+- Máximo: **2 por personagem**.
+- Sempre exibem:
+  - nome
+  - categoria
+  - descrição narrativa.
+
+Podem ser:
+- escolhidos do compêndio,
+- sorteados,
+- ou criados em mesa.
 
 ---
 
 ## 🧠 Filosofia do Sistema
 
-- Criatividade > regras  
-- Falha nunca bloqueia a história  
-- Poder surge da tensão emocional  
-- BUG cria novos problemas, não punições  
-- Jogar é cooperar  
+- Criatividade > regras
+- Falha nunca bloqueia a história
+- Poder surge da tensão emocional
+- BUG cria novos problemas, não punições
+- Jogar é cooperar
 - Sistema ensina a pensar narrativamente
 
 ---
