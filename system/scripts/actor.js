@@ -1,16 +1,11 @@
 // scripts/actor.js
-// 0.6.3d
+// 0.6.3e
 //
-// v0.6.3d (dialogs estilo ficha + UX):
-// - Criar Poder (em mesa): categoria vira "combobox" (input + datalist) com sugestões do compêndio
-// - Criar Item (em mesa):
-//   - Seção "Efeitos" com título e grid 2x2 (CSS)
-//   - Quando Tipo = Consumível, sugestão de Cargas = 3 ao exibir o campo
-// - Remove inline styles (usa classes)
-
-// ============================================================
-// Packs
-// ============================================================
+// v0.6.3e (UI/UX dialogs):
+// - Criar Poder: combobox (datalist) agora mostra opções reais (fallback carregando docs se index não tiver system.categoria)
+// - Criar Item: layout/estrutura igual ao Criar Poder (mesmo "head card")
+// - Escolher Poder: dialog com a mesma “cara” (head card + preview box + warning sem inline style)
+// - Ajustes pequenos: classes comuns (.gambi-dialog-head/.gambi-dialog-title/.gambi-dialog-form) e hide helper (.gambi-is-hidden)
 
 const POWERS_PACK_IDS = [
   "world.gambiarra-poderes", // ✅ editável
@@ -73,14 +68,15 @@ export class GambiarraActor extends Actor {
     return pack.getDocument(id);
   }
 
-  // >>> INSERIDO (v0.6.3d): lista categorias existentes no compêndio (para "combobox")
+  // >>> ALTERADO (v0.6.3e): agora o combobox SEMPRE tenta obter categorias reais.
+  // Motivo: dependendo do Foundry/compendium, pack.index pode não trazer system.categoria.
   async _listPowerCategoriesFromPack(pack) {
     if (!pack) return [];
+
+    // 1) tenta via index com fields (Foundry v11+ geralmente suporta)
     try {
-      // Foundry v11+: getIndex pode aceitar fields
       await pack.getIndex({ fields: ["system.categoria"] });
     } catch (e) {
-      // fallback: index padrão (pode não ter system.*)
       await pack.getIndex();
     }
 
@@ -88,6 +84,19 @@ export class GambiarraActor extends Actor {
     for (const e of pack.index.values()) {
       const c = String(e?.system?.categoria ?? "").trim();
       if (c) cats.add(c);
+    }
+
+    // 2) fallback: se index não trouxe nada, carrega docs (mais caro, mas funciona)
+    if (cats.size === 0) {
+      try {
+        const docs = await pack.getDocuments(); // pode ser pesado, mas compêndio de poderes é pequeno
+        for (const d of docs) {
+          const c = String(d?.system?.categoria ?? "").trim();
+          if (c) cats.add(c);
+        }
+      } catch (e) {
+        // se falhar, só retorna vazio mesmo
+      }
     }
 
     return [...cats].sort((a, b) => a.localeCompare(b, "pt-BR"));
@@ -160,16 +169,20 @@ export class GambiarraActor extends Actor {
     const worldPack = game.packs.get("world.gambiarra-poderes") ?? null;
     const canWritePack = !!worldPack && game.user.isGM;
 
-    // >>> INSERIDO (v0.6.3d): categorias sugeridas do compêndio
+    // >>> ALTERADO (v0.6.3e): categorias reais, com fallback carregando docs
     const catPack = await this._getPack({ preferWorld: true });
     const suggestedCats = await this._listPowerCategoriesFromPack(catPack);
-    const datalistHtml = suggestedCats.length
-      ? `
-        <datalist id="gambi-power-categories">
-          ${suggestedCats.map((c) => `<option value="${Handlebars.escapeExpression(c)}"></option>`).join("")}
-        </datalist>
-      `
-      : `<datalist id="gambi-power-categories"></datalist>`;
+
+    const datalistHtml = `
+      <datalist id="gambi-power-categories">
+        ${suggestedCats.map((c) => `<option value="${Handlebars.escapeExpression(c)}"></option>`).join("")}
+      </datalist>
+    `;
+
+    // >>> ALTERADO (v0.6.3e): dica muda conforme há categorias conhecidas
+    const catHint = suggestedCats.length
+      ? `Dica: escolha uma já existente… ou crie uma nova digitando.`
+      : `Dica: digite uma categoria (o compêndio ainda não tem categorias indexadas).`;
 
     const content = `
       <form class="gambiarra-create-power gambi-dialog-form">
@@ -189,16 +202,17 @@ export class GambiarraActor extends Actor {
         <div class="form-group">
           <label>Categoria</label>
 
-          <!-- >>> ALTERADO (v0.6.3d): combobox via datalist -->
+          <!-- >>> ALTERADO: combobox real -->
           <input
             type="text"
             name="categoria"
             list="gambi-power-categories"
             placeholder="Ex: Utilidade e Suporte (ou digite uma nova)"
+            autocomplete="off"
           />
           ${datalistHtml}
 
-          <p class="hint">Dica: escolha uma já existente… ou crie uma nova digitando.</p>
+          <p class="hint">${catHint}</p>
         </div>
 
         <div class="form-group">
@@ -315,10 +329,7 @@ export class GambiarraActor extends Actor {
           }
         },
         default: "saveAndAdd",
-
-        // >>> INSERIDO (v0.6.3d): pequenos toques UX
         render: (html) => {
-          // foca no nome
           const $nome = html.find('[name="nome"]');
           if ($nome?.length) $nome.trigger("focus");
         }
@@ -457,76 +468,88 @@ export class GambiarraActor extends Actor {
           })
           .join("");
 
-        new Dialog({
-          title: "⚡ Escolher Poder Gambiarra",
-          content: `
-            <form class="gambiarra-pick-power">
-              <p>Escolha um poder do compêndio:</p>
-
-              <div class="form-group">
-                <label>Poder</label>
-                <select name="powerId">${optionsHtml}</select>
-              </div>
-
-              <div class="form-group">
-                <label>Descrição</label>
-                <div class="hint power-preview gambi-power-preview-box">
-                  Carregando...
+        // >>> ALTERADO (v0.6.3e): dialog com a mesma “cara” do Criar Poder/Item
+        new Dialog(
+          {
+            title: "⚡ Escolher Poder Gambiarra",
+            content: `
+              <form class="gambiarra-pick-power gambi-dialog-form">
+                <div class="gambi-dialog-head">
+                  <div class="gambi-dialog-title">⚡ Escolher Poder</div>
+                  <div class="hint">Escolha um poder do compêndio:</div>
                 </div>
-              </div>
 
-              <p class="hint dup-warning gambi-is-hidden">
-                ⚠️ Este poder já está na ficha.
-              </p>
+                <div class="form-group">
+                  <label>Poder</label>
+                  <select name="powerId">${optionsHtml}</select>
+                </div>
 
-              <div class="gambiarra-dialog-spacer"></div>
-            </form>
-          `,
-          buttons: {
-            ok: {
-              label: "Adicionar à ficha",
-              callback: async (html) => {
-                const id = html.find('[name="powerId"]').val();
-                if (!id) return;
-                if (!this._canAddPower()) return;
+                <div class="form-group">
+                  <label>Descrição</label>
+                  <div class="hint power-preview gambi-power-preview-box">
+                    Carregando...
+                  </div>
+                </div>
 
-                const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
-                const sourceId = doc?.uuid ?? null;
-                const name = String(doc?.name ?? "").trim();
+                <p class="hint dup-warning gambi-is-hidden">
+                  ⚠️ Este poder já está na ficha.
+                </p>
 
-                if (this._hasDuplicatePower({ sourceId, name })) {
-                  ui.notifications.warn(`Este poder já está na ficha: ${name}`);
-                  return;
+                <div class="gambiarra-dialog-spacer"></div>
+              </form>
+            `,
+            buttons: {
+              ok: {
+                label: "Adicionar à ficha",
+                callback: async (html) => {
+                  const id = html.find('[name="powerId"]').val();
+                  if (!id) return;
+                  if (!this._canAddPower()) return;
+
+                  const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
+                  const sourceId = doc?.uuid ?? null;
+                  const name = String(doc?.name ?? "").trim();
+
+                  if (this._hasDuplicatePower({ sourceId, name })) {
+                    ui.notifications.warn(`Este poder já está na ficha: ${name}`);
+                    return;
+                  }
+
+                  await this._importPowerToActor(pack, id);
                 }
-
-                await this._importPowerToActor(pack, id);
               }
+            },
+            default: "ok",
+            render: (html) => {
+              const $select = html.find('[name="powerId"]');
+              const $preview = html.find(".power-preview");
+              const $warn = html.find(".dup-warning");
+
+              const refresh = async () => {
+                const id = $select.val();
+                const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
+
+                const desc = String(doc?.system?.descricao ?? "").trim();
+                const name = String(doc?.name ?? "").trim();
+                const sourceId = doc?.uuid ?? null;
+
+                $preview.text(desc || "(Sem descrição)");
+
+                const dup = this._hasDuplicatePower({ sourceId, name });
+                $warn.toggleClass("gambi-is-hidden", !dup);
+              };
+
+              $select.on("change", refresh);
+              refresh();
             }
           },
-          default: "ok",
-          render: (html) => {
-            const $select = html.find('[name="powerId"]');
-            const $preview = html.find(".power-preview");
-            const $warn = html.find(".dup-warning");
-
-            const refresh = async () => {
-              const id = $select.val();
-              const doc = docsById.get(id) ?? (await this._loadPowerDoc(pack, id));
-
-              const desc = String(doc?.system?.descricao ?? "").trim();
-              const name = String(doc?.name ?? "").trim();
-              const sourceId = doc?.uuid ?? null;
-
-              $preview.text(desc || "(Sem descrição)");
-
-              const dup = this._hasDuplicatePower({ sourceId, name });
-              $warn.toggleClass("gambi-is-hidden", !dup);
-            };
-
-            $select.on("change", refresh);
-            refresh();
+          {
+            width: 600,
+            height: 520,
+            resizable: true,
+            classes: ["gambi-pick-power-dialog"]
           }
-        }).render(true);
+        ).render(true);
 
         return;
       }
@@ -729,7 +752,7 @@ export class GambiarraActor extends Actor {
         content: `
           <form class="gambiarra-pick-item gambi-dialog-form">
             <div class="gambi-dialog-head">
-              <div class="gambi-dialog-title">🎒 Adicionar Item do Compêndio</div>
+              <div class="gambi-dialog-title">🎒 Adicionar Item</div>
               <div class="hint">Escolha um item do compêndio:</div>
             </div>
 
@@ -817,8 +840,8 @@ export class GambiarraActor extends Actor {
         }
       },
       {
-        width: 560,
-        height: 520,
+        width: 580,
+        height: 540,
         resizable: true,
         classes: ["gambi-pick-item-dialog"]
       }
@@ -840,6 +863,7 @@ export class GambiarraActor extends Actor {
     const worldPack = game.packs.get("world.gambiarra-itens") ?? null;
     const canWritePack = !!worldPack && game.user.isGM;
 
+    // >>> ALTERADO (v0.6.3e): estrutura do Criar Item fica igual ao Criar Poder (mesmo head card + campos)
     const content = `
       <form class="gambiarra-create-item gambi-dialog-form">
         <div class="gambi-dialog-head">
@@ -878,13 +902,12 @@ export class GambiarraActor extends Actor {
           </select>
         </div>
 
-        <!-- >>> ALTERADO (v0.6.3d): sem inline style; default de sugestão será controlado no render -->
         <div class="form-group gambi-consumivel-only gambi-is-hidden">
           <label>Cargas (consumível)</label>
           <select name="cargasMax">
             <option value="1">1</option>
             <option value="2">2</option>
-            <!-- >>> ALTERADO (v0.6.3d): sugestão padrão = 3 -->
+            <!-- >>> mantém sugestão 3 -->
             <option value="3" selected>3</option>
           </select>
           <p class="hint gambi-consumivel-hint">
@@ -894,7 +917,6 @@ export class GambiarraActor extends Actor {
 
         <hr/>
 
-        <!-- >>> ALTERADO (v0.6.3d): bloco "Efeitos" com título e grid 2x2 -->
         <div class="gambi-block">
           <div class="gambi-block-title">Efeitos</div>
 
@@ -982,7 +1004,6 @@ export class GambiarraActor extends Actor {
           descricao,
           efeito: effSafe,
 
-          // corrupção (mantido)
           corrompido: false,
           corrupcoes: []
         }
@@ -1045,7 +1066,6 @@ export class GambiarraActor extends Actor {
           const $cons = html.find(".gambi-consumivel-only");
           const $cargas = html.find('select[name="cargasMax"]');
 
-          // >>> INSERIDO (v0.6.3d): mantém a "sugestão 3" só se usuário não mexeu
           let cargasTouched = false;
           $cargas.off("change.gambiCargas").on("change.gambiCargas", () => {
             cargasTouched = true;
@@ -1057,18 +1077,12 @@ export class GambiarraActor extends Actor {
 
             $cons.toggleClass("gambi-is-hidden", !isConsumivel);
 
-            if (isConsumivel) {
-              // sugere 3 ao exibir, mas respeita se o usuário já escolheu
-              if (!cargasTouched) $cargas.val("3");
-            }
+            if (isConsumivel && !cargasTouched) $cargas.val("3");
           };
 
           $tipo.off("change.gambiConsumivel").on("change.gambiConsumivel", sync);
-
-          // default inicial: Consumível (como já vinha), então exibe cargas e sugere 3
           sync();
 
-          // foco no nome
           const $nome = html.find('[name="nome"]');
           if ($nome?.length) $nome.trigger("focus");
         }

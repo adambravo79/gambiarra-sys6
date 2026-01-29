@@ -1,88 +1,16 @@
 /* ============================================================
  * GAMBIARRA.SYS6 — item.css (ITENS)
- * v0.6.3d
+ * v0.6.3f
  *
- * Objetivo:
- * - Estilo do ItemSheet (templates/item/item-item.html)
- * - Dialogs de item:
- *   - Criar Item (em mesa)
- *   - Adicionar do Compêndio
+ * - Dialogs de item com cara igual ao Criar Poder
+ * - focus/radius padronizado
+ * - AUMENTA altura de inputs/selects (texto não corta)
  * ============================================================ */
 
-/* ------------------------------------------------------------
- * Item sheet base
- * ------------------------------------------------------------ */
-.item-sheet .sheet-header {
-  display: grid;
-  gap: 6px;
-  padding: 12px 12px 10px;
-
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: var(--gambi-panel);
-  box-shadow: var(--gambi-shadow-sm);
-}
-
-.item-sheet .sheet-header input[name="name"] {
-  width: 100%;
-  font-size: 22px;
-  line-height: 1.15;
-  font-weight: 900;
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.item-sheet .sheet-body {
-  margin-top: 12px;
-  border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
-  background: var(--gambi-panel);
-  box-shadow: var(--gambi-shadow-sm);
-  padding: 12px;
-}
-
-.item-sheet .form-group {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.item-sheet .form-group > label {
-  font-weight: 900;
-  font-size: 12px;
-  color: var(--gambi-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.item-sheet hr {
-  border: none;
-  height: 1px;
-  background: var(--gambi-border);
-  margin: 12px 0;
-}
-
-.item-sheet label.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  margin: 6px 0;
-  padding: 6px 8px;
-
-  border-radius: 12px;
-  border: 1px solid transparent;
-}
-
-.item-sheet label.checkbox:hover {
-  border-color: var(--gambi-border);
-  background: rgba(0, 0, 0, 0.02);
-}
+.gambi-is-hidden { display: none !important; }
 
 /* ------------------------------------------------------------
- * Dialogs — footer fixo (padrão)
+ * Dialogs — footer fixo
  * ------------------------------------------------------------ */
 .gambi-create-item-dialog .window-content,
 .gambi-pick-item-dialog .window-content {
@@ -112,10 +40,11 @@
 .gambi-create-item-dialog .dialog-buttons button,
 .gambi-pick-item-dialog .dialog-buttons button {
   flex: 1 1 0;
-  height: 40px;
-  min-height: 40px;
-  padding: 6px 10px;
-  border-radius: 12px;
+  height: 42px;
+  min-height: 42px;
+  padding: 8px 12px;
+
+  border-radius: var(--gambi-radius-sm);
   font-weight: 900;
   line-height: 1;
 
@@ -125,7 +54,7 @@
 }
 
 /* ------------------------------------------------------------
- * Dialog head (igual ao power)
+ * Head card igual ao power.css
  * ------------------------------------------------------------ */
 .gambi-create-item-dialog .gambi-dialog-head,
 .gambi-pick-item-dialog .gambi-dialog-head {
@@ -135,7 +64,7 @@
 
   padding: 10px 10px 8px;
   border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
+  border-radius: var(--gambi-radius-md);
   background: var(--gambi-panel);
   box-shadow: var(--gambi-shadow-sm);
 }
@@ -147,13 +76,80 @@
   line-height: 1.1;
 }
 
+.gambi-create-item-dialog .form-group,
+.gambi-pick-item-dialog .form-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.gambi-create-item-dialog .form-group > label,
+.gambi-pick-item-dialog .form-group > label {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* ------------------------------------------------------------
- * Criar Item — bloco "Efeitos"
+ * Inputs/textarea/select — AUMENTADOS (v0.6.3f)
+ * ------------------------------------------------------------ */
+.gambi-create-item-dialog input[type="text"],
+.gambi-create-item-dialog textarea,
+.gambi-create-item-dialog select,
+.gambi-pick-item-dialog input[type="text"],
+.gambi-pick-item-dialog textarea,
+.gambi-pick-item-dialog select {
+  border-radius: var(--gambi-radius-sm);
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.92);
+
+  /* >>> maior conforto */
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+/* altura boa para input/select (texto não corta) */
+.gambi-create-item-dialog input[type="text"],
+.gambi-create-item-dialog select,
+.gambi-pick-item-dialog input[type="text"],
+.gambi-pick-item-dialog select {
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+/* select precisa de respiro à direita */
+.gambi-create-item-dialog select,
+.gambi-pick-item-dialog select {
+  padding-right: 34px;
+}
+
+/* textarea */
+.gambi-create-item-dialog textarea,
+.gambi-pick-item-dialog textarea {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.gambi-create-item-dialog input[type="text"]:focus,
+.gambi-create-item-dialog textarea:focus,
+.gambi-create-item-dialog select:focus,
+.gambi-pick-item-dialog input[type="text"]:focus,
+.gambi-pick-item-dialog textarea:focus,
+.gambi-pick-item-dialog select:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ------------------------------------------------------------
+ * Bloco "Efeitos"
  * ------------------------------------------------------------ */
 .gambi-create-item-dialog .gambi-block {
   padding: 10px 10px 8px;
   border: 1px solid var(--gambi-border);
-  border-radius: var(--gambi-radius);
+  border-radius: var(--gambi-radius-md);
   background: rgba(0, 0, 0, 0.01);
 }
 
@@ -166,9 +162,7 @@
   margin-bottom: 8px;
 }
 
-/* ------------------------------------------------------------
- * Criar Item — radios 2x2
- * ------------------------------------------------------------ */
+/* grid 2x2 */
 .gambi-create-item-dialog .gambi-radios {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -182,8 +176,8 @@
   align-items: center;
   gap: 10px;
 
-  padding: 8px 10px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: var(--gambi-radius-md);
   border: 1px solid transparent;
   background: rgba(0, 0, 0, 0.015);
 
@@ -217,20 +211,14 @@
   color: var(--gambi-muted);
 }
 
-/* ------------------------------------------------------------
- * “Preview box” (usado no pick-item)
- * ------------------------------------------------------------ */
+/* preview box pick-item */
 .gambi-item-preview-box {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: var(--gambi-radius-md);
+  padding: 10px 12px;
   background: rgba(0, 0, 0, 0.02);
-  min-height: 100px;
-}
+  min-height: 110px;
 
-/* ------------------------------------------------------------
- * Helpers
- * ------------------------------------------------------------ */
-.gambi-is-hidden {
-  display: none !important;
+  font-size: 14px;
+  line-height: 1.25;
 }
