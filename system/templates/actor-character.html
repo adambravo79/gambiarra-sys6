@@ -94,7 +94,14 @@
       <div class="gambi-row">
         <div class="gambi-row-main">
           <strong>{{p.name}}</strong>
-          <div class="hint">{{p.system.descricao}}</div>
+
+          {{#if p.system.categoria}}
+          <div class="hint gambi-power-desc">
+            <strong>{{p.system.categoria}}:</strong> {{p.system.descricao}}
+          </div>
+          {{else}}
+          <div class="hint gambi-power-desc">{{p.system.descricao}}</div>
+          {{/if}}
         </div>
 
         {{#if ../isGM}}
@@ -132,7 +139,16 @@
         <div class="gambi-row-meta">
           {{#if (eq it.system.tipoItem "consumivel")}}
           <span class="gambi-chip">🔸 Consumível</span>
-          <span class="gambi-chip">🔋 {{it.system.cargas}}/{{it.system.cargasMax}}</span>
+          {{!-- v0.6.3e — ícone muda quando consumido --}}
+          <span class="gambi-chip">
+            {{#if it.system.usado}}
+            🪫
+            {{else}}
+            🔋
+            {{/if}}
+            {{it.system.cargas}}/{{it.system.cargasMax}}
+          </span>
+
           {{else}}
           <span class="gambi-chip">🔹 Relíquia</span>
           {{/if}}

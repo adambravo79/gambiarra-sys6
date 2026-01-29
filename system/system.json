@@ -2,44 +2,45 @@
   "id": "gambiarra-sys6",
   "title": "GAMBIARRA.SYS6",
   "description": "Sistema narrativo infantil focado em cooperação, criatividade e BUGs.",
-  "version": "0.6.3b",
+  "version": "0.6.3d",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
   },
-"packs": [
-  {
-    "name": "gambiarra-poderes",
-    "label": "⚡ Poderes Gambiarra",
-    "type": "Item",
-    "path": "packs/gambiarra-poderes",
-    "system": "gambiarra-sys6",
-    "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
-  },
-  {
-    "name": "gambiarra-itens",
-    "label": "🎒 Itens do Nó",
-    "type": "Item",
-    "path": "packs/gambiarra-itens",
-    "system": "gambiarra-sys6",
-    "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
-  }
-],
+  "packs": [
+    {
+      "name": "gambiarra-poderes",
+      "label": "⚡ Poderes Gambiarra",
+      "type": "Item",
+      "path": "packs/gambiarra-poderes",
+      "system": "gambiarra-sys6",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "gambiarra-itens",
+      "label": "🎒 Itens do Nó",
+      "type": "Item",
+      "path": "packs/gambiarra-itens",
+      "system": "gambiarra-sys6",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    }
+  ],
   "relationships": {
     "recommends": [
-      {
-        "id": "dice-so-nice",
-        "type": "module"
-      }
+      { "id": "dice-so-nice", "type": "module" }
     ]
   },
   "authors": [
-    {
-      "name": "André 'AdamBravo79' Nascimento"
-    }
+    { "name": "André 'AdamBravo79' Nascimento" }
   ],
   "esmodules": ["scripts/init.js"],
-  "styles": ["styles/gambiarra.css"],
+  "styles": [
+    "styles/gambiarra.css",
+    "styles/actor.css",
+    "styles/item.css",
+    "styles/power.css",
+    "styles/rolls.css"
+  ],
   "languages": [
     {
       "lang": "pt-BR",
@@ -48,15 +49,9 @@
     }
   ],
   "documentTypes": {
-    "Actor": {
-      "character": {},
-      "npc": {}
-    },
-    "Item": {
-      "item": {},
-      "poder": {}
-    }
+    "Actor": { "character": {}, "npc": {} },
+    "Item": { "item": {}, "poder": {} }
   },
   "manifest": "https://raw.githubusercontent.com/adambravo79/gambiarra-sys6/main/system/system.json",
-  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.6.3b/gambiarra-sys6-system-0.6.3b.zip"
+  "download": "https://github.com/adambravo79/gambiarra-sys6/releases/download/v0.6.3d/gambiarra-sys6-system-0.6.3d.zip"
 }
