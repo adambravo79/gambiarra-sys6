@@ -1,4 +1,4 @@
-// scripts/init.js (v0.6.1d)
+// scripts/init.js — v0.6.3a
 
 import { GambiarraActor } from "./actor.js";
 import { GambiarraActorSheet } from "./actor-sheet.js";
@@ -16,19 +16,26 @@ import {
   seedWorldItemsFromSystemPackIfEmpty,
 } from "./seed-compendiums.js";
 
-Hooks.once("init", () => {
-  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.6.2)");
+import { ARCHETYPES, applyArchetypeToSystem, getArchetype } from "./archetypes.js";
 
+Hooks.once("init", () => {
+  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.6.3a)");
+
+  // Document classes
+  CONFIG.Actor.documentClass = GambiarraActor;
+  CONFIG.Item.documentClass = GambiarraItem;
+
+  // Data models
+  CONFIG.Item.dataModels = {
+    item: GambiarraItemModel,
+    poder: GambiarraPoderModel,
+  };
   CONFIG.Actor.dataModels = {
     character: GambiarraCharacterModel,
     npc: GambiarraNpcModel,
   };
 
-  CONFIG.Item.dataModels = {
-    item: GambiarraItemModel,
-    poder: GambiarraPoderModel,
-  };
-
+  // Types
   CONFIG.Actor.defaultType = "character";
   CONFIG.Actor.typeLabels = {
     character: "Personagem",
@@ -41,9 +48,7 @@ Hooks.once("init", () => {
     poder: "Poder Gambiarra",
   };
 
-  CONFIG.Actor.documentClass = GambiarraActor;
-  CONFIG.Item.documentClass = GambiarraItem;
-
+  // Sheets (registrar UMA vez)
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("gambiarra-sys6", GambiarraActorSheet, {
     types: ["character", "npc"],
@@ -55,10 +60,12 @@ Hooks.once("init", () => {
     makeDefault: true,
   });
 
+  // garante type
   Hooks.on("preCreateActor", (doc, createData) => {
     if (!createData.type) doc.updateSource({ type: "character" });
   });
 
+  // config global
   game.gambiarra = {
     config: {
       difficulties: {
@@ -72,6 +79,7 @@ Hooks.once("init", () => {
     },
   };
 
+  // Dice So Nice
   Hooks.once("diceSoNiceReady", (dice3d) => {
     try {
       const category = "GAMBIARRA.SYS6";
@@ -118,17 +126,132 @@ Hooks.once("init", () => {
 
       console.log("🎲 GAMBIARRA.SYS6 | Dice So Nice colorsets registrados");
     } catch (e) {
-      console.warn(
-        "GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice",
-        e,
-      );
+      console.warn("GAMBIARRA.SYS6 | Falha ao registrar colorsets do Dice So Nice", e);
     }
   });
 });
 
 Hooks.once("ready", async () => {
-  if (!game.user.isGM) return;
-
-  await seedWorldFromSystemPackIfEmpty();
-  await seedWorldItemsFromSystemPackIfEmpty();
+  // seeds só GM
+  if (game.user.isGM) {
+    await seedWorldFromSystemPackIfEmpty();
+    await seedWorldItemsFromSystemPackIfEmpty();
+  }
 });
+
+Hooks.once("ready", () => {
+  // Intercepta o clique do botão "Criar Ator" ANTES do Foundry (capture=true)
+  const handler = (ev) => {
+    // pega clique em qualquer elemento dentro do botão
+    const btn = ev.target?.closest?.(
+      '.sidebar-tab[data-tab="actors"] button.create-document, ' +
+      '.sidebar-tab[data-tab="actors"] a.create-document'
+    );
+    if (!btn) return;
+
+    // Só quando o Actors sidebar está ativo (evita pegar em outros lugares)
+    const actorsTab = document.querySelector('.sidebar-tab[data-tab="actors"]');
+    if (!actorsTab?.classList?.contains("active")) return;
+
+    // permissão
+    if (!game.user?.can?.("ACTOR_CREATE")) return;
+
+    // mata o listener do core
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+
+    // abre sua galeria
+    try {
+      openArchetypeCreateDialog();
+    } catch (e) {
+      console.error("GAMBIARRA | Falha ao abrir Galeria:", e);
+      ui.notifications.error("Falha ao abrir Galeria de Arquétipos. Veja o console.");
+    }
+  };
+
+  // registra 1 vez só
+  if (!window.__gambiActorCreateIntercept) {
+    window.__gambiActorCreateIntercept = true;
+    document.addEventListener("click", handler, true); // CAPTURE = true
+    console.log("GAMBIARRA | Intercept (capture) do Criar Ator ativo");
+  }
+});
+
+function openArchetypeCreateDialog() {
+  const options = ARCHETYPES.map(
+    (a) => `<option value="${a.key}">${a.icon} ${a.nome} — (${a.attrs.corpo}/${a.attrs.mente}/${a.attrs.coracao})</option>`,
+  ).join("");
+
+  const content = `
+  <form class="gambi-create-actor">
+    <div class="form-group">
+      <label>Nome</label>
+      <input type="text" name="name" value="Novo Personagem" />
+    </div>
+
+    <div class="form-group">
+      <label>Arquétipo</label>
+      <select name="archKey">${options}</select>
+      <p class="hint">O jogo oferece apenas 10 fichas fixas. Os atributos nascem travados.</p>
+    </div>
+
+    <div class="gambi-arch-preview" style="margin-top:10px;"></div>
+
+    <hr/>
+    <div class="hint">
+      <strong>Modo livre</strong> (editar atributos) existe, mas é liberado apenas para o GM dentro da ficha.
+    </div>
+  </form>
+  `;
+
+  const dlg = new Dialog({
+    title: "🧩 Galeria de Arquétipos do Nó",
+    content,
+    buttons: {
+      create: {
+        label: "✅ Criar Personagem",
+        callback: async (html) => {
+          const name = String(html.find('[name="name"]').val() || "Novo Personagem").trim();
+          const key = String(html.find('[name="archKey"]').val() || "atleta");
+          const system = applyArchetypeToSystem({}, key);
+
+          await Actor.create({
+            name,
+            type: "character",
+            img: "icons/svg/mystery-man.svg",
+            system,
+          });
+        },
+      },
+      cancel: { label: "Cancelar" },
+    },
+    default: "create",
+    render: (html) => {
+      const $sel = html.find('[name="archKey"]');
+      const $prev = html.find(".gambi-arch-preview");
+
+      const renderPreview = () => {
+        const key = String($sel.val() || "atleta");
+        const a = getArchetype(key);
+        $prev.html(`
+          <div class="gambi-arch-card">
+            <div class="gambi-arch-card-row">
+              <div class="gambi-arch-icon">${a.icon}</div>
+              <div class="gambi-arch-info">
+                <div><strong>${a.nome}</strong></div>
+                <div class="hint">Corpo ${a.attrs.corpo} • Mente ${a.attrs.mente} • Coração ${a.attrs.coracao}</div>
+              </div>
+            </div>
+            <div class="hint" style="margin-top:6px;">${a.descricao}</div>
+          </div>
+        `);
+      };
+
+      $sel.on("change", renderPreview);
+      renderPreview();
+    },
+  });
+
+  dlg.render(true);
+}

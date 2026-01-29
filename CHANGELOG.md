@@ -2,6 +2,159 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas aqui.
 
+## [0.6.3] GAMBIARRA.SYS6 - v0.6.3 # - Ficha Viva & UX Unificada
+
+> A ficha deixou de ser um formulário.  
+> Agora ela é um **objeto de jogo ativo**.
+
+A v0.6.3 é a release onde a ficha do personagem se torna  
+**o centro real da experiência**: visual, mecânica e narrativa totalmente integradas.
+
+---
+
+## 🧩 Ficha de Personagem (refatoração total)
+
+A ficha foi redesenhada como **interface de jogo**, não mais como tela técnica.
+
+### Header inteligente
+- Nome + token integrados.
+- Arquétipo exibido com ícone.
+- **Modo Livre (GM)** para destravar atributos.
+- Mensagens contextuais:
+  - “Sem arquétipo (antigo)”
+  - “Atributos travados”
+
+### Atributos como UI de jogo
+- Cards visuais para:
+  - 💪 Corpo  
+  - 🧠 Mente  
+  - ❤️ Coração
+- Soma central em pill dinâmica:
+  - verde quando válida (6)
+  - vermelha quando inválida.
+- Feedback imediato sem precisar abrir diálogo.
+
+---
+
+## ⚡ Poderes Gambiarra (UX narrativa)
+
+### Visual unificado
+Cada poder agora aparece como **pill narrativa**:
+- Nome do Poder
+- Categoria: descrição completa que quebra automaticamente
+- Categoria em negrito.
+- Texto quebra em múltiplas linhas.
+- Ações (GM):
+  - 🗑️ remover
+  - 🔁 substituir
+
+### Criação de Poder (em mesa)
+Novo fluxo visual:
+
+- Interface no mesmo estilo da ficha.
+- Campos maiores e legíveis.
+- Preview real do texto.
+- Salvamento:
+  - só na ficha
+  - só no compêndio
+  - ou ambos.
+
+---
+
+## 🎒 Itens do Nó (ficha viva)
+
+### Visual inteligente
+Itens agora são **entidades visuais do estado do personagem**:
+
+- Nome + descrição quebrável.
+- Chips fixos:
+  - tipo (Consumível / Relíquia)
+  - cargas
+- Ações sempre visíveis.
+
+### Ícone de carga dinâmico
+Consumíveis agora mostram:
+
+- 🔋 quando ainda tem carga  
+- 🪫 quando zerado (usado)
+
+Sem mudar texto, só **ícone semântico**.
+
+---
+
+## 🎨 UX Unificada (padrão de sistema)
+
+Todos os diálogos agora seguem o mesmo padrão:
+
+- Cabeçalho estilo ficha.
+- Inputs com:
+  - altura mínima real
+  - texto nunca cortado
+- Radius padronizado:
+  - `--gambi-radius-sm`
+  - `--gambi-radius-md`
+- Focus ring limpo (sem borda estranha).
+
+Isso inclui:
+- Criar Poder
+- Criar Item
+- Escolher Poder
+- Escolher Item
+- Rolar Desafio
+
+---
+
+## 🧠 Arquitetura interna
+
+### Separação real de camadas
+- HTML só descreve estrutura.
+- CSS só cuida de layout.
+- JS só cuida de lógica.
+
+Removido:
+- inline styles
+- hacks de layout
+- estilos duplicados.
+
+Agora existe:
+- `power.css`
+- `item.css`
+- `actor.css`
+
+como **design system de verdade**.
+
+---
+
+## 🐞 Correções importantes
+
+- Corrigido bug de item consumível perder:
+  - descrição
+  - cargas
+  - efeito
+- Corrigido estado inconsistente ao usar item mais de uma vez.
+- Corrigido corte de texto em inputs e selects.
+- Corrigida borda invisível da ficha no Foundry.
+- Corrigido layout quebrando ao redimensionar.
+
+---
+
+## 📌 Marco do projeto
+
+A partir da **v0.6.3**, o sistema possui:
+
+- ficha como objeto narrativo ativo,
+- UI totalmente semântica,
+- visual consistente entre:
+  - ficha
+  - poderes
+  - itens
+  - rolagens
+- estado do personagem legível **sem abrir diálogo nenhum**.
+
+Essa é a versão onde o GAMBIARRA deixa de ser  
+“um sistema no Foundry”  
+e vira **um jogo com identidade própria**.
+
 ## [0.6.2] GAMBIARRA.SYS6 - v0.6.2 
 
 Itens do Nó atuando nas rolagens
