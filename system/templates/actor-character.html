@@ -42,14 +42,54 @@
     </div>
   </header>
 
-  {{#if hasArchetype}}
-  <section class="gambi-arch-desc">
-    <div class="hint">{{arquetipo.descricao}}</div>
-    {{#if attrsLocked}}
-    <div class="hint"><strong>🔒 Atributos travados</strong> (somente GM pode liberar “Modo livre”).</div>
+{{#if hasArchetype}}
+<section class="gambi-arch-desc">
+
+  <div class="gambi-arch-card">
+    <div class="gambi-arch-card-top">
+      <div class="gambi-arch-card-title">
+        <span class="gambi-arch-card-emoji">{{arquetipo.icon}}</span>
+        <strong>{{arquetipo.nome}}</strong>
+      </div>
+      {{#if arquetipo.tagline}}
+      <div class="gambi-arch-tagline">{{arquetipo.tagline}}</div>
+      {{/if}}
+    </div>
+
+    {{#if arquetipo.descricao}}
+    <div class="hint gambi-arch-block">{{arquetipo.descricao}}</div>
     {{/if}}
-  </section>
+
+    <div class="gambi-arch-grid">
+      {{#if arquetipo.comoAjuda}}
+      <div class="gambi-arch-block">
+        <div class="gambi-arch-block-title">Como você ajuda o grupo</div>
+        <div class="hint">{{arquetipo.comoAjuda}}</div>
+      </div>
+      {{/if}}
+
+      {{#if arquetipo.quandoBrilha}}
+      <div class="gambi-arch-block">
+        <div class="gambi-arch-block-title">Quando você brilha</div>
+        <div class="hint">{{arquetipo.quandoBrilha}}</div>
+      </div>
+      {{/if}}
+    </div>
+
+    {{#if arquetipo.poderSugerido}}
+    <div class="gambi-arch-suggest">
+      <span class="hint"><strong>Poder sugerido:</strong> {{arquetipo.poderSugerido}}</span>
+    </div>
+    {{/if}}
+  </div>
+
+  {{#if attrsLocked}}
+  <div class="hint" style="margin-top:6px;"><strong>🔒 Atributos travados</strong> (somente GM pode liberar “Modo livre”).</div>
   {{/if}}
+
+</section>
+{{/if}}
+
 
   <!-- ATRIBUTOS -->
   <section class="attributes">

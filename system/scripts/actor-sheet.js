@@ -69,6 +69,10 @@ export class GambiarraActorSheet extends ActorSheet {
         nome: meta.arquetipoNome || "",
         icon: meta.arquetipoIcon || "",
         descricao: meta.arquetipoDescricao || "",
+        comoAjuda: meta.arquetipoComoAjuda || "",
+        quandoBrilha: meta.arquetipoQuandoBrilha || "",
+        poderSugerido: meta.arquetipoPoderSugerido || "",
+        tagline: meta.arquetipoTagline || "",
       },
     };
   }

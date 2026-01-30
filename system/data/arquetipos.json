@@ -1,0 +1,102 @@
+[
+  {
+    "id": "inventora",
+    "nome": "A Inventora",
+    "icone": "🔧",
+    "descricaoCurta": "Você resolve problemas criando soluções improváveis com o que tem por perto — uma gambiarra por vez.",
+    "comoAjuda": "Transforma sucata em ferramenta, conserta o que quebrou e abre caminhos onde parecia não haver saída.",
+    "quandoBrilha": "Quando algo trava, quebra, parece impossível ou precisa virar outra coisa rapidamente.",
+    "poderSugerido": "Conserto Rápido",
+    "tagline": "“Se não existe, a gente cria.”"
+  },
+  {
+    "id": "lider",
+    "nome": "O Líder",
+    "icone": "📣",
+    "descricaoCurta": "Você organiza o caos. Junta o grupo, dá direção e transforma medo em coragem compartilhada.",
+    "comoAjuda": "Coordena planos, distribui tarefas e puxa o time de volta quando todo mundo começa a travar.",
+    "quandoBrilha": "Quando o grupo está dividido, em dúvida, com pressa — ou prestes a desistir.",
+    "poderSugerido": "Voz de Comando",
+    "tagline": "“Ninguém fica pra trás.”"
+  },
+  {
+    "id": "amiga",
+    "nome": "A Amiga",
+    "icone": "💞",
+    "descricaoCurta": "Você percebe o que ninguém diz. Sua empatia cura rachaduras invisíveis antes que virem um BUG gigante.",
+    "comoAjuda": "Acalma conflitos, encoraja quem está inseguro e cria confiança para o grupo arriscar junto.",
+    "quandoBrilha": "Quando alguém entra em pânico, está triste, com vergonha — ou quando o grupo precisa se reconectar.",
+    "poderSugerido": "Laço de Coragem",
+    "tagline": "“Eu tô com você.”"
+  },
+  {
+    "id": "exploradora",
+    "nome": "A Exploradora",
+    "icone": "🧭",
+    "descricaoCurta": "Você vai primeiro. Onde tem porta escondida, trilha estranha ou atalho impossível, você encontra.",
+    "comoAjuda": "Descobre caminhos, lê o ambiente e garante que o grupo não se perca no Nó.",
+    "quandoBrilha": "Em perseguições, mapas confusos, lugares novos, pistas sutis e passagens secretas.",
+    "poderSugerido": "Mapa Vivo",
+    "tagline": "“Se tem um caminho, eu acho.”"
+  },
+  {
+    "id": "investigadora",
+    "nome": "A Investigadora",
+    "icone": "🕵🏽‍♀️",
+    "descricaoCurta": "Você vê padrões no barulho. Onde outros veem bagunça, você encontra a lógica do Nó.",
+    "comoAjuda": "Conecta pistas, entende regras escondidas e descobre o que está por trás do problema.",
+    "quandoBrilha": "Quando há mistério, sinais estranhos, códigos, mentiras ou coisas que “não fazem sentido”.",
+    "poderSugerido": "Olhos de Debug",
+    "tagline": "“Isso não é aleatório. É um padrão.”"
+  },
+  {
+    "id": "genio",
+    "nome": "A Gênio",
+    "icone": "🧠",
+    "descricaoCurta": "Você pensa rápido e pensa bem. Seu cérebro é uma sala cheia de ideias que se conectam sozinhas.",
+    "comoAjuda": "Resolve enigmas, cria planos inteligentes e encontra a solução mais simples para o mais difícil.",
+    "quandoBrilha": "Em quebra-cabeças, estratégias, tecnologia e situações que precisam de uma ideia brilhante.",
+    "poderSugerido": "Salto Lógico",
+    "tagline": "“Espera… eu saquei!”"
+  },
+  {
+    "id": "atleta",
+    "nome": "A Atleta",
+    "icone": "🏃‍♀️",
+    "descricaoCurta": "Você é movimento. Corre, salta, escala e reage antes do mundo terminar de acontecer.",
+    "comoAjuda": "Tira o grupo de enrascadas físicas, faz manobras impossíveis e ganha tempo quando o Nó aperta.",
+    "quandoBrilha": "Em fugas, saltos, lutas, desafios de agilidade e quando alguém precisa ser resgatado rápido.",
+    "poderSugerido": "Pulo de Glitch",
+    "tagline": "“Alcança. Confia.”"
+  },
+  {
+    "id": "guardia",
+    "nome": "A Guardiã",
+    "icone": "🛡️",
+    "descricaoCurta": "Você segura a linha. Quando o perigo chega, você vira escudo — e o grupo ganha mais uma chance.",
+    "comoAjuda": "Protege aliados, aguenta impactos e cria espaço para os outros fazerem o que sabem fazer.",
+    "quandoBrilha": "Quando tem ameaça direta, risco alto, medo grande — ou quando alguém precisa de proteção.",
+    "poderSugerido": "Campo de Proteção",
+    "tagline": "“Passa por mim primeiro.”"
+  },
+  {
+    "id": "equilibrada",
+    "nome": "A Equilibrada",
+    "icone": "⚖️",
+    "descricaoCurta": "Você é adaptação. Se o plano muda, você muda junto — e ainda faz parecer que era assim desde o começo.",
+    "comoAjuda": "Faz um pouco de tudo, tapa buracos do time e encontra o melhor jeito de agir no improviso.",
+    "quandoBrilha": "Quando o grupo precisa de versatilidade, calma e decisões rápidas com pouca informação.",
+    "poderSugerido": "Troca de Contexto",
+    "tagline": "“Ok. Novo plano.”"
+  },
+  {
+    "id": "diplomata",
+    "nome": "A Diplomata",
+    "icone": "🤝",
+    "descricaoCurta": "Você vence sem bater. Conversa, entende o outro lado e encontra saídas que ninguém imaginou.",
+    "comoAjuda": "Faz acordos, desarma conflitos e consegue ajuda mesmo quando parece que não tem negociação.",
+    "quandoBrilha": "Em encontros tensos, discussões, alianças improváveis e quando palavras valem mais que força.",
+    "poderSugerido": "Palavra-Chave",
+    "tagline": "“Vamos resolver isso falando.”"
+  }
+]

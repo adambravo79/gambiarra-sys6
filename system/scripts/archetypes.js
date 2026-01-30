@@ -1,5 +1,5 @@
-// scripts/archetypes.js — v0.6.3a
-// Galeria de Arquétipos do Nó (10 fixos)
+// scripts/archetypes.js — v0.7.0a
+// Galeria de Arquétipos do Nó (10 fixos) — versão “jogo”: identidade + pedagogia
 
 export const ARCHETYPES = [
   {
@@ -8,6 +8,10 @@ export const ARCHETYPES = [
     icon: "🏃‍♀️",
     attrs: { corpo: 4, mente: 1, coracao: 1 },
     descricao: "Supera os limites do corpo: corre, salta e vai além do possível.",
+    comoAjuda: "Ganha tempo pro grupo: resgata, alcança, atravessa e segura o risco físico.",
+    quandoBrilha: "Fugas, saltos, escaladas, manobras rápidas, perigo imediato.",
+    poderSugerido: "Pulo de Glitch",
+    tagline: "“Alcança. Confia.”",
   },
   {
     key: "genio",
@@ -15,6 +19,10 @@ export const ARCHETYPES = [
     icon: "🧠",
     attrs: { corpo: 1, mente: 4, coracao: 1 },
     descricao: "Muito boa com problemas, lógica e quebra-cabeças.",
+    comoAjuda: "Encontra padrões, cria planos simples e resolve o que parece impossível de entender.",
+    quandoBrilha: "Enigmas, tecnologia, estratégia, pistas confusas, decisões difíceis.",
+    poderSugerido: "Salto Lógico",
+    tagline: "“Espera… eu saquei!”",
   },
   {
     key: "lider",
@@ -22,6 +30,10 @@ export const ARCHETYPES = [
     icon: "📣",
     attrs: { corpo: 1, mente: 1, coracao: 4 },
     descricao: "Une o grupo e inspira coragem quando tudo parece difícil.",
+    comoAjuda: "Dá direção, junta o time, decide sob pressão e transforma medo em ação.",
+    quandoBrilha: "Quando o grupo trava, discute, se perde ou está prestes a desistir.",
+    poderSugerido: "Voz de Comando",
+    tagline: "“Ninguém fica pra trás.”",
   },
   {
     key: "equilibrada",
@@ -29,6 +41,10 @@ export const ARCHETYPES = [
     icon: "⚖️",
     attrs: { corpo: 2, mente: 2, coracao: 2 },
     descricao: "Faz um pouco de tudo e se adapta a qualquer situação.",
+    comoAjuda: "Tapa buracos do time e troca de abordagem sem drama quando o plano muda.",
+    quandoBrilha: "Improviso, mudança de cenário, falta de informação, situações híbridas.",
+    poderSugerido: "Troca de Contexto",
+    tagline: "“Ok. Novo plano.”",
   },
   {
     key: "exploradora",
@@ -36,6 +52,10 @@ export const ARCHETYPES = [
     icon: "🧭",
     attrs: { corpo: 3, mente: 2, coracao: 1 },
     descricao: "Curiosa, rápida, sempre em movimento.",
+    comoAjuda: "Descobre caminhos, lê o ambiente e puxa o grupo para o próximo passo.",
+    quandoBrilha: "Mapas confusos, passagens secretas, perseguições, lugares novos.",
+    poderSugerido: "Mapa Vivo",
+    tagline: "“Se tem um caminho, eu acho.”",
   },
   {
     key: "guardia",
@@ -43,6 +63,10 @@ export const ARCHETYPES = [
     icon: "🛡️",
     attrs: { corpo: 3, mente: 1, coracao: 2 },
     descricao: "Protege o grupo e segura a linha quando o perigo chega.",
+    comoAjuda: "Vira escudo, compra tempo e mantém o grupo seguro quando o Nó aperta.",
+    quandoBrilha: "Ameaça direta, risco alto, medo grande, alguém em perigo.",
+    poderSugerido: "Campo de Proteção",
+    tagline: "“Passa por mim primeiro.”",
   },
   {
     key: "inventora",
@@ -50,6 +74,10 @@ export const ARCHETYPES = [
     icon: "🔧",
     attrs: { corpo: 2, mente: 3, coracao: 1 },
     descricao: "Conserta, adapta e cria gambiarras físicas.",
+    comoAjuda: "Transforma sucata em solução: conserta, melhora e inventa ferramentas na hora.",
+    quandoBrilha: "Coisas quebradas, travadas, portas fechadas, mecanismos estranhos.",
+    poderSugerido: "Conserto Rápido",
+    tagline: "“Se não existe, a gente cria.”",
   },
   {
     key: "investigadora",
@@ -57,6 +85,10 @@ export const ARCHETYPES = [
     icon: "🕵️‍♀️",
     attrs: { corpo: 1, mente: 3, coracao: 2 },
     descricao: "Pensa antes de agir, planeja e resolve códigos.",
+    comoAjuda: "Conecta pistas, prevê consequências e descobre o que está por trás do problema.",
+    quandoBrilha: "Mistérios, sinais estranhos, códigos, mentiras, padrões do Nó.",
+    poderSugerido: "Olhos de Debug",
+    tagline: "“Isso não é aleatório. É um padrão.”",
   },
   {
     key: "amiga",
@@ -64,6 +96,10 @@ export const ARCHETYPES = [
     icon: "💞",
     attrs: { corpo: 2, mente: 1, coracao: 3 },
     descricao: "Sente o Nó, conversa com tudo e entende emoções.",
+    comoAjuda: "Acalma, conecta e dá coragem: resolve conflitos antes que virem BUG.",
+    quandoBrilha: "Medo, tristeza, brigas, vergonha, decisões que mexem com sentimentos.",
+    poderSugerido: "Laço de Coragem",
+    tagline: "“Eu tô com você.”",
   },
   {
     key: "diplomata",
@@ -71,6 +107,10 @@ export const ARCHETYPES = [
     icon: "🤝",
     attrs: { corpo: 1, mente: 2, coracao: 3 },
     descricao: "Junta ideias, pessoas e objetos para criar soluções.",
+    comoAjuda: "Negocia, entende os dois lados e cria acordo onde parecia só conflito.",
+    quandoBrilha: "Conversa tensa, alianças improváveis, convencer alguém, desarmar briga.",
+    poderSugerido: "Palavra-Chave",
+    tagline: "“Vamos resolver isso falando.”",
   },
 ];
 
@@ -85,7 +125,15 @@ export function applyArchetypeToSystem(system, key) {
   system.meta.arquetipoKey = a.key;
   system.meta.arquetipoNome = a.nome;
   system.meta.arquetipoIcon = a.icon;
+
+  // compat com o que já existe
   system.meta.arquetipoDescricao = a.descricao;
+
+  // novos campos (0.7.0)
+  system.meta.arquetipoComoAjuda = a.comoAjuda ?? "";
+  system.meta.arquetipoQuandoBrilha = a.quandoBrilha ?? "";
+  system.meta.arquetipoPoderSugerido = a.poderSugerido ?? "";
+  system.meta.arquetipoTagline = a.tagline ?? "";
 
   // trava por padrão
   system.meta.modoLivre = Boolean(system.meta.modoLivre ?? false);

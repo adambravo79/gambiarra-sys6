@@ -235,17 +235,34 @@ function openArchetypeCreateDialog() {
         const key = String($sel.val() || "atleta");
         const a = getArchetype(key);
         $prev.html(`
-          <div class="gambi-arch-card">
-            <div class="gambi-arch-card-row">
-              <div class="gambi-arch-icon">${a.icon}</div>
-              <div class="gambi-arch-info">
-                <div><strong>${a.nome}</strong></div>
-                <div class="hint">Corpo ${a.attrs.corpo} • Mente ${a.attrs.mente} • Coração ${a.attrs.coracao}</div>
-              </div>
-            </div>
-            <div class="hint" style="margin-top:6px;">${a.descricao}</div>
-          </div>
-        `);
+  <div class="gambi-arch-card">
+    <div class="gambi-arch-card-row">
+      <div class="gambi-arch-icon">${a.icon}</div>
+      <div class="gambi-arch-info">
+        <div><strong>${a.nome}</strong> <span class="hint" style="margin-left:6px;">${a.tagline ?? ""}</span></div>
+        <div class="hint">Corpo ${a.attrs.corpo} • Mente ${a.attrs.mente} • Coração ${a.attrs.coracao}</div>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:6px;">${a.descricao ?? ""}</div>
+
+    <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div>
+        <div style="font-weight:900; font-size:12px;">Como você ajuda o grupo</div>
+        <div class="hint">${a.comoAjuda ?? ""}</div>
+      </div>
+      <div>
+        <div style="font-weight:900; font-size:12px;">Quando você brilha</div>
+        <div class="hint">${a.quandoBrilha ?? ""}</div>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:8px; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.25);">
+      <strong>Poder sugerido:</strong> ${a.poderSugerido ?? "—"}
+    </div>
+  </div>
+`);
+
       };
 
       $sel.on("change", renderPreview);
