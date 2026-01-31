@@ -1,4 +1,5 @@
-// scripts/init.js — v0.6.3a
+// scripts/init.js — v0.7.0a
+// Foundry V12
 
 import { GambiarraActor } from "./actor.js";
 import { GambiarraActorSheet } from "./actor-sheet.js";
@@ -19,7 +20,7 @@ import {
 import { ARCHETYPES, applyArchetypeToSystem, getArchetype } from "./archetypes.js";
 
 Hooks.once("init", () => {
-  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.6.3a)");
+  console.log("🪢 GAMBIARRA.SYS6 | Inicializando sistema (v0.7.0a)");
 
   // Document classes
   CONFIG.Actor.documentClass = GambiarraActor;
@@ -142,10 +143,9 @@ Hooks.once("ready", async () => {
 Hooks.once("ready", () => {
   // Intercepta o clique do botão "Criar Ator" ANTES do Foundry (capture=true)
   const handler = (ev) => {
-    // pega clique em qualquer elemento dentro do botão
     const btn = ev.target?.closest?.(
       '.sidebar-tab[data-tab="actors"] button.create-document, ' +
-      '.sidebar-tab[data-tab="actors"] a.create-document'
+      '.sidebar-tab[data-tab="actors"] a.create-document',
     );
     if (!btn) return;
 
@@ -180,95 +180,122 @@ Hooks.once("ready", () => {
 
 function openArchetypeCreateDialog() {
   const options = ARCHETYPES.map(
-    (a) => `<option value="${a.key}">${a.icon} ${a.nome} — (${a.attrs.corpo}/${a.attrs.mente}/${a.attrs.coracao})</option>`,
+    (a) =>
+      `<option value="${a.key}">${a.icon} ${a.nome} — (${a.attrs.corpo}/${a.attrs.mente}/${a.attrs.coracao})</option>`,
   ).join("");
 
   const content = `
-  <form class="gambi-create-actor">
-    <div class="form-group">
-      <label>Nome</label>
-      <input type="text" name="name" value="Novo Personagem" />
-    </div>
+    <div class="gambi-dialog-body">
+      <form class="gambi-create-actor">
+        <div class="gambi-panel">
 
-    <div class="form-group">
-      <label>Arquétipo</label>
-      <select name="archKey">${options}</select>
-      <p class="hint">O jogo oferece apenas 10 fichas fixas. Os atributos nascem travados.</p>
-    </div>
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" name="name" value="Novo Personagem" />
+          </div>
 
-    <div class="gambi-arch-preview" style="margin-top:10px;"></div>
+          <div class="form-group">
+            <label>Arquétipo</label>
+            <select name="archKey">${options}</select>
+            <p class="hint">O jogo oferece apenas 10 fichas fixas. Os atributos nascem travados.</p>
+          </div>
 
-    <hr/>
-    <div class="hint">
-      <strong>Modo livre</strong> (editar atributos) existe, mas é liberado apenas para o GM dentro da ficha.
+          <div class="gambi-arch-preview"></div>
+
+          <div class="gambi-hint-sep">
+            <strong>Modo livre</strong> (editar atributos) existe, mas é liberado apenas para o GM dentro da ficha.
+          </div>
+
+        </div>
+      </form>
     </div>
-  </form>
   `;
 
-  const dlg = new Dialog({
-    title: "🧩 Galeria de Arquétipos do Nó",
-    content,
-    buttons: {
-      create: {
-        label: "✅ Criar Personagem",
-        callback: async (html) => {
-          const name = String(html.find('[name="name"]').val() || "Novo Personagem").trim();
-          const key = String(html.find('[name="archKey"]').val() || "atleta");
-          const system = applyArchetypeToSystem({}, key);
+  const dlg = new Dialog(
+    {
+      title: "🧩 Galeria de Arquétipos do Nó",
+      content,
+      buttons: {
+        create: {
+          label: "✅ Criar Personagem",
+          callback: async (html) => {
+            const name = String(html.find('[name="name"]').val() || "Novo Personagem").trim();
+            const key = String(html.find('[name="archKey"]').val() || "atleta");
 
-          await Actor.create({
-            name,
-            type: "character",
-            img: "icons/svg/mystery-man.svg",
-            system,
-          });
+            const system = applyArchetypeToSystem({}, key);
+
+            await Actor.create({
+              name,
+              type: "character",
+              img: "icons/svg/mystery-man.svg",
+              system,
+            });
+          },
         },
+        cancel: { label: "Cancelar" },
       },
-      cancel: { label: "Cancelar" },
+      default: "create",
+      render: (html) => {
+        const $sel = html.find('[name="archKey"]');
+        const $prev = html.find(".gambi-arch-preview");
+
+        const esc = (s) => {
+          const str = String(s ?? "");
+          return str
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+        };
+
+        const renderPreview = () => {
+          const key = String($sel.val() || "atleta");
+          const a = getArchetype(key);
+
+          $prev.html(`
+            <div class="gambi-arch-card">
+              <div class="gambi-arch-card-row">
+                <div class="gambi-arch-icon">${esc(a.icon)}</div>
+                <div class="gambi-arch-info">
+                  <div class="gambi-arch-title">
+                    <strong>${esc(a.nome)}</strong>
+                    ${a.tagline ? `<span class="gambi-arch-tagline hint">${esc(a.tagline)}</span>` : ""}
+                  </div>
+                  <div class="hint">Corpo ${a.attrs.corpo} • Mente ${a.attrs.mente} • Coração ${a.attrs.coracao}</div>
+                </div>
+              </div>
+
+              ${a.descricao ? `<div class="hint" style="margin-top:6px;">${esc(a.descricao)}</div>` : ""}
+
+              <div class="gambi-arch-grid">
+                <div>
+                  <div class="gambi-arch-block-title">Como você ajuda o grupo</div>
+                  <div class="hint">${esc(a.comoAjuda ?? "")}</div>
+                </div>
+                <div>
+                  <div class="gambi-arch-block-title">Quando você brilha</div>
+                  <div class="hint">${esc(a.quandoBrilha ?? "")}</div>
+                </div>
+              </div>
+
+              <div class="gambi-arch-sep hint">
+                <strong>Poder sugerido:</strong> ${esc(a.poderSugerido ?? "—")}
+              </div>
+            </div>
+          `);
+        };
+
+        $sel.on("change", renderPreview);
+        renderPreview();
+      },
     },
-    default: "create",
-    render: (html) => {
-      const $sel = html.find('[name="archKey"]');
-      const $prev = html.find(".gambi-arch-preview");
-
-      const renderPreview = () => {
-        const key = String($sel.val() || "atleta");
-        const a = getArchetype(key);
-        $prev.html(`
-  <div class="gambi-arch-card">
-    <div class="gambi-arch-card-row">
-      <div class="gambi-arch-icon">${a.icon}</div>
-      <div class="gambi-arch-info">
-        <div><strong>${a.nome}</strong> <span class="hint" style="margin-left:6px;">${a.tagline ?? ""}</span></div>
-        <div class="hint">Corpo ${a.attrs.corpo} • Mente ${a.attrs.mente} • Coração ${a.attrs.coracao}</div>
-      </div>
-    </div>
-
-    <div class="hint" style="margin-top:6px;">${a.descricao ?? ""}</div>
-
-    <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-      <div>
-        <div style="font-weight:900; font-size:12px;">Como você ajuda o grupo</div>
-        <div class="hint">${a.comoAjuda ?? ""}</div>
-      </div>
-      <div>
-        <div style="font-weight:900; font-size:12px;">Quando você brilha</div>
-        <div class="hint">${a.quandoBrilha ?? ""}</div>
-      </div>
-    </div>
-
-    <div class="hint" style="margin-top:8px; padding-top:8px; border-top:1px dashed rgba(0,0,0,0.25);">
-      <strong>Poder sugerido:</strong> ${a.poderSugerido ?? "—"}
-    </div>
-  </div>
-`);
-
-      };
-
-      $sel.on("change", renderPreview);
-      renderPreview();
+    {
+      classes: ["gambiarra", "gambi-dialog", "gambi-arch-gallery"],
+      width: 560,
+      height: "auto",
     },
-  });
+  );
 
   dlg.render(true);
 }

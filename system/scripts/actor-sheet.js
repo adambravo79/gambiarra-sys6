@@ -1,7 +1,81 @@
-// scripts/actor-sheet.js — v0.6.3a
+// scripts/actor-sheet.js — v0.7.0h
+// Fixes:
+// - Reintroduz handlers de excluir/trocar poder e excluir item
+// - Mantém item inicial por arquétipo
 
 import { rollDesafio } from "./rolls.js";
 import { applyArchetypeToSystem } from "./archetypes.js";
+
+const WORLD_ITEMS_PACK = "world.gambiarra-itens";
+const SYSTEM_ITEMS_PACK = "gambiarra-sys6.gambiarra-itens";
+
+function normName(s) {
+  return String(s ?? "").trim().toLocaleLowerCase("pt-BR");
+}
+
+function deriveTagline(meta) {
+  const raw = String(meta?.arquetipoTagline || "").trim();
+  if (raw) return raw;
+
+  const desc = String(meta?.arquetipoDescricao || "").trim();
+  if (!desc) return "";
+
+  const firstLine = desc.split("\n")[0].trim();
+  const firstSentence = firstLine.split(/(?<=[.!?])\s+/)[0] || firstLine;
+  return firstSentence.length > 80 ? `${firstSentence.slice(0, 77)}…` : firstSentence;
+}
+
+function deriveStarterItem(meta) {
+  return String(meta?.arquetipoItemInicial || "").trim();
+}
+
+async function findItemInPackByName(pack, name) {
+  if (!pack) return null;
+  await pack.getIndex();
+
+  const target = normName(name);
+  const entry = pack.index.find((e) => normName(e.name) === target);
+  if (!entry) return null;
+
+  return pack.getDocument(entry._id);
+}
+
+async function addStarterItemToActor(actor, starterItemName) {
+  const wanted = String(starterItemName || "").trim();
+  if (!wanted) {
+    ui.notifications.warn("Este arquétipo não tem item inicial configurado.");
+    return;
+  }
+
+  // não duplica por nome
+  const already = actor.items?.some(
+    (it) => it.type === "item" && normName(it.name) === normName(wanted),
+  );
+  if (already) {
+    ui.notifications.info("Este item já está na ficha.");
+    return;
+  }
+
+  const worldPack = game.packs.get(WORLD_ITEMS_PACK);
+  const sysPack = game.packs.get(SYSTEM_ITEMS_PACK);
+
+  let doc = await findItemInPackByName(worldPack, wanted);
+  if (!doc) doc = await findItemInPackByName(sysPack, wanted);
+
+  if (!doc) {
+    ui.notifications.error(`Item inicial não encontrado no compêndio: "${wanted}".`);
+    return;
+  }
+
+  const data = doc.toObject();
+  delete data._id;
+
+  data.system = data.system ?? {};
+  data.system.sourceId = doc.uuid;
+
+  await actor.createEmbeddedDocuments("Item", [data]);
+  ui.notifications.info(`✅ Item inicial adicionado: ${doc.name}`);
+}
 
 export class GambiarraActorSheet extends ActorSheet {
   static get defaultOptions() {
@@ -30,7 +104,12 @@ export class GambiarraActorSheet extends ActorSheet {
     const scoreItem = (it) => {
       const tipo = it.system?.tipoItem ?? "reliquia";
       const usado = Boolean(it.system?.usado);
-      if (tipo === "consumivel" && usado) return 30;
+      const cargas = Number(it.system?.cargas ?? 0);
+
+      // consumível "acabado" (usado OU cargas 0) vai pro final
+      const depleted = tipo === "consumivel" && (usado || cargas <= 0);
+      if (depleted) return 30;
+
       if (tipo === "consumivel") return 20;
       return 10;
     };
@@ -51,8 +130,11 @@ export class GambiarraActorSheet extends ActorSheet {
     const hasArchetype = Boolean(meta.arquetipoKey);
     const modoLivre = Boolean(meta.modoLivre);
 
-    // Travado se: tem arquétipo e (não é GM ou GM não ativou modo livre)
     const attrsLocked = hasArchetype && (!isGM || !modoLivre);
+    const showSumbar = Boolean(isGM && modoLivre);
+
+    const starterItem = deriveStarterItem(meta);
+    const showStarterButton = Boolean(hasArchetype && starterItem && itemsSorted.length === 0);
 
     return {
       ...context,
@@ -64,6 +146,9 @@ export class GambiarraActorSheet extends ActorSheet {
       attrOk,
       hasArchetype,
       attrsLocked,
+      showSumbar,
+      showStarterButton,
+      starterItem,
       arquetipo: {
         key: meta.arquetipoKey || "",
         nome: meta.arquetipoNome || "",
@@ -72,7 +157,7 @@ export class GambiarraActorSheet extends ActorSheet {
         comoAjuda: meta.arquetipoComoAjuda || "",
         quandoBrilha: meta.arquetipoQuandoBrilha || "",
         poderSugerido: meta.arquetipoPoderSugerido || "",
-        tagline: meta.arquetipoTagline || "",
+        tagline: deriveTagline(meta),
       },
     };
   }
@@ -80,17 +165,15 @@ export class GambiarraActorSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
-    const isAttrOkNow = () => {
+    const guardAttrOk = () => {
       const c = Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
       const m = Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
       const co = Number(html.find('[name="system.attributes.coracao.value"]').val()) || 0;
-
       const sum = c + m + co;
-      return sum === 6 && c >= 1 && m >= 1 && co >= 1;
-    };
 
-    const guardAttrOk = () => {
-      if (isAttrOkNow()) return true;
+      const ok = sum === 6 && c >= 1 && m >= 1 && co >= 1;
+      if (ok) return true;
+
       ui.notifications.warn("Ajuste Corpo+Mente+Coração para somar 6 (mínimo 1 em cada).");
       return false;
     };
@@ -98,6 +181,12 @@ export class GambiarraActorSheet extends ActorSheet {
     const guardOwner = () => {
       if (this.actor.isOwner) return true;
       ui.notifications.warn("Você precisa de permissão de dono para fazer isso.");
+      return false;
+    };
+
+    const guardGM = () => {
+      if (game.user.isGM) return true;
+      ui.notifications.warn("Somente o GM pode fazer isso.");
       return false;
     };
 
@@ -114,49 +203,49 @@ export class GambiarraActorSheet extends ActorSheet {
       const locked = isLocked();
       html.toggleClass("gambi-attrs-locked", locked);
 
-      // inputs dos atributos (template usa .attribute-value)
       html
         .find(".attribute-value")
         .prop("disabled", locked)
         .toggleClass("is-locked", locked);
-
-      // sumbar ainda aparece, mas em locked não precisa “guiar”
-      html.find(".gambiarra-sumbar").toggleClass("is-locked", locked);
     };
 
     // Toggle "modo livre" (somente GM)
-    html.find('.gambi-toggle-free')
-      .off("change")
-      .on("change", async (ev) => {
-        if (!isGM) return;
+    html.find(".gambi-toggle-free").off("change").on("change", async (ev) => {
+      if (!isGM) return;
 
-        const checked = Boolean(ev.currentTarget.checked);
+      const checked = Boolean(ev.currentTarget.checked);
 
-        // Atualiza flag
-        await this.actor.update({ "system.meta.modoLivre": checked });
+      await this.actor.update({ "system.meta.modoLivre": checked });
 
-        // Ao DESLIGAR o modo livre, reaplica valores do arquétipo (volta “pro padrão”)
-        if (!checked && hasArchetype) {
-          const key = String(this.actor.system?.meta?.arquetipoKey || "");
-          const system = foundry.utils.deepClone(this.actor.system);
-          applyArchetypeToSystem(system, key);
+      if (!checked && hasArchetype) {
+        const key = String(this.actor.system?.meta?.arquetipoKey || "");
+        const system = foundry.utils.deepClone(this.actor.system);
+        applyArchetypeToSystem(system, key);
 
-          // mantém modoLivre false
-          system.meta.modoLivre = false;
+        system.meta.modoLivre = false;
 
-          await this.actor.update({
-            "system.attributes.corpo.value": system.attributes.corpo.value,
-            "system.attributes.mente.value": system.attributes.mente.value,
-            "system.attributes.coracao.value": system.attributes.coracao.value,
-            "system.meta.arquetipoNome": system.meta.arquetipoNome,
-            "system.meta.arquetipoIcon": system.meta.arquetipoIcon,
-            "system.meta.arquetipoDescricao": system.meta.arquetipoDescricao,
-          });
-        }
+        await this.actor.update({
+          "system.attributes.corpo.value": system.attributes.corpo.value,
+          "system.attributes.mente.value": system.attributes.mente.value,
+          "system.attributes.coracao.value": system.attributes.coracao.value,
+          "system.meta.arquetipoNome": system.meta.arquetipoNome,
+          "system.meta.arquetipoIcon": system.meta.arquetipoIcon,
+          "system.meta.arquetipoDescricao": system.meta.arquetipoDescricao,
+          "system.meta.arquetipoTagline": system.meta.arquetipoTagline,
+          "system.meta.arquetipoItemInicial": system.meta.arquetipoItemInicial,
+        });
+      }
 
-        applyLockUI();
-        lockAttrInputs();
-      });
+      applyLockUI();
+    });
+
+    // Botão: adicionar item inicial
+    html.find(".add-starter-item").off("click").on("click", async () => {
+      if (!guardOwner()) return;
+
+      const starterItem = String(this.actor.system?.meta?.arquetipoItemInicial || "").trim();
+      await addStarterItemToActor(this.actor, starterItem);
+    });
 
     // rolagem
     html.find(".roll-desafio").off("click").on("click", () => {
@@ -180,12 +269,15 @@ export class GambiarraActorSheet extends ActorSheet {
       this.actor._criarPoderNoCompendioOuFicha?.();
     });
 
-    // remover poder (GM)
+    // ✅ FIX: remover poder (GM)
     html.find(".power-remove").off("click").on("click", async (ev) => {
       ev.preventDefault();
-      if (!guardAttrOk()) return;
+      ev.stopPropagation();
+      if (!guardGM()) return;
 
-      const itemId = ev.currentTarget.dataset.itemId;
+      const itemId = ev.currentTarget?.dataset?.itemId;
+      if (!itemId) return;
+
       const poder = this.actor.items.get(itemId);
       if (!poder) return;
 
@@ -193,17 +285,21 @@ export class GambiarraActorSheet extends ActorSheet {
         title: "Remover Poder",
         content: `<p>Remover <strong>${poder.name}</strong> da ficha?</p>`,
       });
-
       if (!ok) return;
+
       await poder.delete();
     });
 
-    // trocar poder (GM)
+    // ✅ FIX: trocar poder (GM)
     html.find(".power-replace").off("click").on("click", async (ev) => {
       ev.preventDefault();
+      ev.stopPropagation();
+      if (!guardGM()) return;
       if (!guardAttrOk()) return;
 
-      const itemId = ev.currentTarget.dataset.itemId;
+      const itemId = ev.currentTarget?.dataset?.itemId;
+      if (!itemId) return;
+
       const poder = this.actor.items.get(itemId);
       if (!poder) return;
 
@@ -211,48 +307,34 @@ export class GambiarraActorSheet extends ActorSheet {
         title: "Trocar Poder",
         content: `<p>Trocar <strong>${poder.name}</strong> por outro?</p>`,
       });
-
       if (!ok) return;
 
       await poder.delete();
       await this.actor._despertarPoder({ sortear: false });
     });
 
-    // Adicionar item (owner)
+    // itens
     html.find(".add-item").off("click").on("click", () => {
       if (!guardAttrOk()) return;
       if (!guardOwner()) return;
       this.actor._escolherItemDoCompendio();
     });
 
-    // Criar item em mesa (GM)
     html.find(".create-item").off("click").on("click", () => {
       if (!guardAttrOk()) return;
       this.actor._criarItemNoCompendioOuFicha?.();
     });
 
-    // Remover item (somente owner)
-    const syncRemoveButtons = () => {
-      const canRemove = this.actor.isOwner;
-      html.find(".remove-item").each((_, el) => {
-        const $b = $(el);
-        if (!canRemove) $b.hide();
-        else $b.show();
-      });
-    };
-    syncRemoveButtons();
-
+    // ✅ FIX: remover item (owner)
     html.find(".remove-item").off("click").on("click", async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      if (!guardAttrOk()) return;
 
-      if (!this.actor.isOwner) {
-        ui.notifications.warn("Você precisa de permissão de dono para remover.");
-        return;
-      }
+      if (!guardOwner()) return;
 
-      const itemId = ev.currentTarget.dataset.itemId;
+      const itemId = ev.currentTarget?.dataset?.itemId;
+      if (!itemId) return;
+
       const item = this.actor.items.get(itemId);
       if (!item) return;
 
@@ -265,54 +347,6 @@ export class GambiarraActorSheet extends ActorSheet {
       await item.delete();
     });
 
-    // Efeitos permanentes
-    html.find(".add-effect").off("click").on("click", () => {
-      if (!guardAttrOk()) return;
-      this.actor._adicionarEfeitoPermanente?.();
-    });
-
-    html.find(".bug-effect").off("click").on("click", () => {
-      if (!guardAttrOk()) return;
-      this.actor._converterBugEmEfeito?.();
-    });
-
-    // sumbar + trava de botões
-    const updateSumbar = () => {
-      const c = Number(html.find('[name="system.attributes.corpo.value"]').val()) || 0;
-      const m = Number(html.find('[name="system.attributes.mente.value"]').val()) || 0;
-      const co = Number(html.find('[name="system.attributes.coracao.value"]').val()) || 0;
-
-      const sum = c + m + co;
-      const ok = sum === 6 && c >= 1 && m >= 1 && co >= 1;
-
-      const $bar = html.find(".gambiarra-sumbar");
-      $bar.find(".sum-pill").text(String(sum));
-
-      if (ok) {
-        $bar.removeClass("bad").addClass("ok");
-        $bar.find(".sum-right").text("OK ✅ (Soma = 6)");
-      } else {
-        $bar.removeClass("ok").addClass("bad");
-        $bar.find(".sum-right").text("Ajuste para Soma = 6 (mínimo 1 em cada)");
-      }
-
-      // desabilita ações quando inválido (mesmo travado, mantém coerência)
-      const disable = !ok;
-      html
-        .find(
-          ".roll-desafio, .add-power, .roll-power, .create-power, .add-item, .create-item, .remove-item, .add-effect, .bug-effect",
-        )
-        .prop("disabled", disable);
-
-      html.find(".power-remove, .power-replace").prop("disabled", disable);
-      syncRemoveButtons();
-    };
-
-    html.find('[name="system.attributes.corpo.value"]').off("input").on("input", updateSumbar);
-    html.find('[name="system.attributes.mente.value"]').off("input").on("input", updateSumbar);
-    html.find('[name="system.attributes.coracao.value"]').off("input").on("input", updateSumbar);
-
-    updateSumbar();
     applyLockUI();
   }
 }
