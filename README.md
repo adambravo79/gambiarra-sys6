@@ -9,65 +9,171 @@ e consequências emocionais, ambientado no **Nó / Circuito**.
 
 ---
 
-“Ao iniciar o mundo pela primeira vez como GM, o sistema cria automaticamente
-o compêndio ⚡ Poderes Gambiarra e importa os poderes iniciais.”
+“Ao iniciar o mundo pela primeira vez como GM, o sistema cria automaticamente  
+os compêndios ⚡ Poderes Gambiarra e 🎒 Itens do Nó, importando todo o conteúdo inicial.”
 
 ---
 
 ## 📦 Versão atual
 
-## **v0.6.3 — Ficha Viva & UX Unificada**
+## **v0.7.0 — Identidade do Nó & Ficha Pedagógica**
 
-### O que já existe
+> O sistema agora **sabe quem o personagem é**.  
+> Não só o que ele faz.
 
-- 🎲 Sistema de rolagem d6 visual (Dice So Nice)
-- 🟢🔵🔴 Atributos: Corpo, Mente, Coração
-- ⚡ Poderes Gambiarra (máx. 2)
-- 🎒 Sistema completo de Itens do Nó
-- 🟣 Dados roxos (bônus narrativos)
-- 💬 Chat rico com feedback visual
-- 🔁 Consumo real de recursos
-- 🧩 Ficha visual interativa (estado do personagem)
+A v0.7.0 consolida a identidade do GAMBIARRA:  
+arquétipos canônicos, ficha viva e narrativa emergente como centro da experiência.
 
 ---
 
-## 🎒 Itens do Nó
+## 🎭 Arquétipos do Nó
 
-Cada item possui **1 efeito travado**:
+O sistema possui **10 arquétipos fixos oficiais**, que definem a identidade de cada personagem:
 
-- ➖ Reduzir dificuldade
-- 🟣 +1 dado roxo
-- 🪢 Hackear o Nó (registro narrativo)
-- 🔁 Trocar atributo do desafio (registro narrativo)
+- A Atleta  
+- A Gênio  
+- O Líder  
+- A Equilibrada  
+- A Exploradora  
+- A Guardiã  
+- A Inventora  
+- A Investigadora  
+- A Amiga  
+- A Diplomata  
 
-### Tipos
+Cada arquétipo define:
 
-- 🔸 **Consumível** — 1–3 cargas, é absorvido ao zerar.
-- 🔹 **Relíquia** — permanente, acompanha o personagem.
+- valores base de **Corpo / Mente / Coração**
+- descrição narrativa
+- como ajuda o grupo
+- quando brilha
+- poder sugerido
+- **tagline identitária**
 
-Os itens:
+### Comportamento pedagógico
 
-- aparecem no **Rolar Desafio**,
-- afetam a rolagem automaticamente,
-- são registrados no chat,
-- exibem estado visual (🔋 / 🪫),
-- podem ser absorvidos pelo Nó.
+- Atributos começam **travados**
+- Somente o GM pode liberar via **Modo Livre**
+- Ao desligar:
+  - a ficha volta automaticamente para o arquétipo
+- Jogadores não fazem build:
+  - o arquétipo é a mecânica.
+
+> O personagem nasce de uma **identidade**, não de uma otimização.
+
+---
+
+## 🧾 Ficha Viva (interface de jogo)
+
+A ficha não é mais um formulário técnico.  
+Ela é um **objeto narrativo ativo**.
+
+### Header em dois pills
+
+**Pill esquerda**
+- Imagem do personagem  
+- Nome editável  
+- Cadeado de estado  
+- Toggle Modo Livre (GM)
+
+**Pill direita**
+- Ícone do arquétipo  
+- Nome do arquétipo  
+- Tagline completa (sem corte)
+
+### Atributos visuais
+
+- Cards para:
+  - 💪 Corpo  
+  - 🧠 Mente  
+  - ❤️ Coração  
+- Soma obrigatória = **6**
+- Barra de validação:
+  - só aparece para GM
+  - nunca aparece para jogadores
 
 ---
 
 ## ⚡ Poderes Gambiarra
+
+Poder Gambiarra é **resposta do Nó**, não escolha do jogador.
 
 - Surgem durante a história.
 - Máximo: **2 por personagem**.
 - Sempre exibem:
   - nome
   - categoria
-  - descrição narrativa.
+  - descrição narrativa
 
-Podem ser:
-- escolhidos do compêndio,
-- sorteados,
-- ou criados em mesa.
+### Prerrogativa do GM
+
+Somente o GM vê os botões de:
+
+- Escolher Poder  
+- Sortear Poder  
+- Criar Poder  
+
+Jogadores:
+- apenas recebem poderes
+- nunca escolhem mecanicamente
+
+> Poder não é recurso.  
+> É **evento narrativo**.
+
+---
+
+## 🎒 Itens do Nó
+
+Itens são **extensões narrativas das escolhas do grupo**.
+
+Cada item possui **1 efeito travado**:
+
+- ➖ Reduzir dificuldade  
+- 🟣 +1 dado roxo  
+- 🪢 Hackear o Nó (registro narrativo)  
+- 🔁 Trocar atributo do desafio (registro narrativo)  
+
+### Tipos
+
+- 🔸 **Consumível** — 1–3 cargas, é absorvido ao zerar.  
+- 🔹 **Relíquia** — permanente, acompanha o personagem.  
+
+### Comportamento
+
+Os itens:
+
+- aparecem no **Rolar Desafio**
+- afetam a rolagem automaticamente
+- são registrados no chat
+- exibem estado visual:
+  - 🔋 com carga
+  - 🪫 zerado
+- quando zeram:
+  - ficam hachurados
+  - são considerados “absorvidos pelo Nó”
+
+> Itens não dão bônus.  
+> Itens **mudam o contexto da história**.
+
+---
+
+## 🎲 Sistema de Rolagem
+
+- Base: **d6**
+- Atributos:
+  - Corpo
+  - Mente
+  - Coração
+- Dados roxos:
+  - bônus narrativos
+  - vindos de itens ou ideias muito boas
+- Resultados:
+  - ✨ Sucesso
+  - 🌟 Sucesso Forte
+  - 🐞 BUG
+
+BUG nunca trava a história:  
+ele **cria novos problemas interessantes**.
 
 ---
 
@@ -76,15 +182,18 @@ Podem ser:
 - Criatividade > regras
 - Falha nunca bloqueia a história
 - Poder surge da tensão emocional
-- BUG cria novos problemas, não punições
+- BUG cria problemas, não punições
 - Jogar é cooperar
 - Sistema ensina a pensar narrativamente
+- Não existe otimização
+- Não existe build
+- Existe identidade + escolhas
 
 ---
 
 ## 🛠️ Compatibilidade
 
-- Foundry VTT v12+
+- Foundry VTT v12+  
 - Dice So Nice (recomendado)
 
 ---
