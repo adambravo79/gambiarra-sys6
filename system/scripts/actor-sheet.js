@@ -1,4 +1,4 @@
-// scripts/actor-sheet.js — v0.7.0h
+// scripts/actor-sheet.js — v0.7.0a
 // Fixes:
 // - Reintroduz handlers de excluir/trocar poder e excluir item
 // - Mantém item inicial por arquétipo

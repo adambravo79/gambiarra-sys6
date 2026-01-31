@@ -1,4 +1,4 @@
-// scripts/archetypes.js — v0.7.0b
+// scripts/archetypes.js — v0.7.0a
 // Galeria de Arquétipos do Nó (10 fixos) — identidade + onboarding
 // + itemInicial: item sugerido inicial (do compêndio de Itens do Nó)
 

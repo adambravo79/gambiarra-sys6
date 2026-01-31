@@ -403,3 +403,71 @@
 .gambi-items .gambi-row.is-empty .gambi-row-main {
   filter: saturate(0.9);
 }
+
+/* ============================================================
+ * BOTÕES — alinhar em linha
+ * Poderes Gambiarra (3 botões lado a lado)
+ * Itens do Nó (2 botões lado a lado)
+ * ============================================================ */
+
+/* container dos botões de poderes */
+.powers-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap; /* quebra só se faltar espaço */
+}
+
+/* container dos botões de itens */
+.gambi-items .gambi-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* garante que botões não estiquem estranho */
+.powers-buttons button,
+.gambi-items .gambi-actions-row button {
+  flex: 0 0 auto;
+}
+
+/* ============================================================
+ * FIX: Botões em linha (Foundry/tema força width:100%)
+ * ============================================================ */
+
+/* --- PODERES: 3 botões lado a lado --- */
+.powers-buttons {
+  display: flex !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+}
+
+.powers-buttons > button {
+  width: auto !important;          /* mata width:100% do Foundry/tema */
+  flex: 1 1 0 !important;          /* divide igualmente */
+  min-width: 0 !important;
+}
+
+/* se a janela ficar estreita, permite quebrar em 2 linhas */
+@media (max-width: 640px) {
+  .powers-buttons { flex-wrap: wrap !important; }
+  .powers-buttons > button { flex: 1 1 calc(50% - 10px) !important; }
+}
+
+/* --- ITENS: 2 botões lado a lado --- */
+.gambi-items .gambi-actions-row {
+  display: flex !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+}
+
+.gambi-items .gambi-actions-row > button {
+  width: auto !important;          /* mata width:100% */
+  flex: 1 1 0 !important;          /* 2 colunas iguais */
+  min-width: 0 !important;
+}
+
+/* no mobile, quebra ok */
+@media (max-width: 520px) {
+  .gambi-items .gambi-actions-row { flex-wrap: wrap !important; }
+  .gambi-items .gambi-actions-row > button { flex: 1 1 100% !important; }
+}

@@ -1,4 +1,4 @@
-{{!-- templates/actor-character.html v0.7.0h --}}
+{{!-- templates/actor-character.html v0.7.0a --}}
 <form class="gambiarra-sheet {{#if attrsLocked}}gambi-attrs-locked{{/if}}" autocomplete="off">
 
   <!-- HEADER (2 pills: ESQ personagem | DIR arquétipo) -->
@@ -17,20 +17,21 @@
 
         <div class="gambi-pill-subline">
           {{#if hasArchetype}}
-            <span class="gambi-lock-inline" title="Atributos travados, somente o GM pode liberar.">
-              {{#if attrsLocked}}🔒{{else}}🔓{{/if}}
-            </span>
+          <span class="gambi-lock-inline" title="Atributos travados, somente o GM pode liberar.">
+            {{#if attrsLocked}}🔒{{else}}🔓{{/if}}
+          </span>
 
-            <label class="gambi-free-toggle" title="Atributos travados, somente o GM pode liberar.">
-              <input class="gambi-toggle-free" type="checkbox" name="system.meta.modoLivre" {{checked system.meta.modoLivre}} {{#unless isGM}}disabled{{/unless}} />
-              <span class="hint">Modo livre</span>
-            </label>
+          <label class="gambi-free-toggle" title="Atributos travados, somente o GM pode liberar.">
+            <input class="gambi-toggle-free" type="checkbox" name="system.meta.modoLivre" {{checked
+              system.meta.modoLivre}} {{#unless isGM}}disabled{{/unless}} />
+            <span class="hint">Modo livre</span>
+          </label>
           {{else}}
-            <span class="hint">Sem arquétipo (antigo). Recomenda-se recriar via Galeria.</span>
+          <span class="hint">Sem arquétipo (antigo). Recomenda-se recriar via Galeria.</span>
           {{/if}}
 
           {{#if showStarterButton}}
-            <button type="button" class="add-starter-item">➕ Adicionar item inicial</button>
+          <button type="button" class="add-starter-item">➕ Adicionar item inicial</button>
           {{/if}}
         </div>
       </div>
@@ -41,25 +42,25 @@
       <div class="gambi-pill-grid-right">
         <div class="gambi-arch-icon gambi-pill-archicon" title="Arquétipo do Nó">
           {{#if arquetipo.icon}}
-            <span class="gambi-arch-emoji">{{arquetipo.icon}}</span>
+          <span class="gambi-arch-emoji">{{arquetipo.icon}}</span>
           {{else}}
-            <span class="gambi-arch-emoji">🧩</span>
+          <span class="gambi-arch-emoji">🧩</span>
           {{/if}}
         </div>
 
         <div class="gambi-pill-archname">
           {{#if hasArchetype}}
-            <strong>{{arquetipo.nome}}</strong>
+          <strong>{{arquetipo.nome}}</strong>
           {{else}}
-            <strong>Sem Arquétipo</strong>
+          <strong>Sem Arquétipo</strong>
           {{/if}}
         </div>
 
         <div class="gambi-pill-tagline">
           {{#if arquetipo.tagline}}
-            <span class="hint">{{arquetipo.tagline}}</span>
+          <span class="hint">{{arquetipo.tagline}}</span>
           {{else}}
-            <span class="hint">&nbsp;</span>
+          <span class="hint">&nbsp;</span>
           {{/if}}
         </div>
       </div>
@@ -134,11 +135,14 @@
       <div class="hint">— Nenhum poder ainda.</div>
       {{/unless}}
     </div>
+    {{#if isGM}}
     <div class="powers-buttons">
       <button type="button" class="add-power">➕ Escolher Poder</button>
       <button type="button" class="roll-power">⚡ Sortear Poder</button>
       <button type="button" class="create-power">🧪 Criar Poder (em mesa)</button>
     </div>
+    {{/if}}
+
 
   </section>
 
@@ -162,9 +166,9 @@
           <span class="gambi-chip">🔸 Consumível</span>
           <span class="gambi-chip">
             {{#if (eq it.system.cargas 0)}}
-              🪫
+            🪫
             {{else}}
-              {{#if it.system.usado}}🪫{{else}}🔋{{/if}}
+            {{#if it.system.usado}}🪫{{else}}🔋{{/if}}
             {{/if}}
             {{it.system.cargas}}/{{it.system.cargasMax}}
           </span>
@@ -193,12 +197,12 @@
   </section>
 
   <!-- EFEITOS -->
-  <section class="gambi-effects">
+  <!-- <section class="gambi-effects">
     <h2 class="gambi-section-title">Efeitos</h2>
     <div class="gambi-actions-row">
       <button type="button" class="add-effect">➕ Adicionar efeito permanente</button>
       <button type="button" class="bug-effect">🐞 Converter BUG em efeito</button>
     </div>
-  </section>
+  </section> -->
 
 </form>
