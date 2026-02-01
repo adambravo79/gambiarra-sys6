@@ -1,194 +1,220 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — gambiarra.css (BASE)
- * v0.6.3c
+ * GAMBIARRA.SYS6 — gambiarra.css (GLOBAL) v0.7.0a
+ * Foundry VTT V12
  *
  * Objetivo:
- * - Variáveis (tokens)
- * - Estilos base compartilhados (inputs, botões, hints)
- * - Componentes utilitários usados por vários templates
- *
- * NÃO colocar:
- * - Layout específico de ficha (actor.css)
- * - Layout específico de itens/poderes (item.css / power.css)
- * - Chat/rolagem (rolls.css)
+ * - Design system global (cores, painéis, botões, inputs)
+ * - Estilo de Dialogs do sistema (Galeria etc.)
+ * - Coerência visual com telas do sistema
  * ============================================================ */
 
-/* ------------------------------------------------------------
- * Tokens
- * ------------------------------------------------------------ */
 :root {
-  --gambi-bg: rgba(20, 20, 26, 0.03);
-  --gambi-panel: rgba(255, 255, 255, 0.86);
-  --gambi-panel-2: rgba(255, 255, 255, 0.68);
+  /* base */
+  --gambi-bg: rgba(255, 255, 255, 0.86);
+  --gambi-panel: rgba(255, 255, 255, 0.92);
+  --gambi-panel-2: rgba(255, 255, 255, 0.96);
 
-  --gambi-border: rgba(0, 0, 0, 0.12);
-  --gambi-border-strong: rgba(0, 0, 0, 0.22);
+  --gambi-border: rgba(0, 0, 0, 0.20);
+  --gambi-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.10);
 
-  --gambi-text: rgba(0, 0, 0, 0.88);
-  --gambi-muted: rgba(0, 0, 0, 0.62);
+  --gambi-gap: 10px;
 
-  --gambi-radius: 14px;
-  --gambi-radius-sm: 10px;
-  --gambi-gap: 12px;
+  --gambi-radius: 12px;
+  --gambi-radius-xs: 6px;
+  --gambi-radius-sm: 8px;
+  --gambi-radius-md: 10px;
 
-  --gambi-shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  --gambi-ok: rgba(46, 204, 113, 0.18);
-  --gambi-strong: rgba(52, 152, 219, 0.18);
-  --gambi-bug: rgba(231, 76, 60, 0.16);
-  --gambi-purple: rgba(138, 77, 232, 0.18);
-
-  --gambi-focus: rgba(138, 77, 232, 0.35);
+  /* feedback */
+  --gambi-ok: rgba(31, 179, 91, 0.18);
+  --gambi-bug: rgba(226, 74, 74, 0.20);
 }
 
 /* ------------------------------------------------------------
- * Base typography / containers
+ * Tipografia base (sutil)
  * ------------------------------------------------------------ */
-.gambiarra-sheet,
-.gambiarra-actor-sheet,
-.item-sheet {
-  color: var(--gambi-text);
+.gambiarra,
+.gambiarra * {
+  box-sizing: border-box;
+}
+
+.gambiarra .hint,
+.gambiarra .notes,
+.gambiarra small {
+  opacity: 0.9;
 }
 
 /* ------------------------------------------------------------
- * Headings & helper text
+ * Inputs e selects (padrão do sistema)
  * ------------------------------------------------------------ */
-.hint,
-.gambi-sub.is-muted {
-  color: var(--gambi-muted);
-  font-size: 12px;
-}
-
-.gambi-section-title {
-  margin: 0 0 8px;
-  font-size: 14px;
-  font-weight: 900;
-}
-
-/* ------------------------------------------------------------
- * Form controls (shared)
- * ------------------------------------------------------------ */
-.gambiarra-sheet input[type="text"],
-.gambiarra-actor-sheet input[type="text"],
-.gambiarra-sheet input[type="number"],
-.gambiarra-actor-sheet input[type="number"],
-.gambiarra-sheet select,
-.gambiarra-actor-sheet select,
-.gambiarra-sheet textarea,
-.gambiarra-actor-sheet textarea,
-.item-sheet input[type="text"],
-.item-sheet input[type="number"],
-.item-sheet select,
-.item-sheet textarea {
-  border: 1px solid var(--gambi-border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 8px 10px;
-  color: var(--gambi-text);
-}
-
-.gambiarra-sheet textarea,
-.gambiarra-actor-sheet textarea,
-.item-sheet textarea {
-  width: 100%;
-  resize: vertical;
-  min-height: 90px;
-}
-
-.gambiarra-sheet input:focus,
-.gambiarra-actor-sheet input:focus,
-.gambiarra-sheet select:focus,
-.gambiarra-actor-sheet select:focus,
-.gambiarra-sheet textarea:focus,
-.gambiarra-actor-sheet textarea:focus,
-.item-sheet input:focus,
-.item-sheet select:focus,
-.item-sheet textarea:focus {
-  outline: none;
-  border-color: var(--gambi-focus);
-  box-shadow: 0 0 0 4px var(--gambi-focus);
-}
-
-/* ------------------------------------------------------------
- * Buttons (shared)
- * ------------------------------------------------------------ */
-.gambiarra-sheet button,
-.gambiarra-actor-sheet button,
-.gambiarra-roll button,
-.item-sheet button {
-  border: 1px solid var(--gambi-border);
+.gambiarra input[type="text"],
+.gambiarra input[type="number"],
+.gambiarra select,
+.gambiarra textarea {
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 8px 12px;
+}
+
+.gambiarra input[type="text"],
+.gambiarra select {
+  height: 36px;
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------
+ * Botões (padrão do sistema)
+ * ------------------------------------------------------------ */
+.gambiarra button {
+  border-radius: var(--gambi-radius-md);
   font-weight: 900;
-  cursor: pointer;
-  transition:
-    transform 0.08s ease,
-    box-shadow 0.12s ease,
-    border-color 0.12s ease;
 }
 
-.gambiarra-sheet button:hover,
-.gambiarra-roll button:hover,
-.item-sheet button:hover {
-  border-color: var(--gambi-border-strong);
-  box-shadow: var(--gambi-shadow-sm);
-  transform: translateY(-1px);
-}
-
-.gambiarra-sheet button:active,
-.gambiarra-roll button:active,
-.item-sheet button:active {
-  transform: translateY(0px);
-  box-shadow: none;
-}
-
-/* botão desabilitado (mais óbvio) */
-button[disabled] {
+.gambiarra button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
 /* ------------------------------------------------------------
- * Shared “chips”
+ * Painéis utilitários
  * ------------------------------------------------------------ */
-.gambi-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
+.gambi-panel {
   border: 1px solid var(--gambi-border);
-  background: rgba(255, 255, 255, 0.92);
-  font-weight: 900;
-  font-size: 12px;
-  white-space: nowrap;
+  border-radius: var(--gambi-radius-md);
+  background: var(--gambi-panel);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
+}
+
+.gambi-panel-2 {
+  border: 1px solid var(--gambi-border);
+  border-radius: var(--gambi-radius-md);
+  background: var(--gambi-panel-2);
+  box-shadow: var(--gambi-shadow-sm);
+  padding: 12px;
 }
 
 /* ------------------------------------------------------------
- * Shared “lists/rows” used by actor templates
- * (layout final em actor.css, mas base aqui)
+ * Dialogs do sistema (Foundry V12)
  * ------------------------------------------------------------ */
-.gambi-list {
-  display: grid;
+/* A classe .gambi-dialog é aplicada via options do Dialog */
+.gambi-dialog .window-content {
+  padding: 0; /* remove padding padrão do Foundry */
+  background: var(--gambi-bg);
+}
+
+/* Corpo interno padronizado */
+.gambi-dialog .gambi-dialog-body {
+  padding: 12px;
+}
+
+/* Ajustes de form para ficar com cara de “tela do sistema” */
+.gambi-dialog .form-group {
+  margin-bottom: 10px;
+}
+
+.gambi-dialog .form-group label {
+  font-weight: 900;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.gambi-dialog .form-group .hint {
+  margin-top: 6px;
+}
+
+/* Rodapé / botões do Dialog */
+.gambi-dialog .dialog-buttons {
+  padding: 10px 12px;
+  border-top: 1px solid var(--gambi-border);
+  background: var(--gambi-panel);
   gap: 10px;
 }
 
-.gambi-row {
+.gambi-dialog .dialog-buttons button {
+  height: 42px;
+  padding: 10px 12px;
+  border-radius: var(--gambi-radius-md);
+  font-weight: 900;
+}
+
+/* ------------------------------------------------------------
+ * Galeria de Arquétipos (Dialog)
+ * ------------------------------------------------------------ */
+.gambi-arch-gallery .gambi-arch-preview {
+  margin-top: 10px;
+}
+
+/* Card dentro do preview */
+.gambi-arch-gallery .gambi-arch-card {
   border: 1px solid var(--gambi-border);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.92);
+  border-radius: var(--gambi-radius-md);
+  background: var(--gambi-panel-2);
+  box-shadow: var(--gambi-shadow-sm);
   padding: 10px 12px;
 }
 
-/* Itens usados (classe aplicada no HTML) */
-.gambi-row.is-used {
-  opacity: 0.78;
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.06),
-    rgba(255, 255, 255, 0.06) 6px,
-    rgba(0, 0, 0, 0.06) 6px,
-    rgba(0, 0, 0, 0.06) 12px
-  );
+/* Linha topo (ícone + nome + attrs) */
+.gambi-arch-gallery .gambi-arch-card-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.gambi-arch-gallery .gambi-arch-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--gambi-radius-sm);
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.35);
+  font-size: 20px;
+}
+
+/* título + tagline */
+.gambi-arch-gallery .gambi-arch-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gambi-arch-gallery .gambi-arch-tagline {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* grid “como ajuda / quando brilha” */
+.gambi-arch-gallery .gambi-arch-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .gambi-arch-gallery .gambi-arch-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gambi-arch-gallery .gambi-arch-block-title {
+  font-weight: 900;
+  font-size: 12px;
+  margin-bottom: 2px;
+  opacity: 0.95;
+}
+
+.gambi-arch-gallery .gambi-arch-sep {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.25);
+}
+
+/* Pequena ajuda visual para o hint final */
+.gambi-arch-gallery .gambi-hint-sep {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  opacity: 0.9;
 }

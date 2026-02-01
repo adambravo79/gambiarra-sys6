@@ -2,6 +2,209 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas aqui.
 
+## [0.7.0] GAMBIARRA.SYS6 — v0.7.0  
+### Identidade do Nó: Arquétipos, Nova Ficha e Itens Narrativos
+
+> O sistema agora **sabe quem o personagem é**.  
+> Não só o que ele faz.
+
+A v0.7.0 é a release onde o GAMBIARRA consolida sua identidade:  
+**arquétipos canônicos, ficha pedagógica e poderes totalmente narrativos.**
+
+---
+
+## 🎭 Arquétipos do Nó (sistema base)
+
+Implementada a **Galeria oficial com 10 arquétipos fixos**, cada um definindo:
+
+- Atributos base (Corpo / Mente / Coração)
+- Descrição narrativa
+- Como ajuda o grupo
+- Quando brilha
+- Poder sugerido
+- **Tagline identitária**
+
+### Comportamento sistêmico
+- Ao criar personagem:
+  - Atributos nascem **travados**
+  - Somente o GM pode liberar via **Modo Livre**
+- Ao desligar Modo Livre:
+  - A ficha **reverte automaticamente** para os valores do arquétipo
+- Jogadores não conseguem “buildar” ficha:
+  - O arquétipo é a identidade mecânica.
+
+---
+
+## 🧾 Nova Ficha de Personagem (Header v3)
+
+A ficha foi redesenhada para expressar **identidade antes de mecânica**.
+
+### Header com 2 pills
+- **Pill esquerda:**
+  - Imagem do personagem
+  - Nome editável
+  - Cadeado (estado dos atributos)
+  - Toggle Modo Livre (apenas GM)
+
+- **Pill direita:**
+  - Ícone do arquétipo
+  - Nome do arquétipo
+  - **Tagline completa (quebra linha, sem corte)**
+
+Removido:
+- Repetição de arquétipo em múltiplos lugares
+- Textos redundantes
+- Hint excessivo
+
+Agora:
+> O topo da ficha **conta quem o personagem é**, não só mostra campos.
+
+---
+
+## 🔢 Atributos como identidade
+
+- Corpo / Mente / Coração seguem regra:
+  - Soma obrigatória = **6**
+  - Mínimo = **1 em cada**
+
+### Barra de validação (Sumbar)
+- Verde quando válida
+- Vermelha quando inválida
+- **Só aparece para GM em Modo Livre**
+- Jogadores nunca veem validação mecânica.
+
+---
+
+## ⚡ Poderes Gambiarra (prerrogativa do GM)
+
+Poderes agora seguem estritamente o livro:
+
+> Poder Gambiarra é resposta do Nó, não escolha do jogador.
+
+### Mudança de UX
+- Botões de poder **só aparecem para GM**:
+  - Escolher Poder
+  - Sortear Poder
+  - Criar Poder
+- Jogadores:
+  - Apenas veem a lista
+  - Não têm UI de escolha mecânica
+
+Resultado:
+- Sem build
+- Sem otimização
+- Poder vira **evento narrativo**, não recurso.
+
+---
+
+## 🎒 Itens do Nó (versão canônica do livro)
+
+Sistema de Itens alinhado 1:1 com o livro:
+
+### Tipos
+- 🔹 Relíquia — permanente
+- 🔸 Consumível — com cargas (1–3)
+
+### Categorias
+- Direção
+- Gambiarra
+- Proteção
+- Estranho
+
+### Comportamento
+- Itens não dão bônus fixos
+- Interagem com:
+  - dificuldade
+  - BUGs
+  - narrativa
+
+### Consumíveis
+- Quando chegam a 0:
+  - Marcados como usados
+  - **Visual hachurado**
+  - Ícone muda para 🪫
+  - Considerados “absorvidos pelo Nó”
+
+---
+
+## 📦 Compêndios e Seed
+
+Seed automático e resiliente:
+
+- Criação automática:
+  - ⚡ world.gambiarra-poderes
+  - 🎒 world.gambiarra-itens
+
+Fluxo:
+- Pack do sistema → World pack → JSON
+
+Inclui:
+- Reset completo via JSON
+- Validação de dados
+- Prevenção de duplicados
+
+Sistema agora é:
+> **Zero setup manual.**
+
+---
+
+## 🐞 Bug Fixes importantes
+
+Correções regressivas desta versão:
+
+- Voltou botão de:
+  - 🗑️ remover poder
+  - 🗑️ remover item
+- Consumível zerado voltou a:
+  - ficar hachurado
+  - mostrar estado visual correto
+- Correção de comportamento perdido na refatoração da ficha.
+
+---
+
+## 🎨 UX Unificada (0.7.0)
+
+Consolidado o design system do projeto:
+
+- Mesma estética para:
+  - ficha
+  - poderes
+  - itens
+  - diálogos
+- CSS separado por domínio:
+  - actor.css
+  - power.css
+  - item.css
+
+Removido:
+- hacks de layout
+- inline styles
+- inconsistências visuais
+
+Agora o sistema tem:
+> **linguagem visual própria.**
+
+---
+
+## 🧠 Marco do projeto
+
+A partir da **v0.7.0**, o GAMBIARRA:
+
+- possui identidade mecânica canônica,
+- impede build e metagame,
+- força narrativa emergente,
+- separa claramente:
+  - jogador = narrativa
+  - GM = interface do sistema.
+
+Essa é a versão onde o GAMBIARRA deixa definitivamente de ser:
+
+> “um sistema no Foundry”
+
+e passa a ser:
+
+> **um jogo com filosofia própria.**
+
 ## [0.6.3] GAMBIARRA.SYS6 - v0.6.3 # - Ficha Viva & UX Unificada
 
 > A ficha deixou de ser um formulário.  
