@@ -32,7 +32,7 @@ O sistema possui **10 arquétipos fixos oficiais**, que definem a identidade de 
 
 - A Atleta  
 - A Gênio  
-- O Líder  
+- A Líder  
 - A Equilibrada  
 - A Exploradora  
 - A Guardiã  
