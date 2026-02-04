@@ -1,5 +1,6 @@
-// scripts/actor-sheet.js — v0.7.0a
+// scripts/actor-sheet.js — v0.7.1a
 // Fixes:
+// - Padroniza dialogs de confirmar: remover item, remover poder, trocar poder
 // - Reintroduz handlers de excluir/trocar poder e excluir item
 // - Mantém item inicial por arquétipo
 
@@ -75,6 +76,60 @@ async function addStarterItemToActor(actor, starterItemName) {
 
   await actor.createEmbeddedDocuments("Item", [data]);
   ui.notifications.info(`✅ Item inicial adicionado: ${doc.name}`);
+}
+
+/**
+ * Dialog de confirmação no estilo do sistema (gambi-dialog).
+ * Retorna true/false.
+ */
+function gambiConfirm({
+  title = "Confirmar",
+  messageHtml = "",
+  confirmLabel = "✓ Sim",
+  cancelLabel = "✕ Não",
+  hintHtml = "",
+  width = 520,
+} = {}) {
+  return new Promise((resolve) => {
+    const content = `
+      <div class="gambi-dialog-body gambi-confirm-body">
+        <div class="gambi-confirm-head">
+          <div class="gambi-confirm-title">${title}</div>
+          ${hintHtml ? `<div class="hint">${hintHtml}</div>` : ``}
+        </div>
+
+        <div class="gambi-confirm-content">
+          ${messageHtml}
+        </div>
+      </div>
+    `;
+
+    const dlg = new Dialog(
+      {
+        title,
+        content,
+        buttons: {
+          yes: {
+            label: confirmLabel,
+            callback: () => resolve(true),
+          },
+          no: {
+            label: cancelLabel,
+            callback: () => resolve(false),
+          },
+        },
+        default: "no",
+        close: () => resolve(false),
+      },
+      {
+        width,
+        resizable: false,
+        classes: ["gambi-dialog", "gambi-confirm-dialog"],
+      },
+    );
+
+    dlg.render(true);
+  });
 }
 
 export class GambiarraActorSheet extends ActorSheet {
@@ -269,7 +324,7 @@ export class GambiarraActorSheet extends ActorSheet {
       this.actor._criarPoderNoCompendioOuFicha?.();
     });
 
-    // ✅ FIX: remover poder (GM)
+    // ✅ remover poder (GM) — padronizado
     html.find(".power-remove").off("click").on("click", async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -281,16 +336,17 @@ export class GambiarraActorSheet extends ActorSheet {
       const poder = this.actor.items.get(itemId);
       if (!poder) return;
 
-      const ok = await Dialog.confirm({
+      const ok = await gambiConfirm({
         title: "Remover Poder",
-        content: `<p>Remover <strong>${poder.name}</strong> da ficha?</p>`,
+        hintHtml: "Ação do GM (o poder some da ficha).",
+        messageHtml: `<p>Remover <strong>${poder.name}</strong> da ficha?</p>`,
       });
       if (!ok) return;
 
       await poder.delete();
     });
 
-    // ✅ FIX: trocar poder (GM)
+    // ✅ trocar poder (GM) — padronizado
     html.find(".power-replace").off("click").on("click", async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -303,9 +359,10 @@ export class GambiarraActorSheet extends ActorSheet {
       const poder = this.actor.items.get(itemId);
       if (!poder) return;
 
-      const ok = await Dialog.confirm({
+      const ok = await gambiConfirm({
         title: "Trocar Poder",
-        content: `<p>Trocar <strong>${poder.name}</strong> por outro?</p>`,
+        hintHtml: "Ação do GM (remove o atual e abre o fluxo de escolher um novo).",
+        messageHtml: `<p>Trocar <strong>${poder.name}</strong> por outro?</p>`,
       });
       if (!ok) return;
 
@@ -325,7 +382,7 @@ export class GambiarraActorSheet extends ActorSheet {
       this.actor._criarItemNoCompendioOuFicha?.();
     });
 
-    // ✅ FIX: remover item (owner)
+    // ✅ remover item (owner) — padronizado
     html.find(".remove-item").off("click").on("click", async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -338,9 +395,10 @@ export class GambiarraActorSheet extends ActorSheet {
       const item = this.actor.items.get(itemId);
       if (!item) return;
 
-      const ok = await Dialog.confirm({
+      const ok = await gambiConfirm({
         title: "Remover Item",
-        content: `<p>Remover <strong>${item.name}</strong> da ficha?</p>`,
+        hintHtml: "Você é dono da ficha (o item some da lista).",
+        messageHtml: `<p>Remover <strong>${item.name}</strong> da ficha?</p>`,
       });
       if (!ok) return;
 

@@ -174,11 +174,12 @@ function renderEffectCard(effectKey) {
     <div class="gambi-effect-card">
       <div><strong>Efeito do item:</strong> <span class="gambi-effect-title">${e.icon} ${e.title}</span></div>
       <div class="hint gambi-effect-note">
-        ${effectKey === "reduzir"
-          ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
-          : effectKey === "roxo"
-            ? "Adiciona +1 dado roxo neste teste."
-            : "Só registra como nota (sem impacto mecânico)."
+        ${
+          effectKey === "reduzir"
+            ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
+            : effectKey === "roxo"
+              ? "Adiciona +1 dado roxo neste teste."
+              : "Só registra como nota (sem impacto mecânico)."
         }
       </div>
     </div>
@@ -211,27 +212,30 @@ export async function rollDesafio(actor, opts = {}) {
         <div class="hint">Escolha a dificuldade, atributo, item (opcional) e dados roxos.</div>
       </div>
 
-      <div class="form-group">
-        <label>Dificuldade</label>
-        <select name="difficulty">
-          ${Object.entries(difficulties)
-            .map(([key, d]) => {
-              const req = d.required ?? 1;
-              const tgt = d.target ?? 4;
-              return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
-            })
-            .join("")}
-        </select>
-      </div>
+      <!-- ✅ Dificuldade + Atributo na mesma linha -->
+      <div class="gambi-row-2col">
+        <div class="form-group">
+          <label>Dificuldade</label>
+          <select name="difficulty">
+            ${Object.entries(difficulties)
+              .map(([key, d]) => {
+                const req = d.required ?? 1;
+                const tgt = d.target ?? 4;
+                return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
+              })
+              .join("")}
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label>Atributo</label>
-        <select name="attribute">
-          <option value="corpo">💪 Corpo (${corpo}d)</option>
-          <option value="mente">🧠 Mente (${mente}d)</option>
-          <option value="coracao">❤️ Coração (${coracao}d)</option>
-        </select>
-        <p class="hint">O valor do atributo é o tamanho do pool.</p>
+        <div class="form-group">
+          <label>Atributo</label>
+          <select name="attribute">
+            <option value="corpo">💪 Corpo (${corpo}d)</option>
+            <option value="mente">🧠 Mente (${mente}d)</option>
+            <option value="coracao">❤️ Coração (${coracao}d)</option>
+          </select>
+          <p class="hint">O valor do atributo é o tamanho do pool.</p>
+        </div>
       </div>
 
       <hr/>
@@ -254,12 +258,28 @@ export async function rollDesafio(actor, opts = {}) {
 
       <div class="form-group">
         <label class="purple-label">🟣 Dados Roxos</label>
-        <div class="purple-row">
-          <button type="button" class="purple-btn purple-minus" aria-label="Diminuir">−</button>
-          <input class="purple-value" type="text" name="purpleDice" value="0" readonly />
-          <button type="button" class="purple-btn purple-plus" aria-label="Aumentar">+</button>
-          <span class="hint">A Programadora decide (ideia, ajuda, poder etc.)</span>
+
+        <!-- ✅ meia largura + central -->
+        <div class="purple-wrap">
+          <div class="purple-row">
+            <button
+              type="button"
+              class="purple-btn purple-minus"
+              aria-label="Diminuir"
+              title="A Programadora decide (ideia, ajuda, poder etc.)"
+            >−</button>
+
+            <input class="purple-value" type="text" name="purpleDice" value="0" readonly />
+
+            <button
+              type="button"
+              class="purple-btn purple-plus"
+              aria-label="Aumentar"
+              title="A Programadora decide (ideia, ajuda, poder etc.)"
+            >+</button>
+          </div>
         </div>
+
         <div class="hint">
           Se o item for <strong>🟣 +1 roxo</strong>, ele é somado automaticamente.
         </div>
@@ -333,7 +353,6 @@ export async function rollDesafio(actor, opts = {}) {
               const novo = Math.max(0, Math.min(max, Math.trunc(cargas) - 1));
               const virouUsado = novo === 0;
 
-              // ✅ “freeze” dos campos essenciais
               const safeDescricao = String(item.system?.descricao ?? "");
               const safeTipoItem = "consumivel";
               const safeCargasMax = clampInt(max, 1, 3);
@@ -481,9 +500,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
     <div class="gambi-line">
       <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
       <div class="gambi-dice">${renderDiceLine(baseResults, target, { baseAttr: atributo, source: "base" })}</div>
-      ${baseSuccessList
-        ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
-        : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+      ${
+        baseSuccessList
+          ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
+          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
       }
     </div>
   `;
@@ -493,9 +513,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
       <div class="gambi-line">
         <div class="gambi-line-title">🟣 Roxos (${roxos}d6)</div>
         <div class="gambi-dice">${renderDiceLine(roxoResults, target, { baseAttr: atributo, source: "roxo" })}</div>
-        ${roxoSuccessList
-          ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
-          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+        ${
+          roxoSuccessList
+            ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
+            : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
         }
       </div>
     `
@@ -527,9 +548,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
 
       <div class="gambi-chat-summary">
         <div><strong>Sucessos totais:</strong> ${successes}</div>
-        ${allSuccessList
-          ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
-          : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
+        ${
+          allSuccessList
+            ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
+            : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
         }
         <div class="gambi-result"><strong>Resultado:</strong> ${resultadoTexto}</div>
       </div>

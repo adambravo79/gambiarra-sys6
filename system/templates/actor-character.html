@@ -1,4 +1,4 @@
-{{!-- templates/actor-character.html v0.7.0a --}}
+{{!-- templates/actor-character.html v0.7.0i --}}
 <form class="gambiarra-sheet {{#if attrsLocked}}gambi-attrs-locked{{/if}}" autocomplete="off">
 
   <!-- HEADER (2 pills: ESQ personagem | DIR arquétipo) -->
@@ -135,6 +135,7 @@
       <div class="hint">— Nenhum poder ainda.</div>
       {{/unless}}
     </div>
+
     {{#if isGM}}
     <div class="powers-buttons">
       <button type="button" class="add-power">➕ Escolher Poder</button>
@@ -142,8 +143,6 @@
       <button type="button" class="create-power">🧪 Criar Poder (em mesa)</button>
     </div>
     {{/if}}
-
-
   </section>
 
   <!-- ITENS -->
@@ -195,14 +194,5 @@
       {{/if}}
     </div>
   </section>
-
-  <!-- EFEITOS -->
-  <!-- <section class="gambi-effects">
-    <h2 class="gambi-section-title">Efeitos</h2>
-    <div class="gambi-actions-row">
-      <button type="button" class="add-effect">➕ Adicionar efeito permanente</button>
-      <button type="button" class="bug-effect">🐞 Converter BUG em efeito</button>
-    </div>
-  </section> -->
 
 </form>

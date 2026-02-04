@@ -2,7 +2,20 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas aqui.
 
-## [0.7.0] GAMBIARRA.SYS6 — v0.7.0  
+## [0.7.1] GAMBIARRA.SYS6 - v0.7.0  
+### Ajustes para consistência visual
+
+- Padronização de dialogs do sistema
+Os diálogos de Remover Item, Remover Poder e Trocar Poder agora seguem o mesmo estilo do design system (cards, bordas, botões consistentes).
+
+- Consistência com o visual dos outros painéis
+Interfaces e componentes mantêm o padrão de “pílulas / cards”, com melhor legibilidade e espaçamento.
+
+- Melhor alinhamento e acabamento em elementos de interface do fluxo de jogo (ficha e janelas auxiliares).
+
+- Ajustes finos para manter o padrão visual sem “quebras” entre telas.
+
+## [0.7.0] GAMBIARRA.SYS6 - v0.7.0  
 ### Identidade do Nó: Arquétipos, Nova Ficha e Itens Narrativos
 
 > O sistema agora **sabe quem o personagem é**.  

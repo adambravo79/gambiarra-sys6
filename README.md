@@ -16,13 +16,15 @@ os compêndios ⚡ Poderes Gambiarra e 🎒 Itens do Nó, importando todo o cont
 
 ## 📦 Versão atual
 
-## **v0.7.0 — Identidade do Nó & Ficha Pedagógica**
+## **v0.7.1 — Identidade do Nó & Ficha Pedagógica**
 
 > O sistema agora **sabe quem o personagem é**.  
 > Não só o que ele faz.
 
-A v0.7.0 consolida a identidade do GAMBIARRA:  
+A v0.7.1 consolida a identidade do GAMBIARRA:  
 arquétipos canônicos, ficha viva e narrativa emergente como centro da experiência.
+
+Ajustes visuais apenas.
 
 ---
 
