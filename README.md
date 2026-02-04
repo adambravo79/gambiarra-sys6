@@ -16,7 +16,7 @@ os compêndios ⚡ Poderes Gambiarra e 🎒 Itens do Nó, importando todo o cont
 
 ## 📦 Versão atual
 
-## **v0.7.1 — Identidade do Nó & Ficha Pedagógica**
+## **v0.7.1 - Identidade do Nó & Ficha Pedagógica**
 
 > O sistema agora **sabe quem o personagem é**.  
 > Não só o que ele faz.
@@ -137,8 +137,8 @@ Cada item possui **1 efeito travado**:
 
 ### Tipos
 
-- 🔸 **Consumível** — 1–3 cargas, é absorvido ao zerar.  
-- 🔹 **Relíquia** — permanente, acompanha o personagem.  
+- 🔸 **Consumível** - 1–3 cargas, é absorvido ao zerar.  
+- 🔹 **Relíquia** - permanente, acompanha o personagem.  
 
 ### Comportamento
 
