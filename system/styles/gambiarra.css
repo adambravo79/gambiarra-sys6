@@ -1,5 +1,5 @@
 /* ============================================================
- * GAMBIARRA.SYS6 — gambiarra.css (GLOBAL) v0.7.0a
+ * GAMBIARRA.SYS6 — gambiarra.css (GLOBAL) v0.7.1a
  * Foundry VTT V12
  *
  * Objetivo:
@@ -133,6 +133,69 @@
   padding: 10px 12px;
   border-radius: var(--gambi-radius-md);
   font-weight: 900;
+}
+
+/* ============================================================
+ * ✅ CONFIRM DIALOG (Remover Item / Remover Poder / Trocar Poder)
+ * - Mesmo padrão de card/head do sistema
+ * - Botões Sim/Não alinhados e consistentes
+ * ============================================================ */
+
+.gambi-confirm-dialog .window-content {
+  padding: 0;
+  background: var(--gambi-bg);
+}
+
+.gambi-confirm-dialog .gambi-confirm-body {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.gambi-confirm-dialog .gambi-confirm-head {
+  border: 1px solid var(--gambi-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  padding: 10px 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.gambi-confirm-dialog .gambi-confirm-title {
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1.1;
+}
+
+.gambi-confirm-dialog .gambi-confirm-content {
+  border: 1px solid var(--gambi-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  padding: 12px;
+}
+
+.gambi-confirm-dialog .gambi-confirm-content p {
+  margin: 0;
+}
+
+/* Botões em 2 colunas iguais */
+.gambi-confirm-dialog .dialog-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--gambi-border);
+  background: var(--gambi-panel);
+}
+
+/* Consistência visual */
+.gambi-confirm-dialog .dialog-buttons button {
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------

@@ -16,13 +16,13 @@ const COLORSET = {
   corpo: "gambi-corpo",
   mente: "gambi-mente",
   coracao: "gambi-coracao",
-  roxo: "gambi-roxo"
+  roxo: "gambi-roxo",
 };
 
 const ATTR_LABEL = {
   corpo: { icon: "💪", label: "Corpo" },
   mente: { icon: "🧠", label: "Mente" },
-  coracao: { icon: "❤️", label: "Coração" }
+  coracao: { icon: "❤️", label: "Coração" },
 };
 
 const DIFF_ORDER = ["normal", "complexo", "bug", "epico", "impossivel"];
@@ -31,23 +31,23 @@ const ITEM_EFFECT = {
   reduzir: {
     icon: "➖",
     title: "Reduzir a dificuldade",
-    note: "➖ Item reduziu a dificuldade em 1 passo (se possível)."
+    note: "➖ Item reduziu a dificuldade em 1 passo (se possível).",
   },
   roxo: {
     icon: "🟣",
     title: "Aumentar 1 dado roxo",
-    note: "🟣 Item adicionou +1 dado roxo neste teste."
+    note: "🟣 Item adicionou +1 dado roxo neste teste.",
   },
   trocar: {
     icon: "🔁",
     title: "Trocar atributo do desafio (registro)",
-    note: "🔁 Trocar atributo do desafio (registro; sem efeito mecânico)."
+    note: "🔁 Trocar atributo do desafio (registro; sem efeito mecânico).",
   },
   hackear: {
     icon: "🪢",
     title: "Hackear o Nó (registro)",
-    note: "🪢 Hackear o Nó (registro; sem efeito mecânico)."
-  }
+    note: "🪢 Hackear o Nó (registro; sem efeito mecânico).",
+  },
 };
 
 function clampInt(n, min, max) {
@@ -174,11 +174,12 @@ function renderEffectCard(effectKey) {
     <div class="gambi-effect-card">
       <div><strong>Efeito do item:</strong> <span class="gambi-effect-title">${e.icon} ${e.title}</span></div>
       <div class="hint gambi-effect-note">
-        ${effectKey === "reduzir"
-          ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
-          : effectKey === "roxo"
-            ? "Adiciona +1 dado roxo neste teste."
-            : "Só registra como nota (sem impacto mecânico)."
+        ${
+          effectKey === "reduzir"
+            ? "Se possível, reduz 1 passo (Bug→Complexo, Épico→Bug, Impossível→Épico). Em Normal, pede confirmação."
+            : effectKey === "roxo"
+              ? "Adiciona +1 dado roxo neste teste."
+              : "Só registra como nota (sem impacto mecânico)."
         }
       </div>
     </div>
@@ -205,27 +206,36 @@ export async function rollDesafio(actor, opts = {}) {
 
   const content = `
     <form class="gambiarra-roll">
-      <div class="form-group">
-        <label>Dificuldade</label>
-        <select name="difficulty">
-          ${Object.entries(difficulties)
-            .map(([key, d]) => {
-              const req = d.required ?? 1;
-              const tgt = d.target ?? 4;
-              return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
-            })
-            .join("")}
-        </select>
+
+      <div class="gambi-dialog-head">
+        <div class="gambi-dialog-title">Rolar Desafio</div>
+        <div class="hint">Escolha a dificuldade, atributo, item (opcional) e dados roxos.</div>
       </div>
 
-      <div class="form-group">
-        <label>Atributo</label>
-        <select name="attribute">
-          <option value="corpo">💪 Corpo (${corpo}d)</option>
-          <option value="mente">🧠 Mente (${mente}d)</option>
-          <option value="coracao">❤️ Coração (${coracao}d)</option>
-        </select>
-        <p class="hint">O valor do atributo é o tamanho do pool.</p>
+      <!-- ✅ Dificuldade + Atributo na mesma linha -->
+      <div class="gambi-row-2col">
+        <div class="form-group">
+          <label>Dificuldade</label>
+          <select name="difficulty">
+            ${Object.entries(difficulties)
+              .map(([key, d]) => {
+                const req = d.required ?? 1;
+                const tgt = d.target ?? 4;
+                return `<option value="${key}">${d.label} (sucessos: ${req}, alvo: ${tgt}+)</option>`;
+              })
+              .join("")}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Atributo</label>
+          <select name="attribute">
+            <option value="corpo">💪 Corpo (${corpo}d)</option>
+            <option value="mente">🧠 Mente (${mente}d)</option>
+            <option value="coracao">❤️ Coração (${coracao}d)</option>
+          </select>
+          <p class="hint">O valor do atributo é o tamanho do pool.</p>
+        </div>
       </div>
 
       <hr/>
@@ -241,19 +251,35 @@ export async function rollDesafio(actor, opts = {}) {
           O item tem <strong>um efeito travado</strong>. Ele será registrado no chat como <strong>Notas</strong>.
         </div>
 
-        <div class="gambi-effect-preview" style="display:none;"></div>
+        <div class="gambi-effect-preview gambi-is-hidden"></div>
       </div>
 
       <hr/>
 
       <div class="form-group">
         <label class="purple-label">🟣 Dados Roxos</label>
-        <div class="purple-row">
-          <button type="button" class="purple-btn purple-minus" aria-label="Diminuir">−</button>
-          <input class="purple-value" type="text" name="purpleDice" value="0" readonly />
-          <button type="button" class="purple-btn purple-plus" aria-label="Aumentar">+</button>
-          <span class="hint">A Programadora decide (ideia, ajuda, poder etc.)</span>
+
+        <!-- ✅ meia largura + central -->
+        <div class="purple-wrap">
+          <div class="purple-row">
+            <button
+              type="button"
+              class="purple-btn purple-minus"
+              aria-label="Diminuir"
+              title="A Programadora decide (ideia, ajuda, poder etc.)"
+            >−</button>
+
+            <input class="purple-value" type="text" name="purpleDice" value="0" readonly />
+
+            <button
+              type="button"
+              class="purple-btn purple-plus"
+              aria-label="Aumentar"
+              title="A Programadora decide (ideia, ajuda, poder etc.)"
+            >+</button>
+          </div>
         </div>
+
         <div class="hint">
           Se o item for <strong>🟣 +1 roxo</strong>, ele é somado automaticamente.
         </div>
@@ -288,7 +314,7 @@ export async function rollDesafio(actor, opts = {}) {
                   content: `
                     <p>Você está tentando usar <strong>➖ reduzir dificuldade</strong> em uma rolagem <strong>Normal</strong>.</p>
                     <p class="hint">Normal já é o mínimo. Deseja confirmar mesmo assim?</p>
-                  `
+                  `,
                 });
                 if (!ok) return;
               } else {
@@ -308,23 +334,17 @@ export async function rollDesafio(actor, opts = {}) {
               atributo,
               dificuldade,
               roxos,
-              notes
+              notes,
             });
 
             // ============================================================
             // v0.6.3d — FIX DEFENSIVO DO CONSUMÍVEL
-            //
-            // Problema reportado:
-            // - Após usar consumível, some descricao / some contagem / efeito vira outro.
-            //
-            // Estratégia:
-            // - Ao gastar carga, além de cargas/usado, regrava campos essenciais
-            //   para evitar “reset” por normalização/migração/itens legados.
-            // - Se o item não tiver system.efeito consistente, fixa com o normalizeEffectKey.
             // ============================================================
             if (item && String(item.system?.tipoItem ?? "reliquia") === "consumivel") {
               if (!actor.isOwner) {
-                ui.notifications.warn("Sem permissão de dono: o consumível não pôde gastar carga (mas ficou registrado no chat).");
+                ui.notifications.warn(
+                  "Sem permissão de dono: o consumível não pôde gastar carga (mas ficou registrado no chat).",
+                );
                 return;
               }
 
@@ -333,32 +353,28 @@ export async function rollDesafio(actor, opts = {}) {
               const novo = Math.max(0, Math.min(max, Math.trunc(cargas) - 1));
               const virouUsado = novo === 0;
 
-              // ✅ inserção v0.6.3d: “freeze” dos campos essenciais
               const safeDescricao = String(item.system?.descricao ?? "");
-              const safeTipoItem = "consumivel"; // estamos dentro do bloco consumível
+              const safeTipoItem = "consumivel";
               const safeCargasMax = clampInt(max, 1, 3);
               const safeEfeito = String(item.system?.efeito ?? "").trim() || normalizeEffectKey(item);
 
               await item.update({
-                // sempre
                 "system.cargas": novo,
                 "system.usado": virouUsado,
-
-                // ✅ defensivo: preserva / fixa
                 "system.descricao": safeDescricao,
                 "system.tipoItem": safeTipoItem,
                 "system.cargasMax": safeCargasMax,
-                "system.efeito": safeEfeito
+                "system.efeito": safeEfeito,
               });
 
               if (virouUsado) {
                 ChatMessage.create({
-                  content: `🪢 O Nó recebeu o item <strong>${item.name}</strong> e o absorveu na história.`
+                  content: `🪢 O Nó recebeu o item <strong>${item.name}</strong> e o absorveu na história.`,
                 });
               }
             }
-          }
-        }
+          },
+        },
       },
       default: "roll",
       render: (html) => {
@@ -391,18 +407,20 @@ export async function rollDesafio(actor, opts = {}) {
         function refreshPreview() {
           const itemId = String($item.val() || "");
           if (!itemId) {
-            $preview.hide().empty();
+            $preview.addClass("gambi-is-hidden").empty();
             setDisplayedPurple();
             return;
           }
+
           const it = actor.items.get(itemId);
           const effectKey = normalizeEffectKey(it);
 
-          $preview.show().html(renderEffectCard(effectKey));
+          $preview.removeClass("gambi-is-hidden").html(renderEffectCard(effectKey));
           setDisplayedPurple();
         }
 
         $item.on("change", refreshPreview);
+
         html.find(".purple-minus").on("click", () => {
           manualPurple = clampInt(manualPurple - 1, 0, 10);
           setDisplayedPurple();
@@ -416,14 +434,14 @@ export async function rollDesafio(actor, opts = {}) {
         manualPurple = 0;
         setDisplayedPurple();
         refreshPreview();
-      }
+      },
     },
     {
       width: 620,
       height: 635,
       resizable: true,
-      classes: ["gambi-roll-desafio-dialog"]
-    }
+      classes: ["gambi-dialog", "gambi-roll-desafio-dialog"],
+    },
   );
 
   dlg.render(true);
@@ -482,9 +500,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
     <div class="gambi-line">
       <div class="gambi-line-title">${a.icon} ${a.label} (${pool}d6)</div>
       <div class="gambi-dice">${renderDiceLine(baseResults, target, { baseAttr: atributo, source: "base" })}</div>
-      ${baseSuccessList
-        ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
-        : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+      ${
+        baseSuccessList
+          ? `<div class="gambi-sub">✅ Sucessos aqui: ${baseSuccessList}</div>`
+          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
       }
     </div>
   `;
@@ -494,9 +513,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
       <div class="gambi-line">
         <div class="gambi-line-title">🟣 Roxos (${roxos}d6)</div>
         <div class="gambi-dice">${renderDiceLine(roxoResults, target, { baseAttr: atributo, source: "roxo" })}</div>
-        ${roxoSuccessList
-          ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
-          : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
+        ${
+          roxoSuccessList
+            ? `<div class="gambi-sub">✅ Sucessos aqui: ${roxoSuccessList}</div>`
+            : `<div class="gambi-sub is-muted">— nenhum sucesso aqui</div>`
         }
       </div>
     `
@@ -528,9 +548,10 @@ async function executarRolagem({ actor, atributo, dificuldade, roxos = 0, notes 
 
       <div class="gambi-chat-summary">
         <div><strong>Sucessos totais:</strong> ${successes}</div>
-        ${allSuccessList
-          ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
-          : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
+        ${
+          allSuccessList
+            ? `<div class="gambi-sub">✅ Dados em sucesso (${allResults.filter((r) => r.result >= target).length}): ${allSuccessList}</div>`
+            : `<div class="gambi-sub is-muted">— nenhum dado bateu o alvo</div>`
         }
         <div class="gambi-result"><strong>Resultado:</strong> ${resultadoTexto}</div>
       </div>

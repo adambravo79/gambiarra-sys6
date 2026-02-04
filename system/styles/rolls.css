@@ -9,7 +9,6 @@
  * ============================================================ */
 
 :root {
-  /* fallback caso algum arquivo base não tenha definido */
   --gambi-border: rgba(0, 0, 0, 0.12);
   --gambi-text: rgba(0, 0, 0, 0.88);
   --gambi-muted: rgba(0, 0, 0, 0.6);
@@ -20,6 +19,8 @@
   --gambi-bug: rgba(231, 76, 60, 0.16);
   --gambi-purple: rgba(138, 77, 232, 0.18);
 }
+
+.gambi-is-hidden { display: none !important; }
 
 /* ------------------------------------------------------------
  * Dialog: 🎲 Rolar Desafio (footer fixo)
@@ -59,19 +60,133 @@
   text-overflow: ellipsis;
 }
 
-/* Roxos row (no dialog) */
+/* ------------------------------------------------------------
+ * ✅ PADRÃO VISUAL (igual item/power dialogs)
+ * ------------------------------------------------------------ */
+
+.gambi-roll-desafio-dialog .gambi-dialog-head {
+  display: grid;
+  gap: 6px;
+  margin: 10px 10px 10px;
+
+  padding: 10px 10px 8px;
+  border: 1px solid var(--gambi-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.gambi-roll-desafio-dialog .gambi-dialog-title {
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1.1;
+}
+
+.gambi-roll-desafio-dialog .gambiarra-roll {
+  padding: 0 10px 10px;
+}
+
+.gambi-roll-desafio-dialog .form-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.gambi-roll-desafio-dialog .form-group > label {
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--gambi-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gambi-roll-desafio-dialog select,
+.gambi-roll-desafio-dialog input[type="text"],
+.gambi-roll-desafio-dialog input[type="number"],
+.gambi-roll-desafio-dialog textarea {
+  border-radius: 12px;
+  border: 1px solid var(--gambi-border);
+  background: rgba(255, 255, 255, 0.92);
+
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.gambi-roll-desafio-dialog select,
+.gambi-roll-desafio-dialog input[type="text"],
+.gambi-roll-desafio-dialog input[type="number"] {
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.gambi-roll-desafio-dialog select { padding-right: 34px; }
+
+.gambi-roll-desafio-dialog textarea {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.gambi-roll-desafio-dialog select:focus,
+.gambi-roll-desafio-dialog input[type="text"]:focus,
+.gambi-roll-desafio-dialog input[type="number"]:focus,
+.gambi-roll-desafio-dialog textarea:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.gambi-roll-desafio-dialog hr {
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  margin: 8px 0;
+}
+
+/* ============================================================
+ * ✅ NOVO: Dificuldade + Atributo na mesma linha
+ * ============================================================ */
+.gambi-roll-desafio-dialog .gambi-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 620px) {
+  .gambi-roll-desafio-dialog .gambi-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------
+ * Roxos: metade do card e centralizado
+ * ------------------------------------------------------------ */
+
 .purple-label { font-weight: 900; }
 
+.purple-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+/* agora só - valor + (sem texto na linha) */
 .purple-row {
+  width: min(50%, 360px);
+
   display: grid;
-  grid-template-columns: auto 64px auto 1fr;
+  grid-template-columns: auto 64px auto;
   gap: 10px;
   align-items: center;
+  justify-content: center;
 
   padding: 10px;
   border-radius: 14px;
   border: 1px solid rgba(138, 77, 232, 0.25);
   background: linear-gradient(180deg, var(--gambi-purple), rgba(255, 255, 255, 0.86));
+}
+
+@media (max-width: 620px) {
+  .purple-row { width: 100%; }
 }
 
 .purple-btn {
@@ -91,11 +206,6 @@
   font-weight: 900;
   font-size: 16px;
   padding: 8px 10px;
-}
-
-@media (max-width: 520px) {
-  .purple-row { grid-template-columns: auto 64px auto; }
-  .purple-row .hint { grid-column: 1 / -1; }
 }
 
 /* Card de preview do efeito (no dialog) */
@@ -220,7 +330,6 @@
 
 /* ------------------------------------------------------------
  * ✅ Dados no chat (visual antigo: “pílulas escuras”)
- * Importante: só aqui, dentro do chat, para não afetar sheets
  * ------------------------------------------------------------ */
 
 .gambi-chat .gambi-die {
@@ -242,24 +351,20 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
-/* Não-sucesso (neutro) */
 .gambi-chat .gambi-die:not(.is-success) {
   opacity: 0.85;
 }
 
-/* Sucesso: “aceso” */
 .gambi-chat .gambi-die.is-success {
   opacity: 1;
   border-color: rgba(255, 255, 255, 0.30);
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.20) inset;
 }
 
-/* Sucesso por atributo (cores fortes, como no print antigo) */
-.gambi-chat .gambi-die.is-success.suc-corpo   { background: rgba(31, 179, 91, 0.90); color: #fff; } /* verde */
-.gambi-chat .gambi-die.is-success.suc-mente   { background: rgba(47, 125, 225, 0.90); color: #fff; } /* azul */
-.gambi-chat .gambi-die.is-success.suc-coracao { background: rgba(226, 74, 74, 0.90); color: #fff; } /* vermelho */
-.gambi-chat .gambi-die.is-success.suc-roxo    { background: rgba(138, 77, 232, 0.90); color: #fff; } /* roxo */
+.gambi-chat .gambi-die.is-success.suc-corpo   { background: rgba(31, 179, 91, 0.90); color: #fff; }
+.gambi-chat .gambi-die.is-success.suc-mente   { background: rgba(47, 125, 225, 0.90); color: #fff; }
+.gambi-chat .gambi-die.is-success.suc-coracao { background: rgba(226, 74, 74, 0.90); color: #fff; }
+.gambi-chat .gambi-die.is-success.suc-roxo    { background: rgba(138, 77, 232, 0.90); color: #fff; }
 
-/* Origem (base vs roxo) */
 .gambi-chat .gambi-die.is-roxo { border-style: dashed; }
 .gambi-chat .gambi-die.is-base { border-style: solid; }
